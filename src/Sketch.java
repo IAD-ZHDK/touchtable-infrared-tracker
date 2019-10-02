@@ -13,17 +13,18 @@ public class Sketch extends PApplet {
   int camFPS = 0;
   double lastS = 0;
   int IRColor;
-  PImage src;
-
+  int count = 0;
   // the total marked pixels
   int totalPixels = 0;
   boolean marks[][];
+  long lastMillis;
+  long currentMils;
   ArrayList<Rect> blobs;
+  ArrayList<PImage> images;
   // the most top left pixel
   // <1> Set the range of Hue values for our filter
 //ArrayList<Integer> colors;
-
-  int hue;
+  int clock = 0;
 
   @Override
   public void settings() {
@@ -53,47 +54,56 @@ public class Sketch extends PApplet {
     //352  (H) x  288 (V) pixels    MJPEG 120fps     YUY2 30fps
     //320  (H) x  240 (V) pixels    MJPEG 120fps     YUY2 30fps
     //cam = new Capture(this);
-    cam = new Capture(this, 1280, 720, "USB 2.0 Camera #2", 60);
+    cam = new Capture(this, 1280, 720, "USB 2.0 Camera #2", 30);
     cam.start();
     // initialize track color to IR
     IRColor = color(255, 255, 255);
-    hue = floor(map(hue(IRColor), 0, 255, 0, 180));
     marks = new boolean[width][height];
 
     blobs = new ArrayList<Rect>();
     blobs.add(new Rect(0,0,0,0));
     //
     // Array for detection colors
-
+     images = new ArrayList<PImage>();
 
   }
 
   @Override
+  public void keyPressed() {
+
+  }
+
+
+    @Override
   public void draw() {
 
     int s = second();
     //println(m%1000);
     if (s != lastS) {
-      surface.setTitle("fps" + camFPS);
+
+      surface.setTitle("fps" + camFPS +"_peroid_"+currentMils);
       camFPS = 0;
       lastS = s;
     }
 
     if (cam.available()) {
+      currentMils = lastMillis - millis();
+      lastMillis = millis();
       cam.read();
       findBlob(cam);
       set(0, 0, cam);
       camFPS++;
     }
+
     //image(cam, 0, 0);
 
     //CV
     // load pixels
 
-    stroke(255, 0, 0);
-    noFill();
+      blobs.get(0).draw(this);
+
    // rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
-    blobs.get(0).draw(this);
+
     // draw bounding box
     //stroke(255, 0, 0);
     //noFill();
@@ -103,7 +113,7 @@ public class Sketch extends PApplet {
 
 
   void findBlob(PImage video) {
-    int threshold = 100;
+    int threshold = 5;
 
     // reset total
     totalPixels = 0;
@@ -114,16 +124,23 @@ public class Sketch extends PApplet {
     int highestX = 0;
     int highestY = 0;
 
-
     // threshold image pass
-    for (int x = 0; x < video.width; x ++ ) {
-      for (int y = 0; y < video.height; y ++ ) {
+    for (int x = 1; x < video.width-1; x ++ ) {
+      for (int y = 1; y < video.height-1; y ++ ) {
         // get pixel location
         int loc = x + y*video.width;
-
+        int up = x + (y+1)*video.width;
+        int down = x + (y-1)*video.width;
+        int left = loc-1;
+        int right = loc+1;
+        int KernalVal = (video.pixels[loc] >> 16) & 0xFF;
+        KernalVal += (video.pixels[up] >> 16) & 0xFF;
+        KernalVal += (video.pixels[down] >> 16) & 0xFF;
+        KernalVal += (video.pixels[left] >> 16) & 0xFF;
+        KernalVal += (video.pixels[right] >> 16) & 0xFF;
         // get color of pixel
 
-        int currentColor = (video.pixels[loc] >> 16) & 0xFF; // red
+        int currentColor = KernalVal/5; // red
 
         // get distance to track color
         int dist = abs(255-currentColor);
@@ -144,50 +161,11 @@ public class Sketch extends PApplet {
         }
       }
     }
-
+    blobs.get(0).set(lowestX, lowestY,highestX, highestY);
     // save locations
-    blobs.get(0).topLeft(lowestX, lowestY);
-    blobs.get(0).bottomRight(highestX, highestY);
   }
-
-  void detectColorsSimple(PImage video) {
-// initialize record to number greater than the diagonal of the screen
-    float record = width+height;
-
-    // initialize variable to store closest point
-    PVector closestPoint = new PVector();
-
-    // get track color as vector
-
-    // go through image pixel by pixel
-    for (int x=0; x < video.width; x++) {
-      for (int y=0; y < video.height; y++) {
-        // get pixel location
-        int loc = x + y * video.width;
-
-        // get pixel color
-        int currentColor = (video.pixels[loc] >> 16) & 0xFF; // red
-
-        // calculate difference between current color and track color
-        int dist = abs(255-currentColor);
-
-        // save point if closer than previous
-        if (dist < record) {
-          record = dist;
-          closestPoint.x = x;
-          closestPoint.y = y;
-        }
-      }
-    }
-
-    // draw point if we found a one that is less than 10 apart
-    if (record < 10) {
-      noFill();
-      strokeWeight(2);
-      stroke(255,0,0);
-      ellipse(closestPoint.x, closestPoint.y, 20, 20);
-    }
-  }
-
 
 }
+
+
+
