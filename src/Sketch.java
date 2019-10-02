@@ -1,10 +1,9 @@
 import processing.core.*;
 import processing.video.*;
-//import gab.opencv.*;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public class Sketch extends PApplet {
+
   public static void main(String args[]) {
     PApplet.main("ExampleApplet");
   }
@@ -19,11 +18,8 @@ public class Sketch extends PApplet {
   // the total marked pixels
   int totalPixels = 0;
   boolean marks[][];
+  ArrayList<Rect> blobs;
   // the most top left pixel
-  PVector topLeft;
-
-  // the most bottom right pixel
-  PVector bottomRight;
   // <1> Set the range of Hue values for our filter
 //ArrayList<Integer> colors;
 
@@ -64,8 +60,8 @@ public class Sketch extends PApplet {
     hue = floor(map(hue(IRColor), 0, 255, 0, 180));
     marks = new boolean[width][height];
 
-    topLeft = new PVector(0, 0);
-    bottomRight = new PVector(0, 0);
+    blobs = new ArrayList<Rect>();
+    blobs.add(new Rect(0,0,0,0));
     //
     // Array for detection colors
 
@@ -83,7 +79,7 @@ public class Sketch extends PApplet {
       lastS = s;
     }
 
-    if (cam.available() == true) {
+    if (cam.available()) {
       cam.read();
       findBlob(cam);
       set(0, 0, cam);
@@ -96,10 +92,8 @@ public class Sketch extends PApplet {
 
     stroke(255, 0, 0);
     noFill();
-    rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
-
-
-
+   // rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
+    blobs.get(0).draw(this);
     // draw bounding box
     //stroke(255, 0, 0);
     //noFill();
@@ -108,20 +102,20 @@ public class Sketch extends PApplet {
   }
 
 
-  void findBlob(PImage video) { {
-    int threshold = 20;
+  void findBlob(PImage video) {
+    int threshold = 100;
 
     // reset total
     totalPixels = 0;
 
     // prepare point trackers
-    int lowestX = width;
-    int lowestY = height;
+    int lowestX = video.width;
+    int lowestY = video.height;
     int highestX = 0;
     int highestY = 0;
 
 
-    // go through image pixel by pixel
+    // threshold image pass
     for (int x = 0; x < video.width; x ++ ) {
       for (int y = 0; y < video.height; y ++ ) {
         // get pixel location
@@ -152,9 +146,8 @@ public class Sketch extends PApplet {
     }
 
     // save locations
-    topLeft = new PVector(lowestX, lowestY);
-    bottomRight = new PVector(highestX, highestY);
-  }
+    blobs.get(0).topLeft(lowestX, lowestY);
+    blobs.get(0).bottomRight(highestX, highestY);
   }
 
   void detectColorsSimple(PImage video) {
