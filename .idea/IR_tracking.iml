@@ -12,10 +12,10 @@
     <orderEntry type="library" name="jogl-all" level="application" />
     <orderEntry type="library" name="org.apache.ant:ant:1.10.6" level="project" />
     <orderEntry type="library" name="oscP5" level="project" />
-    <orderEntry type="library" name="video" level="project" />
     <orderEntry type="library" name="gstreamer-java" level="project" />
     <orderEntry type="library" name="slf4j-api-1.7.2" level="project" />
     <orderEntry type="library" name="bridj-0.6.2" level="project" />
     <orderEntry type="library" name="opencv_processing" level="project" />
+    <orderEntry type="library" name="video" level="project" />
   </component>
 </module>

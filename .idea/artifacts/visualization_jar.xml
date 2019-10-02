@@ -23,6 +23,8 @@
       <element id="library" level="application" name="core" />
       <element id="library" level="application" name="video" />
       <element id="library" level="project" name="org.apache.ant:ant:1.10.6" />
+      <element id="library" level="project" name="gstreamer-java" />
+      <element id="library" level="project" name="oscP5" />
     </root>
   </artifact>
 </component>

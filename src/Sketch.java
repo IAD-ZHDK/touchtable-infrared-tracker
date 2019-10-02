@@ -1,6 +1,6 @@
 import processing.core.*;
 import processing.video.*;
-import gab.opencv.*;
+//import gab.opencv.*;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
@@ -10,20 +10,24 @@ public class Sketch extends PApplet {
   }
 
   Capture cam;
-  OpenCV opencv;
+
   int camFPS = 0;
   double lastS = 0;
   int IRColor;
   PImage src;
 
-  ArrayList<Contour> contours;
+  // the total marked pixels
+  int totalPixels = 0;
+  boolean marks[][];
+  // the most top left pixel
+  PVector topLeft;
+
+  // the most bottom right pixel
+  PVector bottomRight;
   // <1> Set the range of Hue values for our filter
 //ArrayList<Integer> colors;
 
   int hue;
-  int rangeWidth = 10;
-  PImage output;
-  int colorToChange = -1;
 
   @Override
   public void settings() {
@@ -58,10 +62,11 @@ public class Sketch extends PApplet {
     // initialize track color to IR
     IRColor = color(255, 255, 255);
     hue = floor(map(hue(IRColor), 0, 255, 0, 180));
-    //
-    opencv = new OpenCV(this, 1280, 720);
+    marks = new boolean[width][height];
 
-    contours = new ArrayList<Contour>();
+    topLeft = new PVector(0, 0);
+    bottomRight = new PVector(0, 0);
+    //
     // Array for detection colors
 
 
@@ -80,6 +85,8 @@ public class Sketch extends PApplet {
 
     if (cam.available() == true) {
       cam.read();
+      findBlob(cam);
+      set(0, 0, cam);
       camFPS++;
     }
     //image(cam, 0, 0);
@@ -87,78 +94,105 @@ public class Sketch extends PApplet {
     //CV
     // load pixels
 
+    stroke(255, 0, 0);
+    noFill();
+    rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
 
-    // <2> Load the new frame of our movie in to OpenCV
-    opencv.loadImage(cam);
 
-    // Tell OpenCV to use color information
-    opencv.useColor();
-    src = opencv.getSnapshot();
 
-    // <3> Tell OpenCV to work in HSV color space.
-    opencv.useColor(HSB);
-
-    set(0, 0, src);
-    detectColors();
-
-    displayContoursBoundingBoxes();
-
+    // draw bounding box
+    //stroke(255, 0, 0);
+    //noFill();
+    //rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
 
   }
 
 
-  void detectColors() {
+  void findBlob(PImage video) { {
+    int threshold = 20;
 
-    if (hue <= 0) {
-      opencv.loadImage(src);
-      opencv.useColor(RGB);
-      // <4> Copy the Hue channel of our image into
-      //     the gray channel, which we process.
-      opencv.setGray(opencv.getR());
-      int hueToDetect = hue;
-      int colorToDetect = IRColor;
-      int brightnessToDetect = 255;
-      //println("index " + i + " - hue to detect: " + hueToDetect);
+    // reset total
+    totalPixels = 0;
 
-      // <5> Filter the image based on the range of
-      //     hue values that match the object we want to track.
-      opencv.inRange(brightnessToDetect - rangeWidth / 2, brightnessToDetect + rangeWidth / 2);
-      //opencv.dilate();
-      opencv.erode();
+    // prepare point trackers
+    int lowestX = width;
+    int lowestY = height;
+    int highestX = 0;
+    int highestY = 0;
 
-      // TO DO:
-      // Add here some image filtering to detect blobs better
 
-      // <6> Save the processed image for reference.
-      output = opencv.getSnapshot();
+    // go through image pixel by pixel
+    for (int x = 0; x < video.width; x ++ ) {
+      for (int y = 0; y < video.height; y ++ ) {
+        // get pixel location
+        int loc = x + y*video.width;
+
+        // get color of pixel
+
+        int currentColor = (video.pixels[loc] >> 16) & 0xFF; // red
+
+        // get distance to track color
+        int dist = abs(255-currentColor);
+
+        // reset mark
+        marks[x][y] = false;
+
+        // check if distance is below threshold
+        if (dist < threshold) {
+          // mark pixel
+          marks[x][y] = true;
+          totalPixels++;
+          // update point trackers
+          if (x < lowestX) lowestX = x;
+          if (x > highestX) highestX = x;
+          if (y < lowestY) lowestY = y;
+          if (y > highestY) highestY = y;
+        }
+      }
     }
 
-    // <7> Find contours in our range image.
-    //     Passing 'true' sorts them by descending area.
-    if (output != null) {
-
-      opencv.loadImage(output);
-      contours = opencv.findContours(true, true);
-    }
+    // save locations
+    topLeft = new PVector(lowestX, lowestY);
+    bottomRight = new PVector(highestX, highestY);
+  }
   }
 
+  void detectColorsSimple(PImage video) {
+// initialize record to number greater than the diagonal of the screen
+    float record = width+height;
 
+    // initialize variable to store closest point
+    PVector closestPoint = new PVector();
 
+    // get track color as vector
 
-  void displayContoursBoundingBoxes() {
+    // go through image pixel by pixel
+    for (int x=0; x < video.width; x++) {
+      for (int y=0; y < video.height; y++) {
+        // get pixel location
+        int loc = x + y * video.width;
 
-    for (int i=0; i<contours.size(); i++) {
+        // get pixel color
+        int currentColor = (video.pixels[loc] >> 16) & 0xFF; // red
 
-      Contour contour = contours.get(i);
-      Rectangle r = contour.getBoundingBox();
+        // calculate difference between current color and track color
+        int dist = abs(255-currentColor);
 
-      if (r.width < 20 || r.height < 20)
-        continue;
+        // save point if closer than previous
+        if (dist < record) {
+          record = dist;
+          closestPoint.x = x;
+          closestPoint.y = y;
+        }
+      }
+    }
 
-      stroke(255, 0, 0);
-      fill(255, 0, 0, 150);
+    // draw point if we found a one that is less than 10 apart
+    if (record < 10) {
+      noFill();
       strokeWeight(2);
-      rect(r.x, r.y, r.width, r.height);
+      stroke(255,0,0);
+      ellipse(closestPoint.x, closestPoint.y, 20, 20);
     }
   }
 
