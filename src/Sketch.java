@@ -18,13 +18,11 @@ public class Sketch extends PApplet {
   int totalPixels = 0;
   boolean marks[][];
   long lastMillis;
-  long currentMils;
+  int frameDelay = 0;
+  int frameDuration;
   ArrayList<Rect> blobs;
   ArrayList<PImage> images;
-  // the most top left pixel
-  // <1> Set the range of Hue values for our filter
-//ArrayList<Integer> colors;
-  int clock = 0;
+
 
   @Override
   public void settings() {
@@ -54,7 +52,7 @@ public class Sketch extends PApplet {
     //352  (H) x  288 (V) pixels    MJPEG 120fps     YUY2 30fps
     //320  (H) x  240 (V) pixels    MJPEG 120fps     YUY2 30fps
     //cam = new Capture(this);
-    cam = new Capture(this, 1280, 720, "USB 2.0 Camera #2", 30);
+    cam = new Capture(this, 1280, 720, "USB 2.0 Camera #2", 60);
     cam.start();
     // initialize track color to IR
     IRColor = color(255, 255, 255);
@@ -65,7 +63,6 @@ public class Sketch extends PApplet {
     //
     // Array for detection colors
      images = new ArrayList<PImage>();
-
   }
 
   @Override
@@ -80,39 +77,28 @@ public class Sketch extends PApplet {
     int s = second();
     //println(m%1000);
     if (s != lastS) {
-
-      surface.setTitle("fps" + camFPS +"_peroid_"+currentMils);
+      //surface.setTitle("Cam_fps: " + camFPS +" frameDelay: "+frameDelay);
       camFPS = 0;
       lastS = s;
     }
 
     if (cam.available()) {
-      currentMils = lastMillis - millis();
+      frameDelay = (int) ( millis()- lastMillis);
       lastMillis = millis();
+      // Compensate for variable frame rate in counter
+      surface.setTitle("frameDelay: "+frameDelay);
       cam.read();
       findBlob(cam);
       set(0, 0, cam);
       camFPS++;
     }
 
-    //image(cam, 0, 0);
-
-    //CV
-    // load pixels
-
       blobs.get(0).draw(this);
-
-   // rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
-
-    // draw bounding box
-    //stroke(255, 0, 0);
-    //noFill();
-    //rect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
 
   }
 
 
-  void findBlob(PImage video) {
+  public void findBlob(PImage video) {
     int threshold = 5;
 
     // reset total
@@ -161,7 +147,7 @@ public class Sketch extends PApplet {
         }
       }
     }
-    blobs.get(0).set(lowestX, lowestY,highestX, highestY);
+    blobs.get(0).set(lowestX, lowestY,highestX, highestY, frameDelay);
     // save locations
   }
 
