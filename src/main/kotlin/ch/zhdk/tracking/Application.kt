@@ -57,6 +57,8 @@ class Application(val config: AppConfig) : PApplet() {
 
     override fun setup() {
         surface.setTitle("$NAME - $VERSION")
+        surface.setLocation(100, (displayHeight - height) / 2)
+
         frameRate(config.visual.frameRate.value.toFloat())
     }
 
