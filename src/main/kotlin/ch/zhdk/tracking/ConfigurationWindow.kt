@@ -1,7 +1,7 @@
 package ch.zhdk.tracking
 
 import ch.bildspur.configuration.ConfigurationController
-import ch.bildspur.model.config.AppConfig
+import ch.zhdk.tracking.config.AppConfig
 import ch.bildspur.ui.properties.PropertiesControl
 import javafx.application.Application
 import javafx.geometry.Insets
@@ -57,7 +57,8 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
 
         val settings = mapOf(
             "App" to config,
-            "Visual" to config.visual
+            "Visual" to config.visual,
+            "Input" to config.inputConfig
             )
 
         settings.forEach { (name, cfg) ->

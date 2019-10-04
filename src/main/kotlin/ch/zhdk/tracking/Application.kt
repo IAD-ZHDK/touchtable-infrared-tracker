@@ -1,16 +1,16 @@
 package ch.zhdk.tracking
 
 import ch.zhdk.tracking.io.InputProvider
-import ch.zhdk.tracking.io.VideoInputProvider
 import ch.bildspur.thread.ProcessingInvoker
 import ch.bildspur.thread.ProcessingTask
 import ch.bildspur.timer.Timer
-import ch.bildspur.model.config.AppConfig
+import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.io.CameraInputProvider
+import ch.zhdk.tracking.io.InputProviderType
+import ch.zhdk.tracking.io.VideoInputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.pipeline.SingleTrackingPipeline
 import org.bytedeco.javacv.OpenCVFrameGrabber
-import org.opencv.core.Core
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PImage
@@ -53,8 +53,7 @@ class Application(val config: AppConfig) : PApplet() {
 
     val invoker = ProcessingInvoker()
 
-    val inputProvider : InputProvider = CameraInputProvider(0, inputWidth, inputHeight)
-    //val inputProvider : InputProvider = VideoInputProvider("data/irMovieSample.mov")
+    val inputProvider : InputProvider = createInputProvider()
 
     val pipeline = SingleTrackingPipeline(inputProvider)
 
@@ -124,6 +123,13 @@ class Application(val config: AppConfig) : PApplet() {
     }
 
     override fun keyPressed() {
+    }
+
+    fun createInputProvider() : InputProvider {
+        return when(config.inputConfig.inputProvider.value) {
+            InputProviderType.CameraInput ->  CameraInputProvider(0, inputWidth, inputHeight)
+            InputProviderType.VideoInput -> VideoInputProvider("data/irMovieSample.mov")
+        }
     }
 
     fun takeScreenshot(file : String) {

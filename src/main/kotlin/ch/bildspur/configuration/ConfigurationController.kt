@@ -1,6 +1,6 @@
 package ch.bildspur.configuration
 
-import ch.bildspur.model.config.AppConfig
+import ch.zhdk.tracking.config.AppConfig
 import ch.bildspur.model.DataModel
 import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.get
