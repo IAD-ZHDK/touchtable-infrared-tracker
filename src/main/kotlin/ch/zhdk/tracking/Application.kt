@@ -44,9 +44,6 @@ class Application(val config: AppConfig) : PApplet() {
 
     private val timer = Timer()
 
-    var lastCursorMoveTime = 0
-    var cursorHideTime = 1000 * 5L
-
     override fun settings() {
         // setup main window
         if (config.visual.fullScreen.value)
@@ -79,13 +76,6 @@ class Application(val config: AppConfig) : PApplet() {
     private fun setupControllers() {
         timer.setup()
 
-        // timer for cursor hiding
-        timer.addTask(TimerTask(cursorHideTime, {
-            val current = millis()
-            if (current - lastCursorMoveTime > cursorHideTime)
-                noCursor()
-        }, "CursorHide"))
-
         setupFinished = true
     }
 
@@ -96,14 +86,9 @@ class Application(val config: AppConfig) : PApplet() {
     override fun mouseMoved() {
         super.mouseMoved()
         cursor()
-        lastCursorMoveTime = millis()
     }
 
     override fun keyPressed() {
-        if (key == 'r') {
-            //sceneManager.scanScene.syncTimeoutTask.lastMillis = 0
-
-        }
     }
 
     fun takeScreenshot(file : String) {
