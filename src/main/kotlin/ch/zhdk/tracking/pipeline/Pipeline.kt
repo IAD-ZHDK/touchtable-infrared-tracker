@@ -21,16 +21,20 @@ abstract class Pipeline(val inputProvider : InputProvider) {
             return
 
         shutdownRequested = false
+
+        // open input provider
         inputProvider.open()
 
-        // start thread
-        pipelineThread = thread {
+        // start processing thread
+        pipelineThread = thread(start = true) {
             while(!shutdownRequested) {
                 // read frame
                 val input = inputProvider.read()
 
                 // process
                 lastFrame = process(input.toMat())
+
+                println("Lastframe: ${lastFrame.rows()}")
             }
         }
     }

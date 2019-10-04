@@ -10,8 +10,8 @@ class CameraInputProvider(val deviceNumber : Int = 0,
     val grabber = OpenCVFrameGrabber(deviceNumber)
 
     override fun open() {
-        grabber.imageWidth = 640
-        grabber.imageHeight = 480
+        grabber.imageWidth = width
+        grabber.imageHeight = height
         grabber.start()
     }
 

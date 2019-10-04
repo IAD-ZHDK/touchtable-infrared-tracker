@@ -6,9 +6,11 @@ import ch.bildspur.thread.ProcessingInvoker
 import ch.bildspur.thread.ProcessingTask
 import ch.bildspur.timer.Timer
 import ch.bildspur.model.config.AppConfig
+import ch.zhdk.tracking.io.CameraInputProvider
 import ch.zhdk.tracking.javacv.toOpenCVMat
 import ch.zhdk.tracking.javacv.toPImage
 import ch.zhdk.tracking.pipeline.SingleTrackingPipeline
+import org.bytedeco.javacv.OpenCVFrameGrabber
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PImage
@@ -43,13 +45,17 @@ class Application(val config: AppConfig) : PApplet() {
         }
     }
 
+    val inputWidth = 1280
+    val inputHeight = 720
 
     var setupFinished = false
-    var currentFrame = PImage(640, 480)
+    var currentFrame = PImage(inputWidth, inputHeight)
 
     val invoker = ProcessingInvoker()
 
-    val inputProvider : InputProvider = VideoInputProvider("data/irMovieSample.mov")
+    val inputProvider : InputProvider = CameraInputProvider(0, inputWidth, inputHeight)
+    //val inputProvider : InputProvider = VideoInputProvider("data/irMovieSample.mov")
+
     val pipeline = SingleTrackingPipeline(inputProvider)
 
     private val timer = Timer()
@@ -84,13 +90,17 @@ class Application(val config: AppConfig) : PApplet() {
 
         timer.update()
         invoker.invokeTasks()
+
+        text("FPS: $frameRate", 20f, 20f)
     }
 
     override fun stop() {
-
+        pipeline.stop()
     }
 
     private fun setupControllers() {
+        OpenCVFrameGrabber.list.forEach { kotlin.io.println(it) }
+
         timer.setup()
         pipeline.start()
 

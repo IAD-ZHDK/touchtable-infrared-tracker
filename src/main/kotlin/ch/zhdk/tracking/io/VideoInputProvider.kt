@@ -10,7 +10,7 @@ class VideoInputProvider(val videoFilePath : String) : InputProvider {
     var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath)
 
     override fun open() {
-        //videoGrabber.format = "mp4"
+        videoGrabber.format = "mov"
         videoGrabber.start()
     }
 
