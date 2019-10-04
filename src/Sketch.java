@@ -33,6 +33,7 @@ public class Sketch extends PApplet {
   @Override
   public void setup() {
     // String[] cameras = Capture.list();
+
     // if (cameras.length == 0) {
     //   println("There are no cameras available for capture.");
     //    exit();
@@ -52,7 +53,8 @@ public class Sketch extends PApplet {
     //352  (H) x  288 (V) pixels    MJPEG 120fps     YUY2 30fps
     //320  (H) x  240 (V) pixels    MJPEG 120fps     YUY2 30fps
     //cam = new Capture(this);
-    cam = new Capture(this, 1280, 720, "USB 2.0 Camera #2", 60);
+    String extcam = "USB 2.0 Camera #3";
+    cam = new Capture(this, 1280, 720, extcam, 60);
     cam.start();
     // initialize track color to IR
     IRColor = color(255, 255, 255);
@@ -86,7 +88,7 @@ public class Sketch extends PApplet {
       frameDelay = (int) ( millis()- lastMillis);
       lastMillis = millis();
       // Compensate for variable frame rate in counter
-      surface.setTitle("frameDelay: "+frameDelay);
+      surface.setTitle("frameDelay: "+frameDelay +" fps:"+floor(frameRate));
       cam.read();
       findBlob(cam);
       set(0, 0, cam);
@@ -99,7 +101,7 @@ public class Sketch extends PApplet {
 
 
   public void findBlob(PImage video) {
-    int threshold = 5;
+    int threshold = 170;
 
     // reset total
     totalPixels = 0;
