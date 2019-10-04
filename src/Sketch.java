@@ -101,7 +101,7 @@ public class Sketch extends PApplet {
 
 
   public void findBlob(PImage video) {
-    int threshold = 170;
+    int threshold = 140;
 
     // reset total
     totalPixels = 0;
