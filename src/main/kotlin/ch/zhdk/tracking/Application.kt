@@ -45,8 +45,8 @@ class Application(val config: AppConfig) : PApplet() {
         }
     }
 
-    val inputWidth = 640
-    val inputHeight = 480
+    val inputWidth = 1280
+    val inputHeight = 720
 
     var setupFinished = false
     var currentFrame = PImage(inputWidth, inputHeight, PConstants.ARGB)
@@ -85,7 +85,14 @@ class Application(val config: AppConfig) : PApplet() {
         background(12f)
 
         // show debug output
-        pipeline.lastFrame.toPImage(currentFrame)
+        val lastFrame = pipeline.lastFrame
+
+        // convert if size matches
+        if(lastFrame.imageWidth == inputWidth) {
+            pipeline.lastFrame.toPImage(currentFrame)
+        }
+
+        // draw image onto the screen
         image(currentFrame, 0f, 0f)
 
         timer.update()
