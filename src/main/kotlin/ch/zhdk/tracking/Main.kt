@@ -1,13 +1,9 @@
 package ch.zhdk.tracking
 
-import ch.zhdk.tracking.configuration.ConfigurationController
-import ch.zhdk.tracking.ui.ConfigWindow
+import ch.bildspur.configuration.ConfigurationController
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
-import javafx.stage.Screen
 import javafx.stage.Stage
-import javafx.stage.Screen.getPrimary
-
 
 
 class Main {

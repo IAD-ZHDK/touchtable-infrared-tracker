@@ -1,13 +1,19 @@
 package ch.zhdk.tracking
 
-import ch.zhdk.tracking.thread.ProcessingInvoker
-import ch.zhdk.tracking.thread.ProcessingTask
-import ch.zhdk.tracking.timer.Timer
-import ch.zhdk.tracking.timer.TimerTask
-import ch.zhdk.tracking.model.config.AppConfig
+import ch.zhdk.tracking.io.InputProvider
+import ch.zhdk.tracking.io.VideoInputProvider
+import ch.bildspur.thread.ProcessingInvoker
+import ch.bildspur.thread.ProcessingTask
+import ch.bildspur.timer.Timer
+import ch.bildspur.model.config.AppConfig
+import ch.zhdk.tracking.javacv.toOpenCVMat
+import ch.zhdk.tracking.javacv.toPImage
+import ch.zhdk.tracking.pipeline.SingleTrackingPipeline
 import processing.core.PApplet
 import processing.core.PConstants
+import processing.core.PImage
 import kotlin.math.roundToInt
+
 
 class Application(val config: AppConfig) : PApplet() {
     companion object {
@@ -39,8 +45,12 @@ class Application(val config: AppConfig) : PApplet() {
 
 
     var setupFinished = false
+    var currentFrame = PImage(640, 480)
 
     val invoker = ProcessingInvoker()
+
+    val inputProvider : InputProvider = VideoInputProvider("data/irMovieSample.mov")
+    val pipeline = SingleTrackingPipeline(inputProvider)
 
     private val timer = Timer()
 
@@ -67,6 +77,11 @@ class Application(val config: AppConfig) : PApplet() {
             setupControllers()
 
         background(12f)
+
+        // show debug output
+        pipeline.lastFrame.toOpenCVMat().toPImage(currentFrame)
+        image(currentFrame, 0f, 0f)
+
         timer.update()
         invoker.invokeTasks()
     }
@@ -77,6 +92,7 @@ class Application(val config: AppConfig) : PApplet() {
 
     private fun setupControllers() {
         timer.setup()
+        pipeline.start()
 
         setupFinished = true
     }
