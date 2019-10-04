@@ -11,6 +11,7 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
+import javafx.stage.Screen
 import javafx.stage.Stage
 
 class ConfigWindow(val configController : ConfigurationController, val config : AppConfig) : Application() {
@@ -25,6 +26,10 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
         primaryStage.setOnShown {
             propertiesControl.resize(primaryStage.scene.width, primaryStage.scene.height)
         }
+
+        val primScreenBounds = Screen.getPrimary().visualBounds
+        primaryStage.x = primScreenBounds.width / 8.0 * 7.0
+
         primaryStage.show()
     }
 

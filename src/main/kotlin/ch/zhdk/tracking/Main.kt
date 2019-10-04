@@ -4,7 +4,11 @@ import ch.zhdk.tracking.configuration.ConfigurationController
 import ch.zhdk.tracking.ui.ConfigWindow
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
+import javafx.stage.Screen
 import javafx.stage.Stage
+import javafx.stage.Screen.getPrimary
+
+
 
 class Main {
     companion object {
@@ -27,7 +31,9 @@ class Main {
 
         // start configuration app
         Platform.runLater {
-            ConfigWindow(configuration, appConfig).start(Stage())
+            val window = ConfigWindow(configuration, appConfig)
+            val stage = Stage()
+            window.start(stage)
         }
 
         // start main app
