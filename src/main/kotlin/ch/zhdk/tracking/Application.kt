@@ -7,10 +7,10 @@ import ch.bildspur.thread.ProcessingTask
 import ch.bildspur.timer.Timer
 import ch.bildspur.model.config.AppConfig
 import ch.zhdk.tracking.io.CameraInputProvider
-import ch.zhdk.tracking.javacv.toOpenCVMat
-import ch.zhdk.tracking.javacv.toPImage
+import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.pipeline.SingleTrackingPipeline
 import org.bytedeco.javacv.OpenCVFrameGrabber
+import org.opencv.core.Core
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PImage
@@ -45,11 +45,11 @@ class Application(val config: AppConfig) : PApplet() {
         }
     }
 
-    val inputWidth = 1280
-    val inputHeight = 720
+    val inputWidth = 640
+    val inputHeight = 480
 
     var setupFinished = false
-    var currentFrame = PImage(inputWidth, inputHeight)
+    var currentFrame = PImage(inputWidth, inputHeight, PConstants.ARGB)
 
     val invoker = ProcessingInvoker()
 
@@ -85,7 +85,7 @@ class Application(val config: AppConfig) : PApplet() {
         background(12f)
 
         // show debug output
-        pipeline.lastFrame.toOpenCVMat().toPImage(currentFrame)
+        pipeline.lastFrame.toPImage(currentFrame)
         image(currentFrame, 0f, 0f)
 
         timer.update()

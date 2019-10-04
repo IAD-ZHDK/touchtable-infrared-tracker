@@ -1,11 +1,15 @@
 package ch.zhdk.tracking.pipeline
 
 import ch.zhdk.tracking.io.InputProvider
+import ch.zhdk.tracking.javacv.toFrame
 import ch.zhdk.tracking.javacv.toMat
+import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.opencv_core.Mat
+import java.util.*
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val inputProvider : InputProvider) {
+    private val lock = java.lang.Object()
 
     private lateinit var pipelineThread : Thread
     @Volatile private var shutdownRequested = false
@@ -13,8 +17,9 @@ abstract class Pipeline(val inputProvider : InputProvider) {
     var isRunning = false
         private set
 
-    var lastFrame : Mat = Mat()
-        private set
+    @Volatile var lastFrame : Frame = Frame(100, 100, 8, 3)
+        @Synchronized get
+        @Synchronized private set
 
     fun start() {
         if(isRunning)
@@ -29,12 +34,20 @@ abstract class Pipeline(val inputProvider : InputProvider) {
         pipelineThread = thread(start = true) {
             while(!shutdownRequested) {
                 // read frame
+
                 val input = inputProvider.read()
 
-                // process
-                lastFrame = process(input.toMat())
+                // check for zero size mats
+                if(input.imageWidth == 0 || input.imageHeight == 0) {
+                    println("Pipeline: Zero Frame Received")
+                    continue
+                }
 
-                println("Lastframe: ${lastFrame.rows()}")
+                // process
+                val mat = process(input.toMat())
+
+                // lock frame reading
+                lastFrame = mat.toFrame()
             }
         }
     }
