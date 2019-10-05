@@ -2,10 +2,7 @@ package ch.zhdk.tracking.pipeline
 
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
-import ch.zhdk.tracking.javacv.convertColor
-import ch.zhdk.tracking.javacv.dilate
-import ch.zhdk.tracking.javacv.erode
-import ch.zhdk.tracking.javacv.threshold
+import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.result.DetectionResult
@@ -26,7 +23,14 @@ class SingleTrackingPipeline(config : PipelineConfig, inputProvider: InputProvid
             frame.dilate(config.dilateSize.value)
         }
 
-        return DetectionResult(emptyList())
+        // read components
+        val nativeComponents = frame.connectedComponentsWithStats()
+        val components = nativeComponents.getConnectedComponents().filter { it.label != 0 }
+
+        // convert to region
+        val regions = components.map { ActiveRegion(it.centroid,  it.area) }
+
+        return DetectionResult(regions)
     }
 
     override fun mapRegionToObjects(regions: List<ActiveRegion>, objects: List<TactileObject>) {
