@@ -10,8 +10,11 @@ import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
+import org.bytedeco.opencv.global.opencv_imgproc.drawContours
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.MatVector
+import org.bytedeco.opencv.opencv_core.Rect
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
@@ -128,7 +131,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
     protected fun ActiveRegion.toTactileObject(tactileObject : TactileObject)
     {
-        tactileObject.position = this.position
+        tactileObject.position = this.center
         tactileObject.intensities.add(this.area)
     }
 
@@ -139,29 +142,27 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
         // annotate active regions
         regions.forEach {
-            mat.drawCircle(it.position.toPoint(), 20, AbstractScalar.RED, thickness = 2)
+            // mark region
+            mat.drawCircle(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
+            // draw timestamp
             mat.drawText("${it.timestamp}",
-                it.position.toPoint().transform(20, 20),
+                it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4)
+
+            // display shape
+            val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
+            drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
         }
 
         // annotate tactile objects
         tactileObjects.forEach {
-            mat.drawCross(it.position.toPoint(), 10, AbstractScalar.GREEN, thickness = 2)
+            mat.drawCross(it.position.toPoint(), 22, AbstractScalar.GREEN, thickness = 1)
             mat.drawText("${it.id} [${it.lifeTime}]",
                 it.position.toPoint().transform(20, -20),
                 AbstractScalar.GREEN,
                 scale = 0.4)
-
-            /*
-            mat.drawText(it.intensities.joinToString(separator = ", ") { i -> i.toString() },
-                it.position.toPoint().transform(20, 20),
-                AbstractScalar.CYAN,
-                scale = 0.3)
-
-             */
         }
     }
 

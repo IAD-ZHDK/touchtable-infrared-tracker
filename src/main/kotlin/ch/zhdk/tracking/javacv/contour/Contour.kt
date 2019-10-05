@@ -21,7 +21,7 @@ class Contour(val nativeContour: Mat) {
         return arcLength(nativeContour, closed)
     }
 
-    fun approxPolyDP(epsilon: Double): Mat {
+    fun approxPolyDP(epsilon: Double?): Mat {
         return nativeContour.approxPolyDP(epsilon)
     }
 
