@@ -1,6 +1,8 @@
 # IR Tracking System
 This project aims to create an infrared tracking system for tactile tables.
 
+![Tracking Example](images/tracking-example.png)
+
 ### Install
 Everything is installed through the gradle dependency manager. Just run the following command and gradlew will download, build and run the project.
 
