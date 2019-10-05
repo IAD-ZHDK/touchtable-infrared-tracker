@@ -10,9 +10,10 @@ import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.Size
 import kotlin.concurrent.thread
 
-abstract class Pipeline(val config : PipelineConfig, val inputProvider: InputProvider) {
+abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
     private val lock = java.lang.Object()
 
     private lateinit var pipelineThread: Thread
@@ -87,18 +88,27 @@ abstract class Pipeline(val config : PipelineConfig, val inputProvider: InputPro
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
 
-    protected fun ActiveRegion.toTactileObject() : TactileObject {
-        val tactileObject =  TactileObject()
+    protected fun ActiveRegion.toTactileObject(): TactileObject {
+        val tactileObject = TactileObject()
         tactileObject.position = this.position
         return tactileObject
     }
 
-    private fun annotateFrame(mat : Mat, regions : List<ActiveRegion>) {
+    private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
         mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
 
         // annotate active regions
         regions.forEach {
-            mat.drawCircle(it.position.toPoint(), 20,  AbstractScalar.RED, thickness = 3)
+            mat.drawCircle(it.position.toPoint(), 20, AbstractScalar.RED, thickness = 2)
+        }
+
+        // annotate tactile objects
+        tactileObjects.forEach {
+            mat.drawCross(it.position.toPoint(), 10, AbstractScalar.GREEN, thickness = 2)
+            mat.drawText("${it.id} [${it.lifeTime}]",
+                it.position.toPoint().transform(20, -20),
+                AbstractScalar.GREEN,
+                scale = 0.4)
         }
     }
 

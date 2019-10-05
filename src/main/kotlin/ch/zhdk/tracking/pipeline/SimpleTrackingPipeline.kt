@@ -34,7 +34,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
     override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
         // reset all regions
-        objects.forEach { it.isAlive = true }
+        objects.forEach { it.isAlive = false }
 
         // create matrix
         matchNearest(objects, regions, config.maxDelta.value)

@@ -36,6 +36,6 @@ class PipelineConfig {
     val trackingLabel = ""
 
     @Expose
-    @SliderParameter("Max Delta", 0.0, 400.0, 1.0)
-    var maxDelta = DataModel(100.0)
+    @SliderParameter("Max Delta", 0.0, 200.0, 1.0)
+    var maxDelta = DataModel(40.0)
 }
