@@ -5,7 +5,6 @@ import ch.zhdk.tracking.io.CameraInputProvider
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.io.InputProviderType
 import ch.zhdk.tracking.io.VideoInputProvider
-import ch.zhdk.tracking.javacv.copyTo
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline

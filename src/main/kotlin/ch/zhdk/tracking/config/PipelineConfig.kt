@@ -13,6 +13,10 @@ class PipelineConfig {
     @EnumParameter("Pipeline")
     var pipelineType = DataModel(PipelineType.Simple)
 
+    @Expose
+    @BooleanParameter("Annotate Output")
+    var annotateOutput = DataModel(true)
+
     @LabelParameter("Detection")
     val detectionLabel = ""
 

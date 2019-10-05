@@ -36,11 +36,6 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         @Synchronized private set
 
     @Volatile
-    var overlayFrame: Frame = Frame(100, 100, 8, 3)
-        @Synchronized get
-        @Synchronized private set
-
-    @Volatile
     var isZeroFrame = true
         private set
 
@@ -83,12 +78,15 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                 recognizeObjectId(tactileObjects)
 
                 // annotate
-                annotateOverlay(inputFrame, detections.regions)
-                /*
-                val inputMat = inputFrame.toMat()
-                annotateFrame(inputMat, detections.regions)
-                inputFrame = inputMat.toFrame()
-                */
+                if(config.annotateOutput.value) {
+                    // annotate input
+                    val inputMat = inputFrame.toMat()
+                    annotateFrame(inputMat, detections.regions)
+                    inputFrame = inputMat.toFrame()
+
+                    // annotate debug
+                    annotateFrame(mat, detections.regions)
+                }
 
                 // lock frame reading
                 processedFrame = mat.toFrame()
@@ -112,24 +110,10 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         tactileObject.intensities.add(this.intensity)
     }
 
-    private fun annotateOverlay(frame : Frame, regions: List<ActiveRegion>) {
-        // check size and resize if needed
-        if(frame.imageWidth != overlayFrame.imageWidth || frame.imageHeight != overlayFrame.imageHeight) {
-            overlayFrame = Frame(frame.imageWidth , frame.imageHeight, 8, 3)
-        }
-
-        val mat = overlayFrame.toMat()
-        annotateFrame(mat, regions)
-        overlayFrame = mat.toFrame()
-    }
-
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
         // convert to color if needed
         if(mat.type() == CV_8UC1)
             mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
-
-        // clear mat
-        mat.setTo(Mat(1, 1, CV_32SC4, Scalar.ALPHA255))
 
         // annotate active regions
         regions.forEach {
