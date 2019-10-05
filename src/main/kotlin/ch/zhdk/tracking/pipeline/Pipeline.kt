@@ -146,14 +146,16 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
             mat.drawCircle(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
             // draw timestamp
-            mat.drawText("${it.timestamp}",
+            mat.drawText("A: ${it.area}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4)
 
             // display shape
-            val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
-            drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
+            if(it.polygon.rows() > 0) {
+                val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
+                drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
+            }
         }
 
         // annotate tactile objects
