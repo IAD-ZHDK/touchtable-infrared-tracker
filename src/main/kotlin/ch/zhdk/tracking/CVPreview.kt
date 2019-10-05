@@ -8,6 +8,7 @@ import ch.zhdk.tracking.io.VideoInputProvider
 import ch.zhdk.tracking.pipeline.SingleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
 import java.nio.file.Paths
+import javax.swing.WindowConstants
 
 class CVPreview(val config: AppConfig) {
 
@@ -16,6 +17,7 @@ class CVPreview(val config: AppConfig) {
 
     fun start() {
         val canvasFrame = CanvasFrame("Preview")
+        canvasFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         canvasFrame.setCanvasSize(1280, 720)
 
         val pipeline = SingleTrackingPipeline(config.pipeline, createInputProvider())
