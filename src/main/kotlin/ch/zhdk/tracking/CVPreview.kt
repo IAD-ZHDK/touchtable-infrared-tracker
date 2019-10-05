@@ -32,6 +32,7 @@ class CVPreview(val config: AppConfig) {
                 canvasFrame.showImage(pipeline.inputFrame)
         }
 
+        pipeline.stop()
         canvasFrame.dispose()
     }
 

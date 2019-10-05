@@ -36,3 +36,17 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+task run(type: JavaExec, dependsOn: classes) {
+    main = 'ch.zhdk.tracking.Main'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    manifest {
+        attributes 'Main-Class': 'ch.zhdk.tracking.MainKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
