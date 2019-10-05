@@ -56,7 +56,7 @@ abstract class Pipeline(val inputProvider : InputProvider) {
                 inputFrame = input.clone()
 
                 // process
-                val mat = process(input.clone().toMat())
+                val mat = process(input.toMat())
 
                 // lock frame reading
                 processedFrame = mat.toFrame()

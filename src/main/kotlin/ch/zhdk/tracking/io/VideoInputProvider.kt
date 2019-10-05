@@ -19,8 +19,7 @@ class VideoInputProvider(val videoFilePath : Path, val useVideoFrameRate: Boolea
 
     override fun read(): Frame {
         if(useVideoFrameRate) {
-            // videoGrabber.frameRate.roundToLong()
-            Thread.sleep((1000 / 120.0).roundToLong())
+            Thread.sleep(videoGrabber.frameRate.roundToLong())
         }
 
         val frame = videoGrabber.grabFrame()
@@ -33,7 +32,9 @@ class VideoInputProvider(val videoFilePath : Path, val useVideoFrameRate: Boolea
             return read()
         }
 
-        return frame
+        // return cloned frame
+        // (not messing up with start stop of grabber)
+        return frame.clone()
     }
 
     override fun close() {

@@ -11,7 +11,8 @@ import java.nio.file.Paths
 
 class CVPreview(val config: AppConfig) {
 
-    @Volatile var running = true
+    @Volatile
+    var running = true
 
     fun start() {
         val canvasFrame = CanvasFrame("Preview")
@@ -21,15 +22,18 @@ class CVPreview(val config: AppConfig) {
         pipeline.start()
 
         while (running && canvasFrame.isVisible) {
-            canvasFrame.showImage(pipeline.processedFrame)
+            if (config.displayProcessed.value)
+                canvasFrame.showImage(pipeline.processedFrame)
+            else
+                canvasFrame.showImage(pipeline.inputFrame)
         }
 
         canvasFrame.dispose()
     }
 
-    fun createInputProvider() : InputProvider {
-        return when(config.inputConfig.inputProvider.value) {
-            InputProviderType.CameraInput ->  CameraInputProvider(0, 1280, 720)
+    fun createInputProvider(): InputProvider {
+        return when (config.inputConfig.inputProvider.value) {
+            InputProviderType.CameraInput -> CameraInputProvider(0, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
         }
     }

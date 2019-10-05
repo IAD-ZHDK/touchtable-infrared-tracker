@@ -57,8 +57,8 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
 
         val settings = mapOf(
             "App" to config,
-            "Visual" to config.visual,
-            "Input" to config.inputConfig
+            "Input" to config.inputConfig,
+            "Visual" to config.visual
             )
 
         settings.forEach { (name, cfg) ->
