@@ -6,12 +6,10 @@ import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.result.DetectionResult
+import org.bytedeco.opencv.global.opencv_imgproc.COLOR_BGR2GRAY
 import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.*;
-import org.opencv.imgproc.Imgproc
-import org.bytedeco.opencv.global.opencv_imgproc.*
 
-class SingleTrackingPipeline(config : PipelineConfig, inputProvider: InputProvider) : Pipeline(config, inputProvider) {
+class SimpleTrackingPipeline(config : PipelineConfig, inputProvider: InputProvider) : Pipeline(config, inputProvider) {
     override fun detectRegions(frame: Mat): DetectionResult {
         // prepare frame for detection
         frame.convertColor(COLOR_BGR2GRAY)

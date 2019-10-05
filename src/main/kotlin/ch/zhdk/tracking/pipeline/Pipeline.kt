@@ -2,14 +2,12 @@ package ch.zhdk.tracking.pipeline
 
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
-import ch.zhdk.tracking.javacv.drawCircle
-import ch.zhdk.tracking.javacv.toFrame
-import ch.zhdk.tracking.javacv.toMat
-import ch.zhdk.tracking.javacv.toPoint
+import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.result.DetectionResult
 import org.bytedeco.javacv.Frame
+import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
 import kotlin.concurrent.thread
@@ -90,9 +88,11 @@ abstract class Pipeline(val config : PipelineConfig, val inputProvider: InputPro
     abstract fun analyzeObjectId(objects: List<TactileObject>)
 
     private fun annotateFrame(mat : Mat, regions : List<ActiveRegion>) {
-        // annoate active regions
+        mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
+
+        // annotate active regions
         regions.forEach {
-            mat.drawCircle(it.position.toPoint(), 5, AbstractScalar.CYAN)
+            mat.drawCircle(it.position.toPoint(), 20,  AbstractScalar.RED, thickness = 3)
         }
     }
 

@@ -9,7 +9,7 @@ import ch.zhdk.tracking.io.CameraInputProvider
 import ch.zhdk.tracking.io.InputProviderType
 import ch.zhdk.tracking.io.VideoInputProvider
 import ch.zhdk.tracking.javacv.*
-import ch.zhdk.tracking.pipeline.SingleTrackingPipeline
+import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.OpenCVFrameGrabber
 import processing.core.PApplet
 import processing.core.PConstants
@@ -56,7 +56,7 @@ class Application(val config: AppConfig) : PApplet() {
 
     val inputProvider : InputProvider = createInputProvider()
 
-    val pipeline = SingleTrackingPipeline(config.pipeline, inputProvider)
+    val pipeline = SimpleTrackingPipeline(config.pipeline, inputProvider)
 
     private val timer = Timer()
 

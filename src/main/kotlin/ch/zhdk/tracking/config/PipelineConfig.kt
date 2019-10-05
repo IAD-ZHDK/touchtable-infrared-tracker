@@ -2,11 +2,16 @@ package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.BooleanParameter
+import ch.bildspur.ui.properties.EnumParameter
 import ch.bildspur.ui.properties.LabelParameter
 import ch.bildspur.ui.properties.SliderParameter
+import ch.zhdk.tracking.pipeline.PipelineType
 import com.google.gson.annotations.Expose
 
 class PipelineConfig {
+    @Expose
+    @EnumParameter("Pipeline")
+    var pipelineType = DataModel(PipelineType.Simple)
 
     @LabelParameter("Detection")
     val detectionLabel = ""

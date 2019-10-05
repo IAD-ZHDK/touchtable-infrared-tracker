@@ -8,7 +8,8 @@ import kotlin.math.roundToLong
 
 
 class VideoInputProvider(videoFilePath : Path, val frameRate: Double = Double.NaN) : InputProvider {
-    var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
+    private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
+    private var waitTime = 0L
 
     override fun open() {
         videoGrabber.start()
@@ -16,10 +17,15 @@ class VideoInputProvider(videoFilePath : Path, val frameRate: Double = Double.Na
         println(videoGrabber)
         val firstFrame = videoGrabber.grabFrame()
         println("video framerate: ${videoGrabber.frameRate}")
-        videoGrabber.frameRate = if(frameRate.isNaN()) videoGrabber.frameRate else frameRate
+        //videoGrabber.frameRate = if(frameRate.isNaN()) videoGrabber.frameRate else frameRate
+
+        waitTime = (1000.0 / (if(frameRate.isNaN()) videoGrabber.frameRate else frameRate)).toLong()
     }
 
     override fun read(): Frame {
+        // wait fps
+        Thread.sleep(waitTime)
+
         val frame = videoGrabber.grabFrame()
 
         if(frame == null) {
