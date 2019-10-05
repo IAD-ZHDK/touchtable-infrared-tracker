@@ -36,14 +36,14 @@ class CVPreview(val config: AppConfig) {
         canvasFrame.dispose()
     }
 
-    fun createInputProvider(): InputProvider {
+    private fun createInputProvider(): InputProvider {
         return when (config.inputConfig.inputProvider.value) {
             InputProviderType.CameraInput -> CameraInputProvider(0, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"), 30.0)
         }
     }
 
-    fun createPipeline(): Pipeline {
+    private fun createPipeline(): Pipeline {
         return when (config.pipeline.pipelineType.value) {
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider())
         }

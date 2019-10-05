@@ -31,4 +31,11 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Dilate Size", 1.0, 10.0, 1.0, snap = true)
     var dilateSize = DataModel(2)
+
+    @LabelParameter("Tracking")
+    val trackingLabel = ""
+
+    @Expose
+    @SliderParameter("Max Delta", 0.0, 400.0, 1.0)
+    var maxDelta = DataModel(100.0)
 }

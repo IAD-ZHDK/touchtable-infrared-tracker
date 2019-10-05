@@ -71,8 +71,8 @@ abstract class Pipeline(val config : PipelineConfig, val inputProvider: InputPro
 
                 // process
                 val detections = detectRegions(mat)
-                mapRegionToObjects(detections.regions, tactileObjects)
-                analyzeObjectId(tactileObjects)
+                mapRegionToObjects(tactileObjects, detections.regions)
+                recognizeObjectId(tactileObjects)
 
                 // annotate
                 annotateFrame(mat, detections.regions)
@@ -84,8 +84,14 @@ abstract class Pipeline(val config : PipelineConfig, val inputProvider: InputPro
     }
 
     abstract fun detectRegions(frame: Mat): DetectionResult
-    abstract fun mapRegionToObjects(regions: List<ActiveRegion>, objects: List<TactileObject>)
-    abstract fun analyzeObjectId(objects: List<TactileObject>)
+    abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
+    abstract fun recognizeObjectId(objects: List<TactileObject>)
+
+    protected fun ActiveRegion.toTactileObject() : TactileObject {
+        val tactileObject =  TactileObject()
+        tactileObject.position = this.position
+        return tactileObject
+    }
 
     private fun annotateFrame(mat : Mat, regions : List<ActiveRegion>) {
         mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
