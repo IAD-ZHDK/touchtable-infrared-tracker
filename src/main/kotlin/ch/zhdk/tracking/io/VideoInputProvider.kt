@@ -7,7 +7,7 @@ import java.nio.file.Path
 import kotlin.math.roundToLong
 
 
-class VideoInputProvider(val videoFilePath : Path, val useVideoFrameRate: Boolean = true) : InputProvider {
+class VideoInputProvider(videoFilePath : Path, val frameRate: Double = Double.NaN) : InputProvider {
     var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
 
     override fun open() {
@@ -16,7 +16,7 @@ class VideoInputProvider(val videoFilePath : Path, val useVideoFrameRate: Boolea
         println(videoGrabber)
         val firstFrame = videoGrabber.grabFrame()
         println("video framerate: ${videoGrabber.frameRate}")
-        videoGrabber.frameRate = 60.0 //videoGrabber.frameRate
+        videoGrabber.frameRate = if(frameRate.isNaN()) videoGrabber.frameRate else frameRate
     }
 
     override fun read(): Frame {
