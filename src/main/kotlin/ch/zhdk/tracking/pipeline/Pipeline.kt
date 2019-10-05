@@ -129,7 +129,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
     protected fun ActiveRegion.toTactileObject(tactileObject : TactileObject)
     {
         tactileObject.position = this.position
-        tactileObject.intensities.add(this.intensity)
+        tactileObject.intensities.add(this.area)
     }
 
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {

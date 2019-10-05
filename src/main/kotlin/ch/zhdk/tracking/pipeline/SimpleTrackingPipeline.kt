@@ -5,8 +5,11 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
-import org.bytedeco.opencv.global.opencv_imgproc.COLOR_BGR2GRAY
+import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.MatVector
+import org.bytedeco.opencv.opencv_core.Scalar
+
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider) : Pipeline(config, inputProvider) {
 
@@ -26,6 +29,20 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         // read components
         val nativeComponents = frame.connectedComponentsWithStats()
         val components = nativeComponents.getConnectedComponents().filter { it.label != 0 }
+
+        // find orientation
+        // todo: implement find contours for components
+        if(config.detectOrientation.value) {
+            components.forEach {
+                val roi = it.getROI(frame)
+                val contours = MatVector()
+                findContours(roi, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE)
+
+                for(i in 0 until contours.size()) {
+                    drawContours(roi, contours, i.toInt(), Scalar.MAGENTA)
+                }
+            }
+        }
 
         // convert to region
         return components.map { ActiveRegion(it.centroid, it.area.toDouble(), timestamp) }

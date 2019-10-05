@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.javacv.analysis
 
+import ch.zhdk.tracking.javacv.checkedROI
 import org.bytedeco.javacpp.indexer.DoubleIndexer
 import org.bytedeco.javacpp.indexer.DoubleRawIndexer
 import org.bytedeco.javacpp.indexer.IntRawIndexer
@@ -42,5 +43,9 @@ class ConnectedComponent {
         val centroidData = DoubleArray(2)
         centroidIndexer[0, 0, centroidData]
         centroid = Point2d(centroidData[0], centroidData[1])
+    }
+
+    fun getROI(img : Mat) : Mat {
+        return img.checkedROI(Rect(location.x(), location.y(), size.width(), size.height()))
     }
 }

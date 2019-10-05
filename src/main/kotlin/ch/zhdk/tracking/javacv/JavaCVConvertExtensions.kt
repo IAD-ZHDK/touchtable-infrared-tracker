@@ -11,6 +11,7 @@ import java.awt.image.DataBufferInt
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import org.bytedeco.javacv.Java2DFrameConverter
+import org.bytedeco.opencv.global.opencv_core.*
 import processing.core.PConstants.ARGB
 
 private var matConverter = OpenCVFrameConverter.ToMat()
@@ -106,4 +107,32 @@ fun org.opencv.core.Mat.toARGBPixels(): IntArray {
     this.get(0, 0, matPixels)
     ByteBuffer.wrap(matPixels).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(intPixels)
     return intPixels
+}
+
+fun Mat.to8U() {
+    this.convertTo(this, CV_8U)
+}
+
+fun Mat.to8UC1() {
+    this.convertTo(this, CV_8UC1)
+}
+
+fun Mat.to8UC3() {
+    this.convertTo(this, CV_8UC3)
+}
+
+fun Mat.to32S() {
+    this.convertTo(this, CV_32S)
+}
+
+fun Mat.to32SC1() {
+    this.convertTo(this, CV_32SC1)
+}
+
+fun Mat.to32SC3() {
+    this.convertTo(this, CV_32SC3)
+}
+
+fun Mat.to32FC2() {
+    this.convertTo(this, CV_32FC2)
 }

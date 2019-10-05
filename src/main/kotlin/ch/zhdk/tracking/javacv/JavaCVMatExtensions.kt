@@ -2,13 +2,22 @@ package ch.zhdk.tracking.javacv
 
 import ch.zhdk.tracking.javacv.analysis.ConnectedComponentsResult
 import org.bytedeco.opencv.global.opencv_core
+import org.bytedeco.opencv.global.opencv_core.CV_32F
 import org.bytedeco.opencv.global.opencv_core.CV_32S
 import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.*
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 fun Mat.clear() {
     this.setTo(Mat(1, 1, opencv_core.CV_32SC4, Scalar.ALPHA255))
+}
+
+fun Mat.toMatOfPoint2f(): Mat {
+    val dst = Mat()
+    this.convertTo(dst, CV_32F)
+    return dst
 }
 
 fun Mat.zeros(): Mat {
@@ -72,4 +81,42 @@ fun Point2d.transform(dx: Double, dy: Double): Point2d {
 
 fun Point.transform(dx: Int, dy: Int): Point {
     return Point(this.x() + dx, this.y() + dy)
+}
+
+fun Mat.checkedROI(rect: Rect): Mat {
+    // pre-check rectangle
+    rect.x(max(0, min(this.cols(), rect.x())))
+    rect.y(max(0, min(this.rows(), rect.y())))
+
+    rect.width(if (this.cols() < rect.x() + rect.width()) this.cols() - rect.x() else rect.width())
+    rect.height(if (this.rows() < rect.y() + rect.height()) this.rows() - rect.y() else rect.height())
+
+    return Mat(this, rect)
+}
+
+fun Mat.directLocateROI(): Point {
+    val size = Size()
+    val point = Point()
+
+    this.locateROI(size, point)
+
+    return point
+}
+
+fun Mat.parentROI(): Rect {
+    val location = this.directLocateROI()
+    return Rect(location.x(), location.y(), this.cols(), this.rows())
+}
+
+fun Mat.approxPolyDP(epsilon: Double? = null, weight : Double = 0.01): Mat {
+    this.to32FC2()
+    val approxContour = Mat()
+
+    var eps = epsilon
+    if (eps == null)
+        eps = weight * arcLength(this, true)
+
+    approxPolyDP(this, approxContour, eps, true)
+    approxContour.to32S()
+    return approxContour
 }

@@ -42,6 +42,10 @@ class PipelineConfig {
     @SliderParameter("Dilate Size", 1.0, 10.0, 1.0, snap = true)
     var dilateSize = DataModel(2)
 
+    @Expose
+    @BooleanParameter("Detect Orientation")
+    var detectOrientation = DataModel(true)
+
     @LabelParameter("Tracking")
     val trackingLabel = ""
 
