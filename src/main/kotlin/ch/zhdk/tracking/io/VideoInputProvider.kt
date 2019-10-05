@@ -19,14 +19,17 @@ class VideoInputProvider(val videoFilePath : Path, val useVideoFrameRate: Boolea
 
     override fun read(): Frame {
         if(useVideoFrameRate) {
-            Thread.sleep(videoGrabber.frameRate.roundToLong())
+            // videoGrabber.frameRate.roundToLong()
+            Thread.sleep((1000 / 120.0).roundToLong())
         }
 
         val frame = videoGrabber.grabFrame()
 
         if(frame == null) {
-            println("have to restart")
+            println("restarting video")
+            videoGrabber.stop()
             videoGrabber.frameNumber = 0
+            videoGrabber.start()
             return read()
         }
 

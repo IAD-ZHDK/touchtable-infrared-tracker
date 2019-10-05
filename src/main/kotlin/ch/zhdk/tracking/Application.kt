@@ -85,11 +85,11 @@ class Application(val config: AppConfig) : PApplet() {
         background(12f)
 
         // show debug output
-        val lastFrame = pipeline.lastFrame
+        val lastFrame = pipeline.processedFrame
 
         // convert if size matches
-        if(lastFrame.imageWidth == inputWidth) {
-            pipeline.lastFrame.toPImage(currentFrame)
+        if(!pipeline.isZeroFrame && lastFrame.imageWidth == currentFrame.width) {
+            pipeline.processedFrame.toPImage(currentFrame)
         }
 
         // draw image onto the screen

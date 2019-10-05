@@ -20,17 +20,22 @@ object JavaCVVideoExample {
         grabber.start()
         println("grabber started")
 
-        var grabbedImage: Frame = grabber.grab()
+        var grabbedImage: Frame? = grabber.grab()
 
         val canvasFrame = CanvasFrame("Video")
         canvasFrame.setCanvasSize(1280, 720)
-        canvasFrame.show()
 
         println("framerate = " + grabber.frameRate)
-        grabber.frameRate = grabber.frameRate
+        grabber.frameRate = 120.0
 
         while (canvasFrame.isVisible) {
             grabbedImage = grabber.grab()
+            println(grabber.frameNumber)
+
+            if(grabbedImage == null) {
+                grabber.frameNumber = 0
+                grabbedImage = grabber.grab()
+            }
             canvasFrame.showImage(grabbedImage)
         }
 

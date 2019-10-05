@@ -5,7 +5,6 @@ import ch.zhdk.tracking.javacv.toFrame
 import ch.zhdk.tracking.javacv.toMat
 import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.opencv_core.Mat
-import java.util.*
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val inputProvider : InputProvider) {
@@ -17,9 +16,16 @@ abstract class Pipeline(val inputProvider : InputProvider) {
     var isRunning = false
         private set
 
-    @Volatile var lastFrame : Frame = Frame(100, 100, 8, 3)
+    @Volatile var inputFrame : Frame = Frame(100, 100, 8, 3)
         @Synchronized get
         @Synchronized private set
+
+    @Volatile var processedFrame : Frame = Frame(100, 100, 8, 3)
+        @Synchronized get
+        @Synchronized private set
+
+    @Volatile var isZeroFrame = true
+        private set
 
     fun start() {
         if(isRunning)
@@ -38,16 +44,22 @@ abstract class Pipeline(val inputProvider : InputProvider) {
                 val input = inputProvider.read()
 
                 // check for zero size mats
-                if(input == null || input.imageWidth == 0 || input.imageHeight == 0) {
-                    println("Pipeline: Zero Frame Received")
+                if(input.imageWidth == 0 || input.imageHeight == 0) {
+                    isZeroFrame = true
                     continue
                 }
 
+                // reset zeroFrame flag
+                isZeroFrame = false
+
+                // set input frame
+                inputFrame = input.clone()
+
                 // process
-                val mat = process(input.toMat())
+                val mat = process(input.clone().toMat())
 
                 // lock frame reading
-                lastFrame = mat.toFrame()
+                processedFrame = mat.toFrame()
             }
         }
     }

@@ -33,8 +33,12 @@ class Main {
             window.start(stage)
         }
 
+        CVPreview(appConfig).start()
+
         // start main app
+        /*
         val app = Application(appConfig)
         app.run()
+         */
     }
 }
