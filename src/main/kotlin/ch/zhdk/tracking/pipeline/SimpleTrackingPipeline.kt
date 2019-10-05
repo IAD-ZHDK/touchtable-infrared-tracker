@@ -12,7 +12,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
     // detection
 
-    override fun detectRegions(frame: Mat): List<ActiveRegion> {
+    override fun detectRegions(frame: Mat, timestamp : Long): List<ActiveRegion> {
         // prepare frame for detection
         frame.convertColor(COLOR_BGR2GRAY)
         frame.threshold(config.threshold.value)
@@ -28,7 +28,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         val components = nativeComponents.getConnectedComponents().filter { it.label != 0 }
 
         // convert to region
-        return components.map { ActiveRegion(it.centroid, it.area.toDouble()) }
+        return components.map { ActiveRegion(it.centroid, it.area.toDouble(), timestamp) }
     }
 
     // tracking

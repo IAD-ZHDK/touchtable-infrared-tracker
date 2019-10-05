@@ -96,7 +96,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         val mat = input.toMat()
 
         // process
-        val regions = detectRegions(mat)
+        val regions = detectRegions(mat, input.timestamp)
         mapRegionToObjects(tactileObjects, regions)
         recognizeObjectId(tactileObjects)
 
@@ -116,7 +116,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         return true
     }
 
-    abstract fun detectRegions(frame: Mat): List<ActiveRegion>
+    abstract fun detectRegions(frame: Mat, timestamp : Long): List<ActiveRegion>
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
 
@@ -140,6 +140,11 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate active regions
         regions.forEach {
             mat.drawCircle(it.position.toPoint(), 20, AbstractScalar.RED, thickness = 2)
+
+            mat.drawText("${it.timestamp}",
+                it.position.toPoint().transform(20, 20),
+                AbstractScalar.RED,
+                scale = 0.4)
         }
 
         // annotate tactile objects
@@ -150,10 +155,13 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                 AbstractScalar.GREEN,
                 scale = 0.4)
 
+            /*
             mat.drawText(it.intensities.joinToString(separator = ", ") { i -> i.toString() },
                 it.position.toPoint().transform(20, 20),
                 AbstractScalar.CYAN,
                 scale = 0.3)
+
+             */
         }
     }
 
