@@ -1,24 +1,28 @@
 package ch.zhdk.tracking.pipeline
 
+import ch.bildspur.event.Event
+import ch.bildspur.util.Stopwatch
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
-import ch.zhdk.tracking.pipeline.result.DetectionResult
 import org.bytedeco.javacv.Frame
-import org.bytedeco.opencv.global.opencv_core.CV_32SC4
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.Scalar
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
     private val lock = java.lang.Object()
 
     private lateinit var pipelineThread: Thread
+
+    // watches
+    private val frameWatch = Stopwatch()
+    private val processWatch = Stopwatch()
+
     @Volatile
     private var shutdownRequested = false
 
@@ -41,6 +45,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
     val tactileObjects = mutableListOf<TactileObject>()
 
+    val onFrameProcessed = Event<Pipeline>()
+
     fun start() {
         if (isRunning)
             return
@@ -53,48 +59,64 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // start processing thread
         pipelineThread = thread(start = true) {
             while (!shutdownRequested) {
-                // read frame
+                frameWatch.start()
+                if(processFrame()) {
+                    processWatch.stop()
+                    frameWatch.stop()
 
-                val input = inputProvider.read()
+                    // update info
+                    config.frameTime.value = "${frameWatch.elapsed()} ms"
+                    config.processingTime.value = "${processWatch.elapsed()} ms"
 
-                // check for zero size mats
-                if (input.imageWidth == 0 || input.imageHeight == 0) {
-                    isZeroFrame = true
-                    continue
+                    onFrameProcessed.invoke(this)
                 }
-
-                // reset zeroFrame flag
-                isZeroFrame = false
-
-                // set input frame
-                inputFrame = input.clone()
-
-
-                val mat = input.toMat()
-
-                // process
-                val detections = detectRegions(mat)
-                mapRegionToObjects(tactileObjects, detections.regions)
-                recognizeObjectId(tactileObjects)
-
-                // annotate
-                if(config.annotateOutput.value) {
-                    // annotate input
-                    val inputMat = inputFrame.toMat()
-                    annotateFrame(inputMat, detections.regions)
-                    inputFrame = inputMat.toFrame()
-
-                    // annotate debug
-                    annotateFrame(mat, detections.regions)
-                }
-
-                // lock frame reading
-                processedFrame = mat.toFrame()
             }
         }
     }
 
-    abstract fun detectRegions(frame: Mat): DetectionResult
+    private fun processFrame() : Boolean {
+        // read frame
+        val input = inputProvider.read()
+
+        // check for zero size mats
+        if (input.imageWidth == 0 || input.imageHeight == 0) {
+            isZeroFrame = true
+            return false
+        }
+
+        processWatch.start()
+
+        // reset zeroFrame flag
+        isZeroFrame = false
+
+        // set input frame
+        inputFrame = input.clone()
+
+
+        val mat = input.toMat()
+
+        // process
+        val regions = detectRegions(mat)
+        mapRegionToObjects(tactileObjects, regions)
+        recognizeObjectId(tactileObjects)
+
+        // annotate
+        if(config.annotateOutput.value) {
+            // annotate input
+            val inputMat = inputFrame.toMat()
+            annotateFrame(inputMat, regions)
+            inputFrame = inputMat.toFrame()
+
+            // annotate debug
+            annotateFrame(mat, regions)
+        }
+
+        // lock frame reading
+        processedFrame = mat.toFrame()
+        return true
+    }
+
+    abstract fun detectRegions(frame: Mat): List<ActiveRegion>
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
 
@@ -140,7 +162,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
             return
 
         shutdownRequested = true
-        pipelineThread.join()
+        pipelineThread.join(5000)
 
         inputProvider.close()
     }

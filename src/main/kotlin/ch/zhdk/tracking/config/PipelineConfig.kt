@@ -1,10 +1,7 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.ui.properties.BooleanParameter
-import ch.bildspur.ui.properties.EnumParameter
-import ch.bildspur.ui.properties.LabelParameter
-import ch.bildspur.ui.properties.SliderParameter
+import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.pipeline.PipelineType
 import com.google.gson.annotations.Expose
 
@@ -16,6 +13,15 @@ class PipelineConfig {
     @Expose
     @BooleanParameter("Annotate Output")
     var annotateOutput = DataModel(true)
+
+    @LabelParameter("Information")
+    val informationLabel = ""
+
+    @StringParameter("Frame Time", isEditable = false)
+    var frameTime = DataModel("- ms")
+
+    @StringParameter("Processing Time", isEditable = false)
+    var processingTime = DataModel("- ms")
 
     @LabelParameter("Detection")
     val detectionLabel = ""

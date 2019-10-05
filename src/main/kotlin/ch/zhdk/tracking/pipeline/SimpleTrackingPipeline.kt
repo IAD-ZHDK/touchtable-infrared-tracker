@@ -5,13 +5,14 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
-import ch.zhdk.tracking.pipeline.result.DetectionResult
 import org.bytedeco.opencv.global.opencv_imgproc.COLOR_BGR2GRAY
 import org.bytedeco.opencv.opencv_core.Mat
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider) : Pipeline(config, inputProvider) {
 
-    override fun detectRegions(frame: Mat): DetectionResult {
+    // detection
+
+    override fun detectRegions(frame: Mat): List<ActiveRegion> {
         // prepare frame for detection
         frame.convertColor(COLOR_BGR2GRAY)
         frame.threshold(config.threshold.value)
@@ -27,10 +28,10 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         val components = nativeComponents.getConnectedComponents().filter { it.label != 0 }
 
         // convert to region
-        val regions = components.map { ActiveRegion(it.centroid, it.area.toDouble()) }
-
-        return DetectionResult(regions)
+        return components.map { ActiveRegion(it.centroid, it.area.toDouble()) }
     }
+
+    // tracking
 
     override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
         // reset all regions
@@ -47,10 +48,6 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
         // create new regions
         objects.addAll(regions.filter { !it.matched }.map { it.toTactileObject() })
-    }
-
-    override fun recognizeObjectId(objects: List<TactileObject>) {
-
     }
 
     private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta : Double) {
@@ -76,5 +73,11 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
                 region.matched = true
             }
         }
+    }
+
+    // id recognition
+
+    override fun recognizeObjectId(objects: List<TactileObject>) {
+
     }
 }
