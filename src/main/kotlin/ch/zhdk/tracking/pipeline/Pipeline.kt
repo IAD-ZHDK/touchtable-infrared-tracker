@@ -38,7 +38,7 @@ abstract class Pipeline(val inputProvider : InputProvider) {
                 val input = inputProvider.read()
 
                 // check for zero size mats
-                if(input.imageWidth == 0 || input.imageHeight == 0) {
+                if(input == null || input.imageWidth == 0 || input.imageHeight == 0) {
                     println("Pipeline: Zero Frame Received")
                     continue
                 }

@@ -1,6 +1,7 @@
 package ch.zhdk.tracking
 
 import ch.bildspur.configuration.ConfigurationController
+import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
 import javafx.stage.Stage
@@ -20,7 +21,7 @@ class Main {
 
         // use a fresh config while debugging
         // todo: remove this before release
-        //appConfig = AppConfig()
+        appConfig = AppConfig()
 
         // init javafx toolkit
         JFXPanel()

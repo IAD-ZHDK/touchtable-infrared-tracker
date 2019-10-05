@@ -14,6 +14,7 @@ import org.bytedeco.javacv.OpenCVFrameGrabber
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PImage
+import java.nio.file.Paths
 import kotlin.math.roundToInt
 
 
@@ -128,7 +129,7 @@ class Application(val config: AppConfig) : PApplet() {
     fun createInputProvider() : InputProvider {
         return when(config.inputConfig.inputProvider.value) {
             InputProviderType.CameraInput ->  CameraInputProvider(0, inputWidth, inputHeight)
-            InputProviderType.VideoInput -> VideoInputProvider("data/irMovieSample.mov")
+            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
         }
     }
 
