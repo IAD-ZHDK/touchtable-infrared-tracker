@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.model
 
+import ch.bildspur.model.RingBuffer
 import org.bytedeco.opencv.opencv_core.Point2d
 
 class TactileObject {

@@ -1,4 +1,4 @@
-package ch.zhdk.tracking.model
+package ch.bildspur.model
 
 import java.lang.Integer.min
 
