@@ -28,7 +28,7 @@ class SingleTrackingPipeline(config : PipelineConfig, inputProvider: InputProvid
         val components = nativeComponents.getConnectedComponents().filter { it.label != 0 }
 
         // convert to region
-        val regions = components.map { ActiveRegion(it.centroid,  it.area) }
+        val regions = components.map { ActiveRegion(it.centroid,  it.area.toDouble()) }
 
         return DetectionResult(regions)
     }
