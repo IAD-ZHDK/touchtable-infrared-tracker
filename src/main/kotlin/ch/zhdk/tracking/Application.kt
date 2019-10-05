@@ -56,7 +56,7 @@ class Application(val config: AppConfig) : PApplet() {
 
     val inputProvider : InputProvider = createInputProvider()
 
-    val pipeline = SingleTrackingPipeline(inputProvider)
+    val pipeline = SingleTrackingPipeline(config.pipeline, inputProvider)
 
     private val timer = Timer()
 

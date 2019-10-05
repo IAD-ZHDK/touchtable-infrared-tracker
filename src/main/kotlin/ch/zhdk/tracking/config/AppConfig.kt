@@ -15,6 +15,9 @@ class AppConfig {
     var inputConfig = InputConfig()
 
     @Expose
+    var pipeline = PipelineConfig()
+
+    @Expose
     @BooleanParameter("Debugging Mode")
     var debuggingMode = DataModel(true)
 

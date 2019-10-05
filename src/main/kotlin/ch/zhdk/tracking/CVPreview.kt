@@ -18,7 +18,7 @@ class CVPreview(val config: AppConfig) {
         val canvasFrame = CanvasFrame("Preview")
         canvasFrame.setCanvasSize(1280, 720)
 
-        val pipeline = SingleTrackingPipeline(createInputProvider())
+        val pipeline = SingleTrackingPipeline(config.pipeline, createInputProvider())
         pipeline.start()
 
         while (running && canvasFrame.isVisible) {

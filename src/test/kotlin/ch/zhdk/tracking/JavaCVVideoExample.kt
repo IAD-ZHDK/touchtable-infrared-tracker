@@ -26,7 +26,7 @@ object JavaCVVideoExample {
         canvasFrame.setCanvasSize(1280, 720)
 
         println("framerate = " + grabber.frameRate)
-        grabber.frameRate = 120.0
+        grabber.frameRate = grabber.frameRate
 
         while (canvasFrame.isVisible) {
             grabbedImage = grabber.grab()

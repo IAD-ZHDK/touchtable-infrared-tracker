@@ -11,23 +11,20 @@ class VideoInputProvider(val videoFilePath : Path, val useVideoFrameRate: Boolea
     var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
 
     override fun open() {
-        videoGrabber.format = "mov"
         videoGrabber.start()
 
         println(videoGrabber)
+        val firstFrame = videoGrabber.grabFrame()
+        println("video framerate: ${videoGrabber.frameRate}")
+        videoGrabber.frameRate = 60.0 //videoGrabber.frameRate
     }
 
     override fun read(): Frame {
-        if(useVideoFrameRate) {
-            Thread.sleep(videoGrabber.frameRate.roundToLong())
-        }
-
         val frame = videoGrabber.grabFrame()
 
         if(frame == null) {
             println("restarting video")
             videoGrabber.stop()
-            videoGrabber.frameNumber = 0
             videoGrabber.start()
             return read()
         }
