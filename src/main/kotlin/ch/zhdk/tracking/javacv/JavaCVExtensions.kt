@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.javacv
 
+import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.opencv_core.Point
 import org.bytedeco.opencv.opencv_core.Point2d
 import kotlin.math.pow

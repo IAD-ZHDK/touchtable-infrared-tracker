@@ -7,9 +7,12 @@ import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.result.DetectionResult
 import org.bytedeco.javacv.Frame
+import org.bytedeco.opencv.global.opencv_core.CV_32SC4
+import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.Scalar
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
@@ -29,6 +32,11 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
     @Volatile
     var processedFrame: Frame = Frame(100, 100, 8, 3)
+        @Synchronized get
+        @Synchronized private set
+
+    @Volatile
+    var overlayFrame: Frame = Frame(100, 100, 8, 3)
         @Synchronized get
         @Synchronized private set
 
@@ -75,7 +83,12 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                 recognizeObjectId(tactileObjects)
 
                 // annotate
-                annotateFrame(mat, detections.regions)
+                annotateOverlay(inputFrame, detections.regions)
+                /*
+                val inputMat = inputFrame.toMat()
+                annotateFrame(inputMat, detections.regions)
+                inputFrame = inputMat.toFrame()
+                */
 
                 // lock frame reading
                 processedFrame = mat.toFrame()
@@ -99,8 +112,24 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         tactileObject.intensities.add(this.intensity)
     }
 
+    private fun annotateOverlay(frame : Frame, regions: List<ActiveRegion>) {
+        // check size and resize if needed
+        if(frame.imageWidth != overlayFrame.imageWidth || frame.imageHeight != overlayFrame.imageHeight) {
+            overlayFrame = Frame(frame.imageWidth , frame.imageHeight, 8, 3)
+        }
+
+        val mat = overlayFrame.toMat()
+        annotateFrame(mat, regions)
+        overlayFrame = mat.toFrame()
+    }
+
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
-        mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
+        // convert to color if needed
+        if(mat.type() == CV_8UC1)
+            mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
+
+        // clear mat
+        mat.setTo(Mat(1, 1, CV_32SC4, Scalar.ALPHA255))
 
         // annotate active regions
         regions.forEach {
@@ -115,7 +144,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                 AbstractScalar.GREEN,
                 scale = 0.4)
 
-            mat.drawText(it.intensities.joinToString(separator = "\n") { i -> i.toString() },
+            mat.drawText(it.intensities.joinToString(separator = ", ") { i -> i.toString() },
                 it.position.toPoint().transform(20, 20),
                 AbstractScalar.CYAN,
                 scale = 0.3)
