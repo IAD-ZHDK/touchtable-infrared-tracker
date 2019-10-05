@@ -10,7 +10,6 @@ import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.Size
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
@@ -90,8 +89,14 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
     protected fun ActiveRegion.toTactileObject(): TactileObject {
         val tactileObject = TactileObject()
-        tactileObject.position = this.position
+        this.toTactileObject(tactileObject)
         return tactileObject
+    }
+
+    protected fun ActiveRegion.toTactileObject(tactileObject : TactileObject)
+    {
+        tactileObject.position = this.position
+        tactileObject.intensities.add(this.intensity)
     }
 
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {

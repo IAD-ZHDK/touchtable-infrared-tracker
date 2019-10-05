@@ -70,7 +70,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
             if (minDelta <= maxDelta) {
                 val regionIndex = distances[i].indexOf(minDelta)
-                objects[regionIndex].position = region.position
+                region.toTactileObject(objects[regionIndex])
                 objects[regionIndex].isAlive = true
 
                 region.matched = true
