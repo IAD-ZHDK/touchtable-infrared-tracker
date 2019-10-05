@@ -34,6 +34,7 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
 
         // return cloned frame
         // (not messing up with start stop of grabber)
+        frame.timestamp = System.currentTimeMillis()
         return frame.clone()
     }
 

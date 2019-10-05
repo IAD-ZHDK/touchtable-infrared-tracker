@@ -16,7 +16,9 @@ class CameraInputProvider(val deviceNumber : Int = 0,
     }
 
     override fun read(): Frame {
-        return grabber.grab()
+        val frame = grabber.grab()
+        frame.timestamp = System.currentTimeMillis()
+        return frame.clone()
     }
 
     override fun close() {
