@@ -114,6 +114,11 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                 it.position.toPoint().transform(20, -20),
                 AbstractScalar.GREEN,
                 scale = 0.4)
+
+            mat.drawText(it.intensities.joinToString(separator = "\n") { i -> i.toString() },
+                it.position.toPoint().transform(20, 20),
+                AbstractScalar.CYAN,
+                scale = 0.3)
         }
     }
 
