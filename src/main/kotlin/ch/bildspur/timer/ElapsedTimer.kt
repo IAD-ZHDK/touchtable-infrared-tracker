@@ -1,18 +1,19 @@
 package ch.bildspur.timer
 
 class ElapsedTimer(var duration : Long) {
-    private var timestamp = millis()
+    var lastTimestamp = millis()
+        private set
 
     fun elapsed() : Boolean {
         val m = millis()
-        val result = m - timestamp >= duration
+        val result = m - lastTimestamp >= duration
         if(result)
-            timestamp = m
+            lastTimestamp = m
         return result
     }
 
     fun reset() {
-        timestamp = millis()
+        lastTimestamp = millis()
     }
 
     private fun millis() : Long

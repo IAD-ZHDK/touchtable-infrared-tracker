@@ -31,6 +31,9 @@ dependencies {
 
     // osc
     compile group: 'com.illposed.osc', name: 'javaosc-core', version: '0.6'
+
+    // statistics
+    compile 'org.nield:kotlin-statistics:1.2.1'
 }
 
 compileKotlin {

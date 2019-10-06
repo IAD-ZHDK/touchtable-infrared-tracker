@@ -68,4 +68,11 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Max Delta", 0.0, 200.0, 1.0)
     var maxDelta = DataModel(40.0)
+
+    @LabelParameter("Identification")
+    val identificationLabel = ""
+
+    @Expose
+    @NumberParameter("Min Flank Time", "ms")
+    var minFlankTime = DataModel(50L)
 }

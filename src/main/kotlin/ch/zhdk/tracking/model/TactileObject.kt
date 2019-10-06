@@ -1,6 +1,8 @@
 package ch.zhdk.tracking.model
 
 import ch.bildspur.model.RingBuffer
+import ch.bildspur.timer.ElapsedTimer
+import ch.zhdk.tracking.pipeline.identification.BinaryIdentifierPhase
 import org.bytedeco.opencv.opencv_core.Point2d
 
 class TactileObject(val uniqueId : Int) {
@@ -12,5 +14,17 @@ class TactileObject(val uniqueId : Int) {
     var isAlive = true
     var lifeTime = 0
 
-    val intensities = RingBuffer<Double>(10)
+    // identification relevant
+    var currentIntensity = 0.0
+    var lastUpdateTimestamp = 0L
+
+    // binary detection
+    var identifierPhase = BinaryIdentifierPhase.Sampling
+    val identifierTimer = ElapsedTimer(0)
+
+    // threshold
+    val intensities = RingBuffer<Double>(25) // todo: find better value then magic number
+    var stopBitThreshold = 0.0
+    var lowThreshold = 0.0
+    var highThreshold = 0.0
 }
