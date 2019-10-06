@@ -73,10 +73,10 @@ class PipelineConfig {
     val identificationLabel = ""
 
     @Expose
-    @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
-    var thresholdMarginFactor = DataModel(1.0)
+    @NumberParameter("Sampling Time", "ms")
+    var samplingTime = DataModel(1200L)
 
     @Expose
-    @NumberParameter("Min Flank Time", "ms")
-    var minFlankTime = DataModel(50L)
+    @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
+    var thresholdMarginFactor = DataModel(1.0)
 }

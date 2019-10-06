@@ -6,7 +6,7 @@ class ElapsedTimer(var duration : Long) {
 
     fun elapsed() : Boolean {
         val m = millis()
-        val result = m - lastTimestamp >= duration
+        val result = (m - lastTimestamp) >= duration
         if(result)
             lastTimestamp = m
         return result

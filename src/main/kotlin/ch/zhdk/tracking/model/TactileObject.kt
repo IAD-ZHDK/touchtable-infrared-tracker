@@ -19,9 +19,11 @@ class TactileObject(val uniqueId : Int) {
     var lastUpdateTimestamp = 0L
 
     // binary detection
-    var identifierPhase = BinaryIdentifierPhase.Sampling
-    val identifierTimer = ElapsedTimer(0)
-    val intensities = RingBuffer<Double>(25) // todo: find better value then magic number
+    var identifierPhase = BinaryIdentifierPhase.Requested
+
+    // sampling
+    val samplingTimer = ElapsedTimer(0)
+    val intensities = ArrayList<Double>(256)
 
     // threshold
     var thresholdMargin = 0.0

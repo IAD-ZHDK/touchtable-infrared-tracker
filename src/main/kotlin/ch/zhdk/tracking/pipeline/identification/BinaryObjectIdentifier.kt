@@ -9,32 +9,49 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
     override fun recognizeObjectId(objects: List<TactileObject>) {
         objects.forEach {
             when (it.identifierPhase) {
+                BinaryIdentifierPhase.Requested -> start(it)
                 BinaryIdentifierPhase.Sampling -> sampling(it)
-                BinaryIdentifierPhase.ThresholdFinding -> findThresholds(it)
-                BinaryIdentifierPhase.FlankDetection -> flankDetection(it)
-                BinaryIdentifierPhase.BitPatternRecognition -> TODO()
+                BinaryIdentifierPhase.Identifying -> identify(it)
+                BinaryIdentifierPhase.Detected -> {}
             }
         }
     }
 
+    private fun start(tactileObject: TactileObject) {
+        // clear detection
+        tactileObject.intensities.clear()
+
+        tactileObject.samplingTimer.duration = config.samplingTime.value
+        tactileObject.samplingTimer.reset()
+
+        tactileObject.identifierPhase = BinaryIdentifierPhase.Sampling
+    }
+
     private fun sampling(tactileObject: TactileObject) {
-        // if start of sampling
-        if (tactileObject.intensities.elementCount == 0) {
-            tactileObject.identifierTimer.duration = config.minFlankTime.value
-        }
+        tactileObject.intensities.add(tactileObject.currentIntensity)
 
-        // if is sampling time
-        if (tactileObject.identifierTimer.elapsed()) {
-            tactileObject.intensities.add(tactileObject.currentIntensity)
-        }
-
-        // if sampling is over (buffer full)
-        if (tactileObject.intensities.elementCount == tactileObject.intensities.size) {
-            tactileObject.identifierPhase = BinaryIdentifierPhase.ThresholdFinding
+        // todo: use frame timer for sample time detection (makes more sense)
+        if(tactileObject.samplingTimer.elapsed()) {
+            // if sampling time is over
+            println("Sampled Intensities: ${tactileObject.intensities.count()}")
+            tactileObject.identifierPhase = BinaryIdentifierPhase.Identifying
         }
     }
 
-    private fun findThresholds(tactileObject: TactileObject) {
+    private fun identify(tactileObject: TactileObject) {
+        if(!detectThresholds(tactileObject)) {
+            // something went wrong
+            return
+        }
+
+        // cleanup
+        tactileObject.intensities.clear()
+
+        // mark as detected
+        tactileObject.identifierPhase = BinaryIdentifierPhase.Detected
+    }
+
+    private fun detectThresholds(tactileObject: TactileObject) : Boolean {
         // find adaptive bin size (double the size of wanted points)
         val valueRange = (tactileObject.intensities.max() ?: 0.0) - (tactileObject.intensities.min() ?: 0.0)
         val adaptiveBinSize = valueRange / 6.0 // todo: maybe resolve magic number (3 bit * 2)
@@ -45,14 +62,15 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             binSize = adaptiveBinSize,
             rangeStart = tactileObject.intensities.min()!!
         )
+            .filter { it.value.isNotEmpty() }
             .sortedByDescending { it.value.size }
             .take(3)
 
         // check if it is three bins
         if (bins.size != 3) {
             println("too few bins detected -> go back to sampling")
-            tactileObject.identifierPhase = BinaryIdentifierPhase.Sampling
-            return
+            tactileObject.identifierPhase = BinaryIdentifierPhase.Requested
+            return false
         }
 
         // get top three bins with most values
@@ -76,14 +94,6 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         println("High Bit: ${tactileObject.highThreshold}")
         println("Low Bit: ${tactileObject.lowThreshold}")
 
-        // cleanup
-        tactileObject.intensities.clear()
-
-        // send to next phase
-        tactileObject.identifierPhase = BinaryIdentifierPhase.FlankDetection
-    }
-
-    private fun flankDetection(tactileObject: TactileObject) {
-        // do nothing
+        return true
     }
 }

@@ -1,9 +1,8 @@
 package ch.zhdk.tracking.pipeline.identification
 
 enum class BinaryIdentifierPhase {
+    Requested,
     Sampling,
-    ThresholdFinding,
-    FlankDetection,
-    BitPatternRecognition,
+    Identifying,
     Detected
 }
