@@ -8,6 +8,7 @@ import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
 import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
 import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.Point2d
 
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider) : Pipeline(config, inputProvider) {
@@ -21,6 +22,13 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
     override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
         regionTracker.mapRegionToObjects(objects, regions)
+
+        // add normalized values
+        objects.forEach {
+            it.normalizedPosition =  Point2d(
+                it.position.x() / config.inputWidth.value,
+                it.position.y() / config.inputHeight.value)
+        }
     }
 
     override fun recognizeObjectId(objects: List<TactileObject>) {

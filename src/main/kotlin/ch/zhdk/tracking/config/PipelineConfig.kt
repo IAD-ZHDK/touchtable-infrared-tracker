@@ -17,6 +17,12 @@ class PipelineConfig {
     @LabelParameter("Information")
     val informationLabel = ""
 
+    @StringParameter("Input Width", isEditable = false)
+    var inputWidth = DataModel(1)
+
+    @StringParameter("Input Height", isEditable = false)
+    var inputHeight = DataModel(1)
+
     @StringParameter("Total Detected Objects", isEditable = false)
     var uniqueId = DataModel(0)
 

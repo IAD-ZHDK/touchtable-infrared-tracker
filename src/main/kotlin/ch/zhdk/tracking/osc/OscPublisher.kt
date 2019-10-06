@@ -24,8 +24,8 @@ class OscPublisher(port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
         val args = mutableListOf<Any>()
         args.add(tactileObject.uniqueId)
         args.add(tactileObject.identifier)
-        args.add(tactileObject.position.x())
-        args.add(tactileObject.position.y())
+        args.add(tactileObject.normalizedPosition.x())
+        args.add(tactileObject.normalizedPosition.y())
         args.add(tactileObject.lifeTime)
 
         val msg = OSCMessage("/ir/object", args)

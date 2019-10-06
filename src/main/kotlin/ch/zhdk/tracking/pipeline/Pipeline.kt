@@ -96,6 +96,9 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // set input frame
         inputFrame = input.clone()
 
+        // set normalization values
+        config.inputWidth.value = input.imageWidth
+        config.inputHeight.value = input.imageHeight
 
         val mat = input.toMat()
 
