@@ -54,9 +54,6 @@ class ConventionalRegionDetector(config : PipelineConfig = PipelineConfig()) : R
             }
         }
 
-        // normalize active region
-        regions.forEach { it.normalize(frame.cols().toDouble(), frame.rows().toDouble()) }
-
         return regions
     }
 }
