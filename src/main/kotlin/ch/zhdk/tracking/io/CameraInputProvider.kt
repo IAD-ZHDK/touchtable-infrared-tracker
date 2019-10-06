@@ -3,11 +3,13 @@ package ch.zhdk.tracking.io
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.OpenCVFrameGrabber
 
-class CameraInputProvider(val deviceNumber : Int = 0,
+class CameraInputProvider(deviceNumber : Int = 0,
                           val width : Int = 640,
                           val height : Int = 480) : InputProvider {
 
-    val grabber = OpenCVFrameGrabber(deviceNumber)
+    private val grabber = OpenCVFrameGrabber(deviceNumber)
+
+    // todo: implement device selection through list
 
     override fun open() {
         grabber.imageWidth = width

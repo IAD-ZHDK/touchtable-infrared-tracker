@@ -70,6 +70,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                     // update info
                     config.frameTime.value = "${frameWatch.elapsed()} ms"
                     config.processingTime.value = "${processWatch.elapsed()} ms"
+                    config.actualObjectCount.value = tactileObjects.count()
 
                     onFrameProcessed.invoke(this)
                 }
@@ -123,18 +124,6 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
 
-    protected fun ActiveRegion.toTactileObject(): TactileObject {
-        val tactileObject = TactileObject()
-        this.toTactileObject(tactileObject)
-        return tactileObject
-    }
-
-    protected fun ActiveRegion.toTactileObject(tactileObject : TactileObject)
-    {
-        tactileObject.position = this.center
-        tactileObject.intensities.add(this.area)
-    }
-
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
         // convert to color if needed
         if(mat.type() == CV_8UC1)
@@ -161,7 +150,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate tactile objects
         tactileObjects.forEach {
             mat.drawCross(it.position.toPoint(), 22, AbstractScalar.GREEN, thickness = 1)
-            mat.drawText("${it.id} [${it.lifeTime}]",
+            mat.drawText("${it.uniqueId} [${it.lifeTime}]",
                 it.position.toPoint().transform(20, -20),
                 AbstractScalar.GREEN,
                 scale = 0.4)

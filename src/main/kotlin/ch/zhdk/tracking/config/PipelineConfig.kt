@@ -17,6 +17,12 @@ class PipelineConfig {
     @LabelParameter("Information")
     val informationLabel = ""
 
+    @StringParameter("Total Detected Objects", isEditable = false)
+    var uniqueId = DataModel(0)
+
+    @StringParameter("Detected Objects", isEditable = false)
+    var actualObjectCount = DataModel(0)
+
     @StringParameter("Frame Time", isEditable = false)
     var frameTime = DataModel("- ms")
 

@@ -17,7 +17,7 @@ class CVPreview(val config: AppConfig) {
 
     @Volatile
     var running = true
-    
+
     val osc = OscPublisher(8000)
 
     fun start() {

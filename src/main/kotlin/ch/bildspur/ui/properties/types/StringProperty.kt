@@ -17,9 +17,9 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
         children.add(textField)
 
         // setup binding
-        val model = field.get(obj) as DataModel<String>
+        val model = field.get(obj) as DataModel<Any>
         model.onChanged += {
-            textField.text = model.value
+            textField.text = model.value.toString()
         }
         model.fireLatest()
 
