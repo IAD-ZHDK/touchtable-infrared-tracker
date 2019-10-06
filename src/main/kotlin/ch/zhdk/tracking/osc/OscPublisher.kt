@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.osc
 
+import ch.bildspur.timer.Timer
 import ch.zhdk.tracking.model.TactileObject
 import com.illposed.osc.OSCMessage
 import com.illposed.osc.transport.udp.OSCPort
@@ -7,8 +8,13 @@ import com.illposed.osc.transport.udp.OSCPortOut
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
-class OscPublisher(val port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
-    var sender = OSCPortOut(InetSocketAddress(InetAddress.getLocalHost(), port))
+class OscPublisher(port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
+    private var sender = OSCPortOut(InetSocketAddress(InetAddress.getLocalHost(), port))
+
+    fun init(port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
+        sender.close()
+        sender = OSCPortOut(InetSocketAddress(InetAddress.getLocalHost(), port))
+    }
 
     fun publish(tactileObjects: List<TactileObject>) {
         tactileObjects.forEach { publishObject(it) }

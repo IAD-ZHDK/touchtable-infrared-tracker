@@ -12,10 +12,13 @@ class AppConfig {
     var visual = VisualConfig()
 
     @Expose
-    var inputConfig = InputConfig()
+    var input = InputConfig()
 
     @Expose
     var pipeline = PipelineConfig()
+
+    @Expose
+    var output = OutputConfig()
 
     @Expose
     @BooleanParameter("Debugging Mode")

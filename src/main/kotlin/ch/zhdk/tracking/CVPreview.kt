@@ -1,5 +1,6 @@
 package ch.zhdk.tracking
 
+import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.io.CameraInputProvider
 import ch.zhdk.tracking.io.InputProvider
@@ -12,22 +13,27 @@ import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
 import java.nio.file.Paths
 import javax.swing.WindowConstants
+import kotlin.math.roundToLong
 
 class CVPreview(val config: AppConfig) {
 
     @Volatile
     var running = true
 
-    val osc = OscPublisher(8000)
+    private val osc = OscPublisher(config.output.oscPort.value)
+    private val timer = ElapsedTimer(1000)
 
     fun start() {
         val canvasFrame = CanvasFrame("Preview")
         canvasFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         canvasFrame.setCanvasSize(1280, 720)
 
+        setupConfigChangedHandlers()
+
         val pipeline = createPipeline()
         pipeline.onFrameProcessed += {
-            osc.publish(pipeline.tactileObjects)
+            if(timer.elapsed())
+                osc.publish(pipeline.tactileObjects)
         }
 
         pipeline.start()
@@ -45,8 +51,20 @@ class CVPreview(val config: AppConfig) {
         canvasFrame.dispose()
     }
 
+    private fun setupConfigChangedHandlers() {
+        config.output.oscPort.onChanged += {
+            osc.init(config.output.oscPort.value)
+        }
+        config.output.oscPort.fireLatest()
+
+        config.output.updateFrequency.onChanged += {
+            timer.duration = (1000.0 / config.output.updateFrequency.value).roundToLong()
+        }
+        config.output.updateFrequency.fireLatest()
+    }
+
     private fun createInputProvider(): InputProvider {
-        return when (config.inputConfig.inputProvider.value) {
+        return when (config.input.inputProvider.value) {
             InputProviderType.CameraInput -> CameraInputProvider(0, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"), 30.0)
         }

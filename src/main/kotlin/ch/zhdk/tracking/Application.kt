@@ -127,7 +127,7 @@ class Application(val config: AppConfig) : PApplet() {
     }
 
     fun createInputProvider() : InputProvider {
-        return when(config.inputConfig.inputProvider.value) {
+        return when(config.input.inputProvider.value) {
             InputProviderType.CameraInput ->  CameraInputProvider(0, inputWidth, inputHeight)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
         }
