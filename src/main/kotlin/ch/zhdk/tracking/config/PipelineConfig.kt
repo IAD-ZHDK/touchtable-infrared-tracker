@@ -78,5 +78,5 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
-    var thresholdMarginFactor = DataModel(1.0)
+    var thresholdMarginFactor = DataModel(0.75)
 }

@@ -1,9 +1,9 @@
-package ch.fhnw.exakt.util
+package ch.bildspur.util
 
+import ch.fhnw.exakt.util.BatchingSequence
 import processing.core.*
 import processing.core.PConstants.QUAD_STRIP
 import java.util.*
-
 
 /**
  * Created by cansik on 04.02.17.
@@ -16,6 +16,14 @@ fun Float.isApproximate(value: Double, error: Double): Boolean {
 
 fun Float.limit(min: Float, max: Float): Float {
     return Math.max(Math.min(max, this), min)
+}
+
+fun Double.isBetween(low: Double, high: Double): Boolean {
+    return low < this && this < high
+}
+
+fun Double.isInMargin(limit: Double, margin: Double): Boolean {
+    return this.isBetween(limit - margin, limit + margin)
 }
 
 fun Boolean.toFloat(): Float {
@@ -137,19 +145,19 @@ fun <T> Sequence<T>.batch(n: Int): Sequence<List<T>> {
     return BatchingSequence(this, n)
 }
 
-fun Boolean.toSign() : Int {
-    return if(this) 1 else -1
+fun Boolean.toSign(): Int {
+    return if (this) 1 else -1
 }
 
-fun Boolean.toInvertSign() : Int {
-    return if(this) -1 else 1
+fun Boolean.toInvertSign(): Int {
+    return if (this) -1 else 1
 }
 
-fun Boolean.toInt() : Int {
-    return if(this) 1 else 0
+fun Boolean.toInt(): Int {
+    return if (this) 1 else 0
 }
 
-fun PVector.flip(flipX : Boolean, flipY : Boolean, flipZ : Boolean) {
+fun PVector.flip(flipX: Boolean, flipY: Boolean, flipZ: Boolean) {
     this.x = this.x * flipX.toInvertSign()
     this.y = this.y * flipY.toInvertSign()
     this.z = this.z * flipZ.toInvertSign()

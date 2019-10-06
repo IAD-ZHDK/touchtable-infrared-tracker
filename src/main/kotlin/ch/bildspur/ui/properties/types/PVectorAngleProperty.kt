@@ -2,8 +2,8 @@ package ch.bildspur.ui.properties.types
 
 import ch.bildspur.ui.properties.PVectorAngleParameter
 import ch.bildspur.model.DataModel
-import ch.fhnw.exakt.util.toDegrees
-import ch.fhnw.exakt.util.toRadians
+import ch.bildspur.util.toDegrees
+import ch.bildspur.util.toRadians
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.HBox

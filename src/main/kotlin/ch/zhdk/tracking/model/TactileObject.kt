@@ -1,8 +1,6 @@
 package ch.zhdk.tracking.model
 
-import ch.bildspur.model.RingBuffer
-import ch.bildspur.timer.ElapsedTimer
-import ch.zhdk.tracking.pipeline.identification.BinaryIdentifierPhase
+import ch.zhdk.tracking.model.identification.Identification
 import org.bytedeco.opencv.opencv_core.Point2d
 
 class TactileObject(val uniqueId : Int) {

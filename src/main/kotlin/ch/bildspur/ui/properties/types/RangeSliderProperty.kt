@@ -3,7 +3,7 @@ package ch.bildspur.ui.properties.types
 import ch.bildspur.model.DataModel
 import ch.bildspur.model.NumberRange
 import ch.bildspur.ui.properties.RangeSliderParameter
-import ch.fhnw.exakt.util.format
+import ch.bildspur.util.format
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextAlignment
