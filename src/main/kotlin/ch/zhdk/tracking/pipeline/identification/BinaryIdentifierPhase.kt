@@ -4,5 +4,6 @@ enum class BinaryIdentifierPhase {
     Sampling,
     ThresholdFinding,
     FlankDetection,
-    BitPatternRecognition
+    BitPatternRecognition,
+    Detected
 }

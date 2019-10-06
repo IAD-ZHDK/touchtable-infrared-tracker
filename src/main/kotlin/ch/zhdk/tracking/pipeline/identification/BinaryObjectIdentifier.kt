@@ -36,18 +36,20 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
     private fun findThresholds(tactileObject: TactileObject) {
         // find adaptive bin size (double the size of wanted points)
-        val adaptiveBinSize = (tactileObject.intensities.max()!! - tactileObject.intensities.min()!!) / 6.0
+        val valueRange = (tactileObject.intensities.max() ?: 0.0) - (tactileObject.intensities.min() ?: 0.0)
+        val adaptiveBinSize = valueRange / 6.0 // todo: maybe resolve magic number (3 bit * 2)
 
         // find 3 top bins
         val bins = tactileObject.intensities.binByDouble(
             valueSelector = { it },
             binSize = adaptiveBinSize,
-            rangeStart = tactileObject.intensities.min()!!)
+            rangeStart = tactileObject.intensities.min()!!
+        )
             .sortedByDescending { it.value.size }
             .take(3)
 
         // check if it is three bins
-        if(bins.size != 3) {
+        if (bins.size != 3) {
             println("too few bins detected -> go back to sampling")
             tactileObject.identifierPhase = BinaryIdentifierPhase.Sampling
             return
@@ -58,14 +60,18 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             println("Range: ${it.range} Count: ${it.value.size}")
         }
 
-        // create thresholds
+        // create thresholds and adaptive margin
         val averages = bins.map { it.value.average() }.sorted()
+        val minDistance = averages.zipWithNext { a, b -> b - a }.min() ?: 0.0
+        val thresholdMargin = minDistance / 2.0 * config.thresholdMarginFactor.value
 
-        tactileObject.lowThreshold = bins[0].value.average()
-        tactileObject.highThreshold = bins[1].value.average()
-        tactileObject.stopBitThreshold = bins[2].value.average()
+        tactileObject.thresholdMargin = thresholdMargin
+        tactileObject.lowThreshold = averages[0]
+        tactileObject.highThreshold = averages[1]
+        tactileObject.stopBitThreshold = averages[2]
 
         // print infos
+        println("Threshold Margin: ${tactileObject.thresholdMargin}")
         println("Stop Bit: ${tactileObject.stopBitThreshold}")
         println("High Bit: ${tactileObject.highThreshold}")
         println("Low Bit: ${tactileObject.lowThreshold}")
