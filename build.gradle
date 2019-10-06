@@ -28,6 +28,9 @@ dependencies {
 
     // javafx
     compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
+
+    // osc
+    compile group: 'com.illposed.osc', name: 'javaosc-core', version: '0.6'
 }
 
 compileKotlin {

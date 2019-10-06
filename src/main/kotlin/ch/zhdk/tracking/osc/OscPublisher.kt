@@ -1,4 +1,33 @@
 package ch.zhdk.tracking.osc
 
-class OscPublisher {
+import ch.zhdk.tracking.model.TactileObject
+import com.illposed.osc.OSCMessage
+import com.illposed.osc.transport.udp.OSCPort
+import com.illposed.osc.transport.udp.OSCPortOut
+import java.net.InetAddress
+import java.net.InetSocketAddress
+
+class OscPublisher(val port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
+    var sender = OSCPortOut(InetSocketAddress(InetAddress.getLocalHost(), port))
+
+    fun publish(tactileObjects: List<TactileObject>) {
+        tactileObjects.forEach { publishObject(it) }
+    }
+
+    private fun publishObject(tactileObject: TactileObject) {
+        val args = mutableListOf<Any>()
+        args.add(tactileObject.id)
+        args.add(tactileObject.position.x())
+        args.add(tactileObject.position.y())
+        args.add(tactileObject.lifeTime)
+
+        val msg = OSCMessage("/ir/object", args)
+
+        try {
+            sender.send(msg)
+        } catch (e: Exception) {
+            println("Couldn't send osc message!")
+        }
+
+    }
 }

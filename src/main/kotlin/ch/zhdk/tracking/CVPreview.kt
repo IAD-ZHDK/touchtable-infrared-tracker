@@ -5,6 +5,7 @@ import ch.zhdk.tracking.io.CameraInputProvider
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.io.InputProviderType
 import ch.zhdk.tracking.io.VideoInputProvider
+import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
@@ -16,6 +17,8 @@ class CVPreview(val config: AppConfig) {
 
     @Volatile
     var running = true
+    
+    val osc = OscPublisher(8000)
 
     fun start() {
         val canvasFrame = CanvasFrame("Preview")
@@ -23,6 +26,10 @@ class CVPreview(val config: AppConfig) {
         canvasFrame.setCanvasSize(1280, 720)
 
         val pipeline = createPipeline()
+        pipeline.onFrameProcessed += {
+            osc.publish(pipeline.tactileObjects)
+        }
+
         pipeline.start()
 
         while (running && canvasFrame.isVisible) {
