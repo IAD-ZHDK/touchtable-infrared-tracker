@@ -3,6 +3,7 @@ package ch.bildspur.ui.properties.types
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.NumberParameter
 import ch.bildspur.ui.RelationNumberField
+import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.TextFormatter
 import javafx.scene.layout.HBox
@@ -30,6 +31,7 @@ class NumberProperty(field: Field, obj: Any, val annotation: NumberParameter) : 
         unitField.font = Font("Helvetica", 8.0)
 
         box.spacing = 10.0
+        box.alignment = Pos.CENTER_LEFT
         children.add(box)
 
         val model = field.get(obj) as DataModel<Number>
