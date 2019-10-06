@@ -14,21 +14,12 @@ class TactileObject(val uniqueId : Int) {
     var isAlive = true
     var lifeTime = 0
 
-    // identification relevant
-    var currentIntensity = 0.0
-    var lastUpdateTimestamp = 0L
+    // intensity detected by active region
+    var intensity = 0.0
 
-    // binary detection
-    var identifierPhase = BinaryIdentifierPhase.Requested
+    // last updated by active region (frame timestamp)
+    var timestamp = 0L
 
-    // sampling
-    val samplingTimer = ElapsedTimer(0)
-    val intensities = ArrayList<Double>(256)
-
-    // threshold
-    var thresholdMargin = 0.0
-    var stopBitThreshold = 0.0
-    var lowThreshold = 0.0
-    var highThreshold = 0.0
-
+    // identification
+    val identification = Identification()
 }

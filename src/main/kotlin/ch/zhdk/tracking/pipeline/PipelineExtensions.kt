@@ -12,6 +12,6 @@ fun ActiveRegion.toTactileObject(uniqueId : Int): TactileObject {
 fun ActiveRegion.toTactileObject(tactileObject : TactileObject)
 {
     tactileObject.position = this.center
-    tactileObject.currentIntensity = this.area
-    tactileObject.lastUpdateTimestamp = this.timestamp
+    tactileObject.intensity = this.area
+    tactileObject.timestamp = this.timestamp
 }
