@@ -1,6 +1,7 @@
 package ch.zhdk.tracking.pipeline
 
 import ch.bildspur.event.Event
+import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
@@ -25,6 +26,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
     // watches
     private val frameWatch = Stopwatch()
     private val processWatch = Stopwatch()
+
+    private val updateTimer = ElapsedTimer(100)
 
     @Volatile
     private var shutdownRequested = false
@@ -68,9 +71,11 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                     frameWatch.stop()
 
                     // update info
-                    config.frameTime.value = "${frameWatch.elapsed()} ms"
-                    config.processingTime.value = "${processWatch.elapsed()} ms"
-                    config.actualObjectCount.value = tactileObjects.count()
+                    if(updateTimer.elapsed()) {
+                        config.frameTime.value = "${frameWatch.elapsed()} ms"
+                        config.processingTime.value = "${processWatch.elapsed()} ms"
+                        config.actualObjectCount.value = tactileObjects.count()
+                    }
 
                     onFrameProcessed.invoke(this)
                 }

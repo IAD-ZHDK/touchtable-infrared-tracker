@@ -4,10 +4,10 @@ import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.FrameGrabber
 import java.nio.file.Path
+import kotlin.math.roundToLong
 
 class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider {
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
-    private var waitTime = 0L
 
     override fun open() {
         videoGrabber.start()
@@ -15,13 +15,13 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
         println(videoGrabber)
         val firstFrame = videoGrabber.grabFrame()
         println("video framerate: ${videoGrabber.frameRate}")
-
-        waitTime = (1000.0 / (if (frameRate.isNaN()) videoGrabber.frameRate else frameRate)).toLong()
     }
 
     override fun read(): Frame {
-        // wait fps
-        Thread.sleep(waitTime)
+        // check if constrain fps
+        if(!frameRate.isNaN()) {
+            Thread.sleep((1000.0 / frameRate).roundToLong())
+        }
 
         val frame = videoGrabber.grabFrame()
 
