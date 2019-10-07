@@ -188,10 +188,10 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         println("Longest: ${flankPattern.joinToString { it.type.toString().first().toString() }}")
 
-        // todo: better gap detection (min gap is not valid)
+        // todo: better gap detection (min gap is not valid => remove magic numbers
         // detect gaps length (drop first stop bit)
         val gaps = flankPattern.drop(1).zipWithNext { a, b -> b.timestamp - a.timestamp }
-        val minGap = gaps.min() ?: 0
+        val minGap = gaps.filter { it > 50 }.min() ?: 0
         val marginGap = (minGap * 1.5).roundToLong() // todo: check this 1.25 magic number
 
         println("MinGap: $minGap")
