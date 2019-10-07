@@ -8,13 +8,13 @@ import kotlin.math.roundToLong
 
 class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider {
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
+    private var timestamp = 0L
 
     override fun open() {
         videoGrabber.start()
 
         println("video size: ${videoGrabber.imageWidth}x${videoGrabber.imageHeight}")
         println("video framerate: ${videoGrabber.frameRate}")
-        println("frame number: ${videoGrabber.frameNumber}")
     }
 
     override fun read(): Frame {
@@ -36,9 +36,11 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
             Thread.sleep(100)
         }
 
+        // using frames as timestamp instead of millis()
+        frame.timestamp = timestamp++ //System.currentTimeMillis()
+
         // return cloned frame
         // (not messing up with start stop of grabber)
-        frame.timestamp = System.currentTimeMillis()
         return frame.clone()
     }
 

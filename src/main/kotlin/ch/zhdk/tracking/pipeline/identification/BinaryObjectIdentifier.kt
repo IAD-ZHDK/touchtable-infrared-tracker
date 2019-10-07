@@ -8,6 +8,10 @@ import ch.zhdk.tracking.model.identification.Flank
 import ch.zhdk.tracking.model.identification.FlankType
 import org.nield.kotlinstatistics.binByDouble
 import kotlin.math.roundToLong
+import java.util.Arrays.asList
+import de.pschoepf.naturalbreaks.JenksFisher
+
+
 
 class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
 
@@ -54,7 +58,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
     }
 
     private fun identify(tactileObject: TactileObject) {
-        if (!detectThresholds(tactileObject.identification)) {
+        if (!detectNaturalThreshold(tactileObject.identification)) {
             // something went wrong -> restart process
             tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Requested
             return
@@ -101,44 +105,19 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Detected
     }
 
-    private fun detectThresholds(identification: Identification): Boolean {
-        // prepare intensities
+    private fun detectNaturalThreshold(identification: Identification): Boolean {
         val intensities = identification.samples.map { it.intensity }
+        val breaks = JenksFisher.createJenksFisherBreaksArray(intensities, 3)
+        println("Breaks: ${breaks.joinToString { it.toString() }}")
 
-        // find adaptive bin size (double the size of wanted points)
-        val valueRange = intensities.max()!! - intensities.min()!!
-        val adaptiveBinSize = valueRange / 6.0 // todo: maybe resolve magic number (3 bit * 2)
-
-        // find 3 top bins
-        val bins = intensities.binByDouble(
-            valueSelector = { it },
-            binSize = adaptiveBinSize,
-            rangeStart = intensities.min()!!
-        )
-            .filter { it.value.isNotEmpty() }
-            .sortedByDescending { it.value.size }
-            .take(3)
-
-        // check if it is three bins
-        if (bins.size != 3) {
-            println("too few bins detected -> go back to sampling")
-            return false
-        }
-
-        // get top three bins with most values
-        bins.forEach {
-            println("Range: ${it.range} Count: ${it.value.size}")
-        }
-
-        // create thresholds and adaptive margin
-        val averages = bins.map { it.value.average() }.sorted()
-        val minDistance = averages.zipWithNext { a, b -> b - a }.min() ?: 0.0
+        // create thresholds and margin
+        val minDistance = breaks.zipWithNext { a, b -> b - a }.min()!!
         val thresholdMargin = minDistance / 2.0 * config.thresholdMarginFactor.value
 
         identification.thresholdMargin = thresholdMargin
-        identification.lowThreshold = averages[0]
-        identification.highThreshold = averages[1]
-        identification.stopBitThreshold = averages[2]
+        identification.lowThreshold = breaks[0]
+        identification.highThreshold = breaks[1]
+        identification.stopBitThreshold = breaks[2]
 
         // print infos
         println("Threshold Margin: ${identification.thresholdMargin}")
@@ -174,7 +153,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
     private fun interpolateFlanks(flanks: List<Flank>): List<Flank> {
         val result = mutableListOf<Flank>()
 
-        // get longest gap between stop bits
+        // get longest gap between stop bits (todo: is that really the best heuristic?)
         val stopFlanksIndices = flanks.mapIndexed { index, flank -> Pair(index, flank) }
             .filter { it.second.type == FlankType.Stop }.map { it.first }
         val flankIndex = stopFlanksIndices.zipWithNext { a, b -> b - a }
@@ -186,9 +165,9 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         // todo: better gap detection (min gap is not valid => remove magic numbers
         // detect gaps length (drop first stop bit)
-        val gaps = flankPattern.drop(1).zipWithNext { a, b -> b.timestamp - a.timestamp }
-        val minGap = gaps.filter { it > 50 }.min() ?: 0
-        val marginGap = (minGap * 1.5).roundToLong() // todo: check this 1.25 magic number
+        val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
+        val minGap = gaps.min()!!
+        val marginGap = (minGap * 1.0).roundToLong() // todo: check this 1.25 magic number
 
         println("MinGap: $minGap")
         println("MarginGap: $marginGap")
@@ -201,10 +180,24 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
             // check for gap timing
             var gap = gaps[i - 1]
+
+            if(gap < marginGap)
+                continue
+
+            // alternative gap interpolation with adding a extra bit if rounded
+            val steps = (gap.toDouble() / marginGap.toDouble()).roundToLong()
+            (0 until steps - 1).forEach {
+                gap -= marginGap
+                result.add(Flank(flank.type, flank.timestamp + gap))
+            }
+
+            /*
+            // old gap interpolation method
             while (gap > marginGap) {
                 gap -= marginGap
                 result.add(Flank(flank.type, flank.timestamp + gap))
             }
+             */
         }
 
         return result

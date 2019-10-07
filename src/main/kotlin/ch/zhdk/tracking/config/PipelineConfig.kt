@@ -40,7 +40,7 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Threshold", 0.0, 255.0, 1.0)
-    var threshold = DataModel(200.0)
+    var threshold = DataModel(160.0)
 
     @Expose
     @BooleanParameter("Morphology Filter")
@@ -48,11 +48,11 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Erode Size", 1.0, 10.0, 1.0, snap = true)
-    var erodeSize = DataModel(2)
+    var erodeSize = DataModel(4)
 
     @Expose
     @SliderParameter("Dilate Size", 1.0, 10.0, 1.0, snap = true)
-    var dilateSize = DataModel(2)
+    var dilateSize = DataModel(4)
 
     @Expose
     @BooleanParameter("Detect Orientation")
@@ -78,7 +78,8 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Sampling Time (s)", 0.0, 10.0, 0.5)
-    var samplingTime = DataModel(4.0)
+    // todo: could be calculated from frame rate and protocol speed
+    var samplingTime = DataModel(1.2)
 
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
