@@ -8,7 +8,7 @@ Everything is installed through the gradle dependency manager. Just run the foll
 
 ```bash
 # windows
-gradle.bat run
+gradlew.bat run
 
 # macOS / unix
 ./gradlew run
@@ -19,7 +19,7 @@ To bundle all dependencies and build the project run the following commands. Thi
 
 ```bash
 # windows
-gradle.bat fatJar
+gradlew.bat fatJar
 
 # macOS / unix
 ./gradlew fatJar
