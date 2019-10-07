@@ -27,8 +27,10 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // clear detection
         tactileObject.identification.samples.clear()
 
-        tactileObject.identification.samplingTimer.duration = config.samplingTime.value
+        tactileObject.identification.samplingTimer.duration = (config.samplingTime.value * 1000.0).roundToLong()
         tactileObject.identification.samplingTimer.reset()
+
+        println("SamplingTime: ${tactileObject.identification.samplingTimer.duration}")
 
         tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Sampling
     }
@@ -186,6 +188,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         println("Longest: ${flankPattern.joinToString { it.type.toString().first().toString() }}")
 
+        // todo: better gap detection (min gap is not valid)
         // detect gaps length (drop first stop bit)
         val gaps = flankPattern.drop(1).zipWithNext { a, b -> b.timestamp - a.timestamp }
         val minGap = gaps.min() ?: 0
