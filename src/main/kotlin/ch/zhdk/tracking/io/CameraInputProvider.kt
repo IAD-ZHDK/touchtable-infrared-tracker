@@ -8,6 +8,7 @@ class CameraInputProvider(deviceNumber : Int = 0,
                           val height : Int = 480) : InputProvider {
 
     private val grabber = OpenCVFrameGrabber(deviceNumber)
+    private var timestamp = 0L
 
     // todo: implement device selection through list
 
@@ -19,7 +20,7 @@ class CameraInputProvider(deviceNumber : Int = 0,
 
     override fun read(): Frame {
         val frame = grabber.grab()
-        frame.timestamp = System.currentTimeMillis()
+        frame.timestamp = timestamp++
         return frame.clone()
     }
 

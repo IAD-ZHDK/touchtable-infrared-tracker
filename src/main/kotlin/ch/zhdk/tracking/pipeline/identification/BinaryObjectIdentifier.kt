@@ -10,7 +10,7 @@ import org.nield.kotlinstatistics.binByDouble
 import kotlin.math.roundToLong
 import java.util.Arrays.asList
 import de.pschoepf.naturalbreaks.JenksFisher
-
+import kotlin.math.max
 
 
 class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
@@ -32,9 +32,11 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
     private fun start(tactileObject: TactileObject) {
         // clear detection and add start timestamp
         tactileObject.identification.samples.clear()
-        tactileObject.identification.startFrame = tactileObject.lifeTime
+        tactileObject.identification.startFrame = tactileObject.timestamp
 
         tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Sampling
+
+        println("----")
     }
 
     private fun sampling(tactileObject: TactileObject) {
@@ -45,7 +47,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             )
         )
 
-        if (tactileObject.lifeTime - tactileObject.identification.startFrame >= config.sampleCount.value) {
+        if (tactileObject.timestamp - tactileObject.identification.startFrame >= config.sampleCount.value) {
             // if sampling time is over
             tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Identifying
         }
@@ -65,7 +67,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         // check if two stop bits are detected
         if (flanks.filter { it.type == FlankType.Stop }.size < 2) {
-            println("too few stop bits find for detection")
+            println("=> too few stop bits found for detection")
             tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Requested
             return
         }
@@ -159,11 +161,9 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // todo: better gap detection (min gap is not valid => remove magic numbers
         // detect gaps length
         val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
-        val minGap = gaps.min()!!
-        val marginGap = (minGap * 1.0).roundToLong() // todo: even needed?
+        val minGap = max(gaps.min()!!, 2L)
 
         println("MinGap: $minGap")
-        println("MarginGap: $marginGap")
         println("Gaps: ${gaps.joinToString { it.toString()}}")
 
         for (i in 1 until flankPattern.size - 1) {
@@ -174,13 +174,13 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             // check for gap timing
             var gap = gaps[i]
 
-            if(gap < marginGap)
+            if(gap < minGap)
                 continue
 
             // alternative gap interpolation with adding a extra bit if rounded
-            val steps = (gap.toDouble() / marginGap.toDouble()).roundToLong()
+            val steps = (gap.toDouble() / minGap.toDouble()).roundToLong()
             (0 until steps - 1).forEach {
-                gap -= marginGap
+                gap -= minGap
                 result.add(Flank(flank.type, flank.timestamp + gap))
             }
         }

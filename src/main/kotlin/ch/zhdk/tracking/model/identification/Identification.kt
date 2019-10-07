@@ -1,14 +1,12 @@
 package ch.zhdk.tracking.model.identification
 
-import ch.bildspur.timer.ElapsedTimer
-import ch.bildspur.util.isBetween
 import ch.bildspur.util.isInMargin
 import ch.zhdk.tracking.pipeline.identification.BinaryIdentifierPhase
 
 data class Identification(var identifierPhase : BinaryIdentifierPhase = BinaryIdentifierPhase.Requested) {
     // sampling
     val samples = ArrayList<IntensitySample>(256) // todo: set to samples in config
-    var startFrame = 0
+    var startFrame = 0L
 
     // threshold
     var thresholdMargin = 0.0
