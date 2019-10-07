@@ -10,6 +10,7 @@ import org.nield.kotlinstatistics.binByDouble
 import kotlin.math.roundToLong
 import java.util.Arrays.asList
 import de.pschoepf.naturalbreaks.JenksFisher
+import kotlin.math.ceil
 import kotlin.math.max
 
 
@@ -89,7 +90,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         var id = 0
         interpolatedFlanks.takeLast(8).reversed().forEachIndexed { index, flank ->
             if(flank.type == FlankType.High)
-                id = 1 shl index or id
+                id = id or (1 shl index)
         }
         println("Id: $id")
         tactileObject.identifier = id
@@ -148,7 +149,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         val result = mutableListOf<Flank>()
 
         // get longest gap between stop bits (todo: is that really the best heuristic?)
-        // todo: better => use most accurate timing
+        // todo: better => use most accurate timing (by standard)
         val stopFlanksIndices = flanks.mapIndexed { index, flank -> Pair(index, flank) }
             .filter { it.second.type == FlankType.Stop }.map { it.first }
         val flankIndex = stopFlanksIndices.zipWithNext { a, b -> b - a }
@@ -159,12 +160,12 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         println("Longest: ${flankPattern.joinToString { it.type.toString().first().toString() }}")
 
         // todo: better gap detection (min gap is not valid => remove magic numbers
-        // detect gaps length
+        // detect gaps length from s to s
         val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
         val minGap = max(gaps.min()!!, 2L)
 
-        println("MinGap: $minGap")
         println("Gaps: ${gaps.joinToString { it.toString()}}")
+        println("Min Gap: $minGap")
 
         for (i in 1 until flankPattern.size - 1) {
             val flank = flankPattern[i]
