@@ -81,6 +81,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             return
         }
 
+        // convert to int (MSB - LSB (little-endian))
         var id = 0
         interpolatedFlanks.reversed().take(8).forEachIndexed { index, flank ->
             if(flank.type == FlankType.High)
@@ -188,7 +189,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // detect gaps length (drop first stop bit)
         val gaps = flankPattern.drop(1).zipWithNext { a, b -> b.timestamp - a.timestamp }
         val minGap = gaps.min() ?: 0
-        val marginGap = (minGap * 1.25).roundToLong()
+        val marginGap = (minGap * 1.5).roundToLong() // todo: check this 1.25 magic number
 
         println("MinGap: $minGap")
         println("MarginGap: $marginGap")
