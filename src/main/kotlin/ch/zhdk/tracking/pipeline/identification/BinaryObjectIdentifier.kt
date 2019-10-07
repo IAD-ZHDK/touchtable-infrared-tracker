@@ -83,7 +83,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         // convert to int (MSB - LSB (little-endian))
         var id = 0
-        interpolatedFlanks.reversed().take(8).forEachIndexed { index, flank ->
+        interpolatedFlanks.takeLast(8).reversed().forEachIndexed { index, flank ->
             if(flank.type == FlankType.High)
                 id = 1 shl index or id
         }
