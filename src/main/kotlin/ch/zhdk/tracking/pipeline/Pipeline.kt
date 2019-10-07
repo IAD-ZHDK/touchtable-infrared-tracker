@@ -158,7 +158,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate tactile objects
         tactileObjects.forEach {
             mat.drawCross(it.position.toPoint(), 22, AbstractScalar.GREEN, thickness = 1)
-            mat.drawText("${it.uniqueId} [${it.lifeTime}]",
+            mat.drawText("N:${it.uniqueId} #${it.identifier} [${it.lifeTime}]",
                 it.position.toPoint().transform(20, -20),
                 AbstractScalar.GREEN,
                 scale = 0.4)
