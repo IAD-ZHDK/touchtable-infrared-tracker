@@ -24,12 +24,12 @@ data class Identification(var identifierPhase : BinaryIdentifierPhase = BinaryId
         if(value.isInMargin(highThreshold, thresholdMargin))
             return FlankType.High
 
-        if(value.isInMargin(lowThreshold, thresholdMargin))
+        if(value.isInMargin(lowThreshold, thresholdMargin) || value <= lowThreshold)
             return FlankType.Low
 
-        if(value.isInMargin(stopBitThreshold, thresholdMargin))
+        if(value.isInMargin(stopBitThreshold, thresholdMargin) || value >= stopBitThreshold)
             return FlankType.Stop
 
-        return FlankType.OutOfRange
+        return FlankType.Stop
     }
 }

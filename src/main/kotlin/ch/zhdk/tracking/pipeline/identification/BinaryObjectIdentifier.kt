@@ -13,11 +13,13 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
     override fun recognizeObjectId(objects: List<TactileObject>) {
         objects.forEach {
-            when (it.identification.identifierPhase) {
-                BinaryIdentifierPhase.Requested -> start(it)
-                BinaryIdentifierPhase.Sampling -> sampling(it)
-                BinaryIdentifierPhase.Identifying -> identify(it)
-                BinaryIdentifierPhase.Detected -> {
+            if(it.lifeTime > config.minLifeTime.value) {
+                when (it.identification.identifierPhase) {
+                    BinaryIdentifierPhase.Requested -> start(it)
+                    BinaryIdentifierPhase.Sampling -> sampling(it)
+                    BinaryIdentifierPhase.Identifying -> identify(it)
+                    BinaryIdentifierPhase.Detected -> {
+                    }
                 }
             }
         }
@@ -104,7 +106,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         val intensities = identification.samples.map { it.intensity }
 
         // find adaptive bin size (double the size of wanted points)
-        val valueRange = (intensities.max() ?: 0.0) - (intensities.min() ?: 0.0)
+        val valueRange = intensities.max()!! - intensities.min()!!
         val adaptiveBinSize = valueRange / 6.0 // todo: maybe resolve magic number (3 bit * 2)
 
         // find 3 top bins
@@ -152,16 +154,10 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         // detect flanks
         var last = identification.getFlank(identification.samples[0])
-
-        if (last.type != FlankType.OutOfRange)
-            flanks.add(last)
+        flanks.add(last)
 
         for (i in 1 until identification.samples.size) {
             val flank = identification.getFlank(identification.samples[i])
-
-            // skip out of range
-            if (flank.type == FlankType.OutOfRange)
-                continue
 
             // check if change
             if (flank.type != last.type) {

@@ -12,9 +12,9 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
     override fun open() {
         videoGrabber.start()
 
-        println(videoGrabber)
-        val firstFrame = videoGrabber.grabFrame()
+        println("video size: ${videoGrabber.imageWidth}x${videoGrabber.imageHeight}")
         println("video framerate: ${videoGrabber.frameRate}")
+        println("frame number: ${videoGrabber.frameNumber}")
     }
 
     override fun read(): Frame {
@@ -23,13 +23,17 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
             Thread.sleep((1000.0 / frameRate).roundToLong())
         }
 
-        val frame = videoGrabber.grabFrame()
+        var frame = videoGrabber.grabFrame()
 
-        if (frame == null) {
+        if(frame == null) {
             println("restarting video")
             videoGrabber.stop()
             videoGrabber.start()
-            return read()
+        }
+
+        while(frame == null) {
+            frame = videoGrabber.grabFrame()
+            Thread.sleep(100)
         }
 
         // return cloned frame
