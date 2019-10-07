@@ -74,9 +74,9 @@ class PipelineConfig {
 
     @Expose
     @NumberParameter("Sampling Time", "ms")
-    var samplingTime = DataModel(1200L)
+    var samplingTime = DataModel(2000L)
 
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
-    var thresholdMarginFactor = DataModel(0.75)
+    var thresholdMarginFactor = DataModel(1.0)
 }
