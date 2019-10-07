@@ -8,7 +8,8 @@ import ch.zhdk.tracking.pipeline.identification.BinaryIdentifierPhase
 data class Identification(var identifierPhase : BinaryIdentifierPhase = BinaryIdentifierPhase.Requested) {
     // sampling
     val samplingTimer = ElapsedTimer(0)
-    val samples = ArrayList<IntensitySample>(256)
+    val samples = ArrayList<IntensitySample>(256) // todo: set to samples in config
+    var startFrame = 0
 
     // threshold
     var thresholdMargin = 0.0

@@ -30,13 +30,9 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
     }
 
     private fun start(tactileObject: TactileObject) {
-        // clear detection
+        // clear detection and add start timestamp
         tactileObject.identification.samples.clear()
-
-        tactileObject.identification.samplingTimer.duration = (config.samplingTime.value * 1000.0).roundToLong()
-        tactileObject.identification.samplingTimer.reset()
-
-        println("SamplingTime: ${tactileObject.identification.samplingTimer.duration}")
+        tactileObject.identification.startFrame = tactileObject.lifeTime
 
         tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Sampling
     }
@@ -49,10 +45,8 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             )
         )
 
-        // todo: use frame timer for sample time detection (makes more sense)
-        if (tactileObject.identification.samplingTimer.elapsed()) {
+        if (tactileObject.lifeTime - tactileObject.identification.startFrame >= config.sampleCount.value) {
             // if sampling time is over
-            println("Sampled Intensities: ${tactileObject.identification.samples.count()}")
             tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Identifying
         }
     }
@@ -102,13 +96,13 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         tactileObject.identification.samples.clear()
 
         // mark as detected
-        tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Detected
+        tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Requested // todo: change back to detected
     }
 
     private fun detectNaturalThreshold(identification: Identification): Boolean {
         val intensities = identification.samples.map { it.intensity }
         val breaks = JenksFisher.createJenksFisherBreaksArray(intensities, 3)
-        println("Breaks: ${breaks.joinToString { it.toString() }}")
+        println("Natural Breaks: ${breaks.joinToString { it.toString() }}")
 
         // create thresholds and margin
         val minDistance = breaks.zipWithNext { a, b -> b - a }.min()!!
@@ -121,9 +115,6 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         // print infos
         println("Threshold Margin: ${identification.thresholdMargin}")
-        println("Stop Bit: ${identification.stopBitThreshold}")
-        println("High Bit: ${identification.highThreshold}")
-        println("Low Bit: ${identification.lowThreshold}")
 
         return true
     }
@@ -141,6 +132,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             // check if change
             if (flank.type != last.type) {
                 // todo: maybe adjust timestamp to between flanks
+                flank.timestamp -= ((flank.timestamp - last.timestamp) / 2.0).roundToLong()
                 flanks.add(flank)
             }
 
@@ -154,6 +146,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         val result = mutableListOf<Flank>()
 
         // get longest gap between stop bits (todo: is that really the best heuristic?)
+        // todo: better => use most accurate timing
         val stopFlanksIndices = flanks.mapIndexed { index, flank -> Pair(index, flank) }
             .filter { it.second.type == FlankType.Stop }.map { it.first }
         val flankIndex = stopFlanksIndices.zipWithNext { a, b -> b - a }
@@ -164,10 +157,10 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         println("Longest: ${flankPattern.joinToString { it.type.toString().first().toString() }}")
 
         // todo: better gap detection (min gap is not valid => remove magic numbers
-        // detect gaps length (drop first stop bit)
+        // detect gaps length
         val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
         val minGap = gaps.min()!!
-        val marginGap = (minGap * 1.0).roundToLong() // todo: check this 1.25 magic number
+        val marginGap = (minGap * 1.0).roundToLong() // todo: even needed?
 
         println("MinGap: $minGap")
         println("MarginGap: $marginGap")
@@ -179,7 +172,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             result.add(flank)
 
             // check for gap timing
-            var gap = gaps[i - 1]
+            var gap = gaps[i]
 
             if(gap < marginGap)
                 continue
@@ -190,14 +183,6 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
                 gap -= marginGap
                 result.add(Flank(flank.type, flank.timestamp + gap))
             }
-
-            /*
-            // old gap interpolation method
-            while (gap > marginGap) {
-                gap -= marginGap
-                result.add(Flank(flank.type, flank.timestamp + gap))
-            }
-             */
         }
 
         return result

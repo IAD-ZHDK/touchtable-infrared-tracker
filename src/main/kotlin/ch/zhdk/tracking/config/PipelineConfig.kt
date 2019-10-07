@@ -40,7 +40,7 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Threshold", 0.0, 255.0, 1.0)
-    var threshold = DataModel(160.0)
+    var threshold = DataModel(200.0)
 
     @Expose
     @BooleanParameter("Morphology Filter")
@@ -77,9 +77,9 @@ class PipelineConfig {
     var minLifeTime = DataModel(10)
 
     @Expose
-    @SliderParameter("Sampling Time (s)", 0.0, 10.0, 0.5)
+    @SliderParameter("Samples", 0.0, 300.0, 1.0, snap = true)
     // todo: could be calculated from frame rate and protocol speed
-    var samplingTime = DataModel(1.2)
+    var sampleCount = DataModel(90)
 
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
