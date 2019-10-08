@@ -98,8 +98,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // reset zeroFrame flag
         isZeroFrame = false
 
-        // set input frame
-        inputFrame = input.clone()
+        // set pre process frame
+        var preProcessFrame = input.clone()
 
         // set normalization values
         config.inputWidth.value = input.imageWidth
@@ -115,9 +115,9 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate
         if(config.annotateOutput.value) {
             // annotate input
-            val inputMat = inputFrame.toMat()
+            val inputMat = preProcessFrame.toMat()
             annotateFrame(inputMat, regions)
-            inputFrame = inputMat.toFrame()
+            preProcessFrame = inputMat.toFrame()
 
             // annotate debug
             annotateFrame(mat, regions)
@@ -125,6 +125,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
         // lock frame reading
         processedFrame = mat.toFrame()
+        inputFrame = preProcessFrame
         return true
     }
 

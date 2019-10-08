@@ -65,7 +65,7 @@ class CVPreview(val config: AppConfig) {
 
     private fun createInputProvider(): InputProvider {
         return when (config.input.inputProvider.value) {
-            InputProviderType.CameraInput -> CameraInputProvider(0, 1280, 720)
+            InputProviderType.CameraInput -> CameraInputProvider(config.input.cameraIndex.value, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/nr88.mp4"))
         }
     }
