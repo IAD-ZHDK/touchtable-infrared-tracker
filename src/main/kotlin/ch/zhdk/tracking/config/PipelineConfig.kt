@@ -40,7 +40,7 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Threshold", 0.0, 255.0, 1.0)
-    var threshold = DataModel(200.0)
+    var threshold = DataModel(150.0)
 
     @Expose
     @BooleanParameter("Morphology Filter")

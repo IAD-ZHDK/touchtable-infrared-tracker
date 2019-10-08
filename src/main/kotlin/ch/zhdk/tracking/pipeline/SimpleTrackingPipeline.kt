@@ -28,6 +28,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
             it.normalizedPosition =  Point2d(
                 it.position.x() / config.inputWidth.value,
                 it.position.y() / config.inputHeight.value)
+            it.normalizedIntensity = it.intensity / (config.inputWidth.value * config.inputHeight.value)
         }
     }
 

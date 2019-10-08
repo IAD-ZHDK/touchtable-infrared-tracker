@@ -162,7 +162,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // todo: better gap detection (min gap is not valid => remove magic numbers
         // detect gaps length from s to s
         val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
-        val minGap = max(gaps.min()!!, 2L)
+        val minGap = max(gaps.min()!!, 2L) // (gaps.sum() / 8.0).roundToLong()
 
         println("Gaps: ${gaps.joinToString { it.toString()}}")
         println("Min Gap: $minGap")
@@ -175,7 +175,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             // check for gap timing
             var gap = gaps[i]
 
-            if(gap < minGap)
+            if(gap <= minGap)
                 continue
 
             // alternative gap interpolation with adding a extra bit if rounded

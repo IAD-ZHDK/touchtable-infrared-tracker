@@ -8,6 +8,7 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
+import javafx.application.Platform
 import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
@@ -27,7 +28,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
     private val frameWatch = Stopwatch()
     private val processWatch = Stopwatch()
 
-    private val updateTimer = ElapsedTimer(100)
+    private val updateTimer = ElapsedTimer(200)
 
     @Volatile
     private var shutdownRequested = false
@@ -63,27 +64,30 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         inputProvider.open()
 
         // start processing thread
-        pipelineThread = thread(start = true) {
+        pipelineThread = thread(start = true, name = "Pipeline Thread") {
             while (!shutdownRequested) {
                 frameWatch.start()
-                if(processFrame()) {
+                if (processFrame()) {
                     processWatch.stop()
                     frameWatch.stop()
 
                     // update info
-                    if(updateTimer.elapsed()) {
-                        config.frameTime.value = "${frameWatch.elapsed()} ms"
-                        config.processingTime.value = "${processWatch.elapsed()} ms"
-                        config.actualObjectCount.value = tactileObjects.count()
+                    if (updateTimer.elapsed()) {
+                        Platform.runLater {
+                            config.frameTime.value = "${frameWatch.elapsed()} ms"
+                            config.processingTime.value = "${processWatch.elapsed()} ms"
+                            config.actualObjectCount.value = tactileObjects.count()
+                        }
                     }
 
                     onFrameProcessed.invoke(this)
                 }
+                Thread.sleep(1)
             }
         }
     }
 
-    private fun processFrame() : Boolean {
+    private fun processFrame(): Boolean {
         // read frame
         val input = inputProvider.read()
 
@@ -102,8 +106,10 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         var preProcessFrame = input.clone()
 
         // set normalization values
-        config.inputWidth.value = input.imageWidth
-        config.inputHeight.value = input.imageHeight
+        Platform.runLater {
+            config.inputWidth.value = input.imageWidth
+            config.inputHeight.value = input.imageHeight
+        }
 
         val mat = input.toMat()
 
@@ -113,7 +119,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         recognizeObjectId(tactileObjects)
 
         // annotate
-        if(config.annotateOutput.value) {
+        if (config.annotateOutput.value) {
             // annotate input
             val inputMat = preProcessFrame.toMat()
             annotateFrame(inputMat, regions)
@@ -124,18 +130,19 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         }
 
         // lock frame reading
-        processedFrame = mat.toFrame()
-        inputFrame = preProcessFrame
+        // todo: concurrency bug with setting things here
+        processedFrame = mat.toFrame().clone()
+        //inputFrame = preProcessFrame.toMat().toFrame().clone()
         return true
     }
 
-    abstract fun detectRegions(frame: Mat, timestamp : Long): List<ActiveRegion>
+    abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
 
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
         // convert to color if needed
-        if(mat.type() == CV_8UC1)
+        if (mat.type() == CV_8UC1)
             mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
 
         // annotate active regions
@@ -144,13 +151,15 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
             mat.drawCircle(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
             // draw timestamp
-            mat.drawText("A: ${it.area}",
+            mat.drawText(
+                "A: ${it.area}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
-                scale = 0.4)
+                scale = 0.4
+            )
 
             // display shape
-            if(it.polygon.rows() > 0) {
+            if (it.polygon.rows() > 0) {
                 val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
                 drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
             }
@@ -159,10 +168,12 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate tactile objects
         tactileObjects.forEach {
             mat.drawCross(it.position.toPoint(), 22, AbstractScalar.GREEN, thickness = 1)
-            mat.drawText("N:${it.uniqueId} #${it.identifier} [${it.lifeTime}]",
+            mat.drawText(
+                "N:${it.uniqueId} #${it.identifier} [${it.lifeTime}]",
                 it.position.toPoint().transform(20, -20),
                 AbstractScalar.GREEN,
-                scale = 0.4)
+                scale = 0.4
+            )
         }
     }
 

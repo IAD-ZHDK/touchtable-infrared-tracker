@@ -32,8 +32,11 @@ class CVPreview(val config: AppConfig) {
 
         val pipeline = createPipeline()
         pipeline.onFrameProcessed += {
-            if(timer.elapsed())
-                osc.publish(pipeline.tactileObjects)
+            if(timer.elapsed()) {
+                //println("sending osc (${System.currentTimeMillis()})")
+                //if(System.currentTimeMillis() % 30L == 0L)
+                    osc.publish(pipeline.tactileObjects)
+            }
         }
 
         pipeline.start()
@@ -66,7 +69,8 @@ class CVPreview(val config: AppConfig) {
     private fun createInputProvider(): InputProvider {
         return when (config.input.inputProvider.value) {
             InputProviderType.CameraInput -> CameraInputProvider(config.input.cameraIndex.value, 1280, 720)
-            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/nr88.mp4"))
+            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
+            //InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/nr88.mp4"))
         }
     }
 

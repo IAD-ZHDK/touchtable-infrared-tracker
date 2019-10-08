@@ -9,7 +9,7 @@ import org.bytedeco.javacv.VideoInputFrameGrabber
 object JavaCVWebcamExample {
     @JvmStatic
     fun main(args: Array<String>) {
-        val grabber = OpenCVFrameGrabber(0)
+        val grabber = OpenCVFrameGrabber(1)
         val desc = VideoInputFrameGrabber.getDeviceDescriptions()
         desc.forEach { println(it) }
         println("grabber created")
