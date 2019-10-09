@@ -30,6 +30,6 @@ class Main {
         }
 
         // start main app
-        CVPreview(appConfig).start()
+        CVPreview.start(appConfig)
     }
 }

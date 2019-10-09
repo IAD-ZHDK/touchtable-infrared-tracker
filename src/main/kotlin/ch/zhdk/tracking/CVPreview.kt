@@ -16,7 +16,8 @@ import java.nio.file.Paths
 import javax.swing.WindowConstants
 import kotlin.math.roundToLong
 
-class CVPreview(val config: AppConfig) {
+object CVPreview {
+    lateinit var config: AppConfig
 
     @Volatile
     var running = true
@@ -27,7 +28,8 @@ class CVPreview(val config: AppConfig) {
     private val osc = OscPublisher()
     private val timer = ElapsedTimer()
 
-    fun start() {
+    fun start(config: AppConfig) {
+        this.config = config
         val canvasFrame = CanvasFrame("Preview")
         canvasFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         canvasFrame.setCanvasSize(1280, 720)
