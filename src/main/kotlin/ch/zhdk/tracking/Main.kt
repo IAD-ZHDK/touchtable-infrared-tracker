@@ -16,7 +16,7 @@ class Main {
     }
 
     fun startApplication(args: Array<String>) {
-        val configuration = ConfigurationController(Application.NAME, "zhdk", Application.URI_NAME)
+        val configuration = ConfigurationController("IR Tracking", "zhdk", "ir-tracking")
         var appConfig = configuration.loadAppConfig()
 
         // use a fresh config while debugging

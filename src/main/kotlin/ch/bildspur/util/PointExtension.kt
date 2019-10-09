@@ -1,7 +1,7 @@
 package ch.bildspur.util
 
 import ch.fhnw.exakt.util.Point
-import ch.zhdk.tracking.Application
+import kotlin.math.roundToInt
 
 /**
  * Created by cansik on 06.01.17.
@@ -47,5 +47,18 @@ fun Point.distance(p2: Point): Double {
 }
 
 fun Point.map(x1: Double, y1: Double, x2: Double, y2: Double): Point {
-    return Point(Application.map(this.x, 0.0, x1, 0.0, x2), Application.map(this.y, 0.0, y1, 0.0, y2))
+    return Point(this.x.map(0.0, x1, 0.0, x2), this.y.map(0.0, y1, 0.0, y2))
+}
+
+fun Int.map(start1: Int, stop1: Int, start2: Int, stop2: Int): Int {
+    return this.toDouble().map(
+        start1.toDouble(),
+        stop1.toDouble(),
+        start2.toDouble(),
+        stop2.toDouble()
+    ).roundToInt()
+}
+
+fun Double.map(start1: Double, stop1: Double, start2: Double, stop2: Double): Double {
+    return start2 + (stop2 - start2) * ((this - start1) / (stop1 - start1))
 }
