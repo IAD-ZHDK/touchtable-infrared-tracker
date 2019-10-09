@@ -4,7 +4,6 @@ import ch.bildspur.configuration.ConfigurationController
 import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Platform
 import javafx.stage.Stage
-import kotlin.concurrent.thread
 
 
 class Main {
