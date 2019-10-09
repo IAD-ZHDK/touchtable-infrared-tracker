@@ -2,8 +2,10 @@ package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.model.config.VisualConfig
+import ch.bildspur.ui.properties.ActionParameter
 import ch.bildspur.ui.properties.BooleanParameter
 import ch.bildspur.ui.properties.LabelParameter
+import ch.zhdk.tracking.CVPreview
 import com.google.gson.annotations.Expose
 
 class AppConfig {
@@ -30,4 +32,9 @@ class AppConfig {
     @Expose
     @BooleanParameter("Display Processed")
     var displayProcessed = DataModel(true)
+
+    @ActionParameter("Pipeline", "Restart")
+    val restartPipeline = {
+        CVPreview.restartRequested = true
+    }
 }
