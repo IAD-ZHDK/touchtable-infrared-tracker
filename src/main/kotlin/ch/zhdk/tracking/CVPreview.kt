@@ -26,7 +26,7 @@ object CVPreview {
     var restartRequested = true
 
     private val osc = OscPublisher()
-    private val timer = ElapsedTimer()
+    private val oscTimer = ElapsedTimer()
 
     fun start(config: AppConfig) {
         this.config = config
@@ -35,11 +35,12 @@ object CVPreview {
         canvasFrame.setCanvasSize(1280, 720)
 
         setupConfigChangedHandlers()
+        initOSC()
 
         while(running) {
             val pipeline = createPipeline()
             pipeline.onFrameProcessed += {
-                if(timer.elapsed()) {
+                if(oscTimer.elapsed()) {
                     osc.publish(pipeline.tactileObjects)
                 }
             }
@@ -63,20 +64,14 @@ object CVPreview {
     }
 
     private fun setupConfigChangedHandlers() {
-        config.output.oscAddress.onChanged += {
-            osc.init(InetAddress.getByName(config.output.oscAddress.value), config.output.oscPort.value)
-        }
-        config.output.oscAddress.fireLatest()
-
-        config.output.oscPort.onChanged += {
-            osc.init(InetAddress.getByName(config.output.oscAddress.value), config.output.oscPort.value)
-        }
-        config.output.oscPort.fireLatest()
-
         config.output.updateFrequency.onChanged += {
-            timer.duration = (1000.0 / config.output.updateFrequency.value).roundToLong()
+            oscTimer.duration = (1000.0 / config.output.updateFrequency.value).roundToLong()
         }
         config.output.updateFrequency.fireLatest()
+    }
+
+    fun initOSC() {
+        osc.init(InetAddress.getByName(config.output.oscAddress.value), config.output.oscPort.value)
     }
 
     private fun createInputProvider(): InputProvider {
