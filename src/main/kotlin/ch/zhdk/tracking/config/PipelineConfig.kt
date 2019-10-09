@@ -10,6 +10,9 @@ class PipelineConfig {
     @EnumParameter("Pipeline")
     var pipelineType = DataModel(PipelineType.Simple)
 
+    @BooleanParameter("Enabled")
+    var enabled = DataModel(true)
+
     @Expose
     @BooleanParameter("Annotate Output")
     var annotateOutput = DataModel(true)

@@ -83,7 +83,11 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
                     onFrameProcessed.invoke(this)
                 }
-                Thread.sleep(1)
+                else
+                {
+                    // do a short sleep
+                    Thread.sleep(1)
+                }
             }
         }
     }
@@ -105,6 +109,13 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
         // set pre process frame
         var preProcessFrame = input.clone()
+
+        // exit if pipeline is not enabled
+        if(!config.enabled.value) {
+            // copy input frame
+            inputFrame = preProcessFrame.clone()
+            return true
+        }
 
         // set normalization values
         Platform.runLater {
@@ -131,9 +142,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         }
 
         // lock frame reading
-        // todo: concurrency bug with setting things here
         processedFrame = mat.toFrame().clone()
-        inputFrame = preProcessFrame.toMat().toFrame()
+        inputFrame = preProcessFrame.clone()
         return true
     }
 
