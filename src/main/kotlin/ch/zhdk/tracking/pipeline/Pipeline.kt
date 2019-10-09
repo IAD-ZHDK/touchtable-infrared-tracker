@@ -77,6 +77,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                             config.frameTime.value = "${frameWatch.elapsed()} ms"
                             config.processingTime.value = "${processWatch.elapsed()} ms"
                             config.actualObjectCount.value = tactileObjects.count()
+                            config.uniqueId.fire()
                         }
                     }
 
@@ -132,7 +133,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // lock frame reading
         // todo: concurrency bug with setting things here
         processedFrame = mat.toFrame().clone()
-        //inputFrame = preProcessFrame.toMat().toFrame().clone()
+        inputFrame = preProcessFrame.toMat().toFrame()
         return true
     }
 

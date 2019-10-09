@@ -5,6 +5,7 @@ import ch.zhdk.tracking.javacv.distance
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.toTactileObject
+import javafx.application.Platform
 
 class DistanceRegionTracker(config : PipelineConfig = PipelineConfig()) : RegionTracker(config) {
     override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
@@ -21,7 +22,9 @@ class DistanceRegionTracker(config : PipelineConfig = PipelineConfig()) : Region
         objects.forEach { it.lifeTime++ }
 
         // create new regions
-        objects.addAll(regions.filter { !it.matched }.map { it.toTactileObject(config.uniqueId.value++) })
+        val uniqueId = config.uniqueId.value + 1
+        config.uniqueId.setSilent(uniqueId)
+        objects.addAll(regions.filter { !it.matched }.map { it.toTactileObject(uniqueId) })
     }
 
     private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta : Double) {
