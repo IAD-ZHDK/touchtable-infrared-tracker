@@ -1,8 +1,10 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
+import ch.bildspur.ui.properties.ActionParameter
 import ch.bildspur.ui.properties.NumberParameter
 import ch.bildspur.ui.properties.StringParameter
+import ch.zhdk.tracking.CVPreview
 import com.google.gson.annotations.Expose
 
 class OutputConfig {
@@ -13,6 +15,11 @@ class OutputConfig {
     @Expose
     @NumberParameter("OSC Port")
     var oscPort = DataModel(8002)
+
+    @ActionParameter("OSC", "Restart")
+    private val restartOutput = {
+        CVPreview.initOSC()
+    }
 
     @Expose
     @NumberParameter("Update Frequency", " FPS")
