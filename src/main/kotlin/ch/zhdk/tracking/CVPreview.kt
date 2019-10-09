@@ -4,6 +4,7 @@ import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.io.*
 import ch.zhdk.tracking.osc.OscPublisher
+import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
@@ -35,15 +36,28 @@ object CVPreview {
         initOSC()
 
         while(running) {
-            val pipeline = createPipeline()
+
+            // pipeline init
+            var pipeline = createPipeline()
+
             pipeline.onFrameProcessed += {
                 if(oscTimer.elapsed()) {
                     osc.publish(pipeline.tactileObjects)
                 }
             }
 
-            pipeline.start()
+            // try to start pipeline
+            pipeline = try {
+                pipeline.start()
+                pipeline
+            } catch (ex : Exception) {
+                println("Error: ${ex.message}")
+                println(ex.printStackTrace())
 
+                PassthroughPipeline(config.pipeline, EmptyInputProvider())
+            }
+
+            // run
             while (!restartRequested && running && canvasFrame.isVisible) {
                 if (config.displayProcessed.value) {
                     canvasFrame.showImage(pipeline.processedFrame)
