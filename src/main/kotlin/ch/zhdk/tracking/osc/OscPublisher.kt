@@ -9,11 +9,17 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 
 class OscPublisher(port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
-    private var sender = OSCPortOut(InetSocketAddress(InetAddress.getLocalHost(), port))
+    private val target = InetAddress.getByName("192.168.1.7")
+    private var sender = OSCPortOut(InetSocketAddress(target, port))
+
+    init {
+        println("sending to interface: ${sender.remoteAddress}")
+
+    }
 
     fun init(port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
         sender.close()
-        sender = OSCPortOut(InetSocketAddress(InetAddress.getLocalHost(), port))
+        sender = OSCPortOut(InetSocketAddress(target, port))
     }
 
     fun publish(tactileObjects: List<TactileObject>) {
@@ -22,18 +28,20 @@ class OscPublisher(port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
 
     private fun publishObject(tactileObject: TactileObject) {
         val args = mutableListOf<Any>()
-        args.add(tactileObject.uniqueId)
+        //args.add(tactileObject.uniqueId)
+        args.add(1)
         args.add(tactileObject.identifier)
-        args.add(tactileObject.normalizedPosition.x())
-        args.add(tactileObject.normalizedPosition.y())
-        args.add(tactileObject.lifeTime)
+        args.add(tactileObject.normalizedPosition.x().toFloat())
+        args.add(tactileObject.normalizedPosition.y().toFloat())
+        args.add(30f) // rotation
+        args.add(tactileObject.normalizedIntensity.toFloat())
 
-        val msg = OSCMessage("/ir/object", args)
+        val msg = OSCMessage("/newID", args)
 
         try {
             sender.send(msg)
         } catch (e: Exception) {
-            println("Couldn't send osc message!")
+            println("Couldn't send osc message: ${e.message}")
         }
 
     }

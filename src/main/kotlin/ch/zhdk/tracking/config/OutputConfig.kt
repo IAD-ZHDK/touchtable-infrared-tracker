@@ -7,7 +7,7 @@ import com.google.gson.annotations.Expose
 class OutputConfig {
     @Expose
     @NumberParameter("OSC Port")
-    var oscPort = DataModel(8000)
+    var oscPort = DataModel(8002)
 
     @Expose
     @NumberParameter("Update Frequency", " FPS")
