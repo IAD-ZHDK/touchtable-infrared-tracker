@@ -11,6 +11,7 @@ import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
+import java.net.InetAddress
 import java.nio.file.Paths
 import javax.swing.WindowConstants
 import kotlin.math.roundToLong
@@ -20,8 +21,11 @@ class CVPreview(val config: AppConfig) {
     @Volatile
     var running = true
 
-    private val osc = OscPublisher(config.output.oscPort.value)
-    private val timer = ElapsedTimer(1000)
+    @Volatile
+    var restartRequested = true
+
+    private val osc = OscPublisher()
+    private val timer = ElapsedTimer()
 
     fun start() {
         val canvasFrame = CanvasFrame("Preview")
@@ -30,33 +34,40 @@ class CVPreview(val config: AppConfig) {
 
         setupConfigChangedHandlers()
 
-        val pipeline = createPipeline()
-        pipeline.onFrameProcessed += {
-            if(timer.elapsed()) {
-                //println("sending osc (${System.currentTimeMillis()})")
-                //if(System.currentTimeMillis() % 30L == 0L)
+        while(running) {
+            val pipeline = createPipeline()
+            pipeline.onFrameProcessed += {
+                if(timer.elapsed()) {
                     osc.publish(pipeline.tactileObjects)
+                }
             }
+
+            pipeline.start()
+
+            while (!restartRequested && running && canvasFrame.isVisible) {
+                if (config.displayProcessed.value) {
+                    canvasFrame.showImage(pipeline.processedFrame)
+                } else {
+                    canvasFrame.showImage(pipeline.inputFrame)
+                }
+            }
+
+            pipeline.stop()
+            restartRequested = false
         }
 
-        pipeline.start()
-
-        while (running && canvasFrame.isVisible) {
-            if (config.displayProcessed.value) {
-                canvasFrame.showImage(pipeline.processedFrame)
-            }
-            else {
-                canvasFrame.showImage(pipeline.inputFrame)
-            }
-        }
-
-        pipeline.stop()
         canvasFrame.dispose()
+        running = false
     }
 
     private fun setupConfigChangedHandlers() {
+        config.output.oscAddress.onChanged += {
+            osc.init(InetAddress.getByName(config.output.oscAddress.value), config.output.oscPort.value)
+        }
+        config.output.oscAddress.fireLatest()
+
         config.output.oscPort.onChanged += {
-            osc.init(config.output.oscPort.value)
+            osc.init(InetAddress.getByName(config.output.oscAddress.value), config.output.oscPort.value)
         }
         config.output.oscPort.fireLatest()
 
