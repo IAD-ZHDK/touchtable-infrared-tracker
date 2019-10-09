@@ -7,7 +7,8 @@ annotation class StringParameter(val name: String, val isEditable: Boolean = tru
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class TextParameter(val name: String, val isEditable: Boolean = true,
-                               val width : Double = 200.0, val height : Double = 120.0)
+                               val width : Double = 200.0, val height : Double = 120.0,
+                               val wordWrap : Boolean = false)
 
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)

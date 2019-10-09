@@ -27,6 +27,7 @@ class TextProperty(field: Field, obj: Any, val annotation: TextParameter) : Base
 
         textArea.prefWidth = annotation.width
         textArea.prefHeight = annotation.height
+        textArea.isWrapText = annotation.wordWrap
         box.spacing = 5.0
         children.add(box)
 
