@@ -1,6 +1,6 @@
 package ch.bildspur.timer
 
-class ElapsedTimer(var duration : Long) {
+class ElapsedTimer(var duration : Long = 0) {
     var lastTimestamp = millis()
         private set
 
