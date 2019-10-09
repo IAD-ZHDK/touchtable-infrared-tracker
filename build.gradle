@@ -1,12 +1,18 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 
 group 'ch.zhdk.tracking'
 version '0.1'
 
 sourceCompatibility = 1.8
+
+javafx {
+    version = "11"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
 
 repositories {
     mavenCentral()
@@ -27,6 +33,8 @@ dependencies {
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
 
     // javafx
+    compile group: 'org.openjfx', name: 'javafx-base', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-controls', version: '11.0.2'
     compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
 
     // osc

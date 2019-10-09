@@ -3,8 +3,8 @@ package ch.zhdk.tracking
 import ch.bildspur.configuration.ConfigurationController
 import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Platform
-import javafx.embed.swing.JFXPanel
 import javafx.stage.Stage
+import kotlin.concurrent.thread
 
 
 class Main {
@@ -20,25 +20,17 @@ class Main {
         var appConfig = configuration.loadAppConfig()
 
         // use a fresh config while debugging
-        // todo: remove this before release
-        appConfig = AppConfig()
-
-        // init javafx toolkit
-        JFXPanel()
+        if(args.contains("-dev"))
+            appConfig = AppConfig()
 
         // start configuration app
-        Platform.runLater {
+        Platform.startup {
             val window = ConfigWindow(configuration, appConfig)
             val stage = Stage()
             window.start(stage)
         }
 
-        CVPreview(appConfig).start()
-
         // start main app
-        /*
-        val app = Application(appConfig)
-        app.run()
-         */
+        CVPreview(appConfig).start()
     }
 }
