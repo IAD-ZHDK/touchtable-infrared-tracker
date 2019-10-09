@@ -2,10 +2,7 @@ package ch.zhdk.tracking
 
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
-import ch.zhdk.tracking.io.CameraInputProvider
-import ch.zhdk.tracking.io.InputProvider
-import ch.zhdk.tracking.io.InputProviderType
-import ch.zhdk.tracking.io.VideoInputProvider
+import ch.zhdk.tracking.io.*
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
@@ -76,8 +73,9 @@ object CVPreview {
 
     private fun createInputProvider(): InputProvider {
         return when (config.input.inputProvider.value) {
-            InputProviderType.CameraInput -> CameraInputProvider(config.input.cameraIndex.value, 1280, 720)
+            InputProviderType.CameraInput -> CameraInputProvider(config.input.deviceIndex.value, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
+            InputProviderType.RealSense -> RealSenseInputProvider(config.input.deviceIndex.value, 1280, 720)
             //InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/nr88.mp4"))
         }
     }

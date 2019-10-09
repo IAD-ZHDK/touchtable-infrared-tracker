@@ -9,9 +9,9 @@ import com.google.gson.annotations.Expose
 class InputConfig {
     @Expose
     @EnumParameter("Input Provider")
-    var inputProvider = DataModel(InputProviderType.VideoInput)
+    var inputProvider = DataModel(InputProviderType.RealSense)
 
     @Expose
-    @NumberParameter("Camera Index")
-    var cameraIndex = DataModel(1)
+    @NumberParameter("Device Index")
+    var deviceIndex = DataModel(0)
 }

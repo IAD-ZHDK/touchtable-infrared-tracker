@@ -35,6 +35,10 @@ fun IplImage.toBufferedImage(): BufferedImage {
     return paintConverter.getBufferedImage(frame, 1.0)
 }
 
+fun IplImage.toFrame(): Frame {
+    return matConverter.convert(this)
+}
+
 fun BufferedImage.toPimage(img: PImage) {
     this.getRGB(0, 0, img.width, img.height, img.pixels, 0, img.width)
     img.updatePixels()

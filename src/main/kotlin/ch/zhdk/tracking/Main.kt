@@ -4,6 +4,8 @@ import ch.bildspur.configuration.ConfigurationController
 import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Platform
 import javafx.stage.Stage
+import org.bytedeco.javacpp.Loader
+import org.bytedeco.opencv.global.opencv_core
 
 
 class Main {
@@ -17,6 +19,9 @@ class Main {
     fun startApplication(args: Array<String>) {
         val configuration = ConfigurationController("IR Tracking", "zhdk", "ir-tracking")
         var appConfig = configuration.loadAppConfig()
+
+        // initialize opencv (needed for realsense camera)
+        Loader.load(opencv_core::class.java)
 
         // use a fresh config while debugging
         if(args.contains("-dev"))
