@@ -36,23 +36,7 @@ class Main {
             window.start(stage)
         }
 
-        //createRealSenseTest()
-
         // start main app
         CVPreview.start(appConfig)
-    }
-
-    fun createRealSenseTest() {
-        // create realsense
-        thread {
-            println("starting realsense:")
-            val rs2 = RealSense2FrameGrabber()
-            rs2.enableColorStream(640, 480, 30)
-            rs2.start()
-
-            val frame = rs2.grab()
-
-            println("Frame: ${frame.imageWidth} / ${frame.imageHeight}")
-        }
     }
 }

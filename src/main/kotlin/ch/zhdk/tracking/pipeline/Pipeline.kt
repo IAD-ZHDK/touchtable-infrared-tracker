@@ -36,6 +36,9 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         private set
 
     @Volatile
+    private var isPipelineUp = false
+
+    @Volatile
     var inputFrame: Frame = Frame(100, 100, 8, 3)
         @Synchronized get
         @Synchronized private set
@@ -57,6 +60,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         if (isRunning)
             return
 
+        isRunning = true
         shutdownRequested = false
 
         // open input provider
@@ -83,7 +87,16 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                     // do a short sleep
                     Thread.sleep(1)
                 }
+
+                // mark that pipeline thead is up
+                if(!isPipelineUp)
+                    isPipelineUp = true
             }
+        }
+
+        // wait till pipeline thread is up
+        while(!isPipelineUp) {
+            Thread.sleep(10)
         }
     }
 
@@ -187,6 +200,9 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
         shutdownRequested = true
         pipelineThread.join(5000)
+
+        isRunning = false
+        isPipelineUp = false
 
         inputProvider.close()
     }
