@@ -23,7 +23,7 @@ object CVPreview {
     var running = true
 
     @Volatile
-    var restartRequested = true
+    var restartRequested = false
 
     private val osc = OscPublisher()
     private val oscTimer = ElapsedTimer()
@@ -67,6 +67,11 @@ object CVPreview {
                 } else {
                     canvasFrame.showImage(pipeline.inputFrame)
                 }
+            }
+
+            if(restartRequested)
+            {
+                config.message.value = "restart requested..."
             }
 
             pipeline.stop()
