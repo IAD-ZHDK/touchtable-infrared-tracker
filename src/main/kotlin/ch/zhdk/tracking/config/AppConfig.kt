@@ -1,16 +1,11 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.model.config.VisualConfig
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.CVPreview
 import com.google.gson.annotations.Expose
 
 class AppConfig {
-
-    @Expose
-    var visual = VisualConfig()
-
     @Expose
     var input = InputConfig()
 
@@ -24,7 +19,7 @@ class AppConfig {
     @BooleanParameter("Debugging Mode")
     var debuggingMode = DataModel(true)
 
-    @LabelParameter("Output")
+    @LabelParameter("Preview")
     val outputLabel = ""
 
     @Expose
