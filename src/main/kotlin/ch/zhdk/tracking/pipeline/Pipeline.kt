@@ -88,7 +88,9 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                         config.uniqueId.fire()
                     }
 
-                    onFrameProcessed.invoke(this)
+                    //onFrameProcessed.invoke(this)
+                } else {
+                    Thread.sleep(1)
                 }
 
                 // mark that pipeline thead is up
@@ -119,13 +121,12 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         isZeroFrame = false
 
         // set pre process frame
-        var preProcessFrame = input
+        val inputMat = input.toMat()
 
         // exit if pipeline is not enabled
         if (!config.enabled.value) {
             // copy input frame
-            println("clone preProcessFrame")
-            //inputFrame = preProcessFrame.clone()
+            inputFrame = createBufferedImage(inputMat, inputFrame)
             return true
         }
 
@@ -133,7 +134,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         config.inputWidth.value = input.imageWidth
         config.inputHeight.value = input.imageHeight
 
-        val mat = input.toMat()
+        // get input mat
+        val mat = inputMat.clone()
 
         // process
         val regions = detectRegions(mat, input.timestamp)
@@ -148,23 +150,28 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate
         if (config.annotateOutput.value) {
             // annotate input
-            val inputMat = preProcessFrame.toMat()
             annotateFrame(inputMat, regions)
-            preProcessFrame = inputMat.toFrame()
 
             // annotate debug
             annotateFrame(mat, regions)
         }
 
         // lock frame reading
-        processedFrame = mat.toFrame().createBufferedImageFast(processedFrame)
-        inputFrame = preProcessFrame.createBufferedImageFast(inputFrame)
+        processedFrame = createBufferedImage(mat, processedFrame)
+        inputFrame = createBufferedImage(inputMat, inputFrame)
         return true
     }
 
     abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
+
+    private fun createBufferedImage(mat : Mat, image : BufferedImage) : BufferedImage {
+        if (mat.type() == CV_8UC1)
+            mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
+
+        return mat.toFrame().createBufferedImageFast(image)
+    }
 
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
         // convert to color if needed
