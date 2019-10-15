@@ -10,18 +10,14 @@ import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
-import org.bytedeco.opencv.global.opencv_imgproc.drawContours
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.MatVector
-import org.bytedeco.opencv.opencv_core.Rect
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
-import java.awt.image.BufferedImage.TYPE_INT_RGB
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
-    private val lock = java.lang.Object()
+    val pipelineLock = java.lang.Object()
 
     private lateinit var pipelineThread: Thread
 
@@ -158,8 +154,10 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         }
 
         // lock frame reading
-        processedFrame = createBufferedImage(mat, processedFrame)
-        inputFrame = createBufferedImage(inputMat, inputFrame)
+        synchronized(pipelineLock) {
+            processedFrame = createBufferedImage(mat, processedFrame)
+            inputFrame = createBufferedImage(inputMat, inputFrame)
+        }
         return true
     }
 

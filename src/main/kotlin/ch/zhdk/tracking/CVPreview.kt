@@ -79,10 +79,12 @@ object CVPreview {
 
                 // display frames
                 if(pipeline.isRunning) {
-                    if (config.displayProcessed.value) {
-                        canvasFrame.showImage(pipeline.processedFrame)
-                    } else {
-                        canvasFrame.showImage(pipeline.inputFrame)
+                    synchronized(pipeline.pipelineLock) {
+                        if (config.displayProcessed.value) {
+                            canvasFrame.showImage(pipeline.processedFrame)
+                        } else {
+                            canvasFrame.showImage(pipeline.inputFrame)
+                        }
                     }
                 }
 
