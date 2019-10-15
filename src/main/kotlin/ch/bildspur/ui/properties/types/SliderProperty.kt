@@ -3,6 +3,7 @@ package ch.bildspur.ui.properties.types
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.SliderParameter
 import ch.bildspur.util.format
+import javafx.application.Platform
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.HBox
@@ -28,12 +29,14 @@ class SliderProperty(field: Field, obj: Any, val annotation: SliderParameter) : 
         children.add(box)
 
         model.onChanged += {
-            slider.value = model.value.toDouble()
+            Platform.runLater {
+                slider.value = model.value.toDouble()
 
-            if (model.value is Int || model.value is Long)
-                valueLabel.text = model.value.toString()
-            else
-                valueLabel.text = model.value.format(digits)
+                if (model.value is Int || model.value is Long)
+                    valueLabel.text = model.value.toString()
+                else
+                    valueLabel.text = model.value.format(digits)
+            }
         }
         model.fireLatest()
 

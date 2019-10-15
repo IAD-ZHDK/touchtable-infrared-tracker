@@ -4,6 +4,7 @@ import ch.bildspur.model.DataModel
 import ch.bildspur.model.NumberRange
 import ch.bildspur.ui.properties.RangeSliderParameter
 import ch.bildspur.util.format
+import javafx.application.Platform
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextAlignment
@@ -31,9 +32,11 @@ class RangeSliderProperty(field: Field, obj: Any, val annotation: RangeSliderPar
 
         val model = field.get(obj) as DataModel<NumberRange>
         model.onChanged += {
-            slider.lowValue = model.value.lowValue
-            slider.highValue = model.value.highValue
-            valueLabel.text = "${model.value.lowValue.format(digits)} - ${model.value.highValue.format(digits)}"
+            Platform.runLater {
+                slider.lowValue = model.value.lowValue
+                slider.highValue = model.value.highValue
+                valueLabel.text = "${model.value.lowValue.format(digits)} - ${model.value.highValue.format(digits)}"
+            }
         }
         model.fireLatest()
 

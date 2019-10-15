@@ -8,7 +8,6 @@ import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
-import javafx.application.Platform
 import org.bytedeco.javacv.CanvasFrame
 import java.net.InetAddress
 import java.nio.file.Paths
@@ -50,13 +49,12 @@ object CVPreview {
             // try to start pipeline
             pipeline = try {
                 pipeline.start()
-                Platform.runLater { config.message.value = "started" }
+                config.message.value = "started"
                 pipeline
             } catch (ex : Exception) {
                 println("Error: ${ex.message}")
                 println(ex.printStackTrace())
-
-                Platform.runLater { config.message.value = "Error: ${ex.message}" }
+                config.message.value = "Error: ${ex.message}"
 
                 PassthroughPipeline(config.pipeline, EmptyInputProvider())
             }

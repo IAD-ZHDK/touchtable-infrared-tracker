@@ -3,6 +3,7 @@ package ch.bildspur.ui.properties.types
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.RelationNumberField
 import ch.bildspur.ui.properties.PVectorParameter
+import javafx.application.Platform
 import javafx.scene.control.Label
 import javafx.scene.control.TextFormatter
 import javafx.scene.layout.HBox
@@ -47,10 +48,11 @@ class PVectorProperty(field: Field, obj: Any, val annotation: PVectorParameter) 
 
         // setup binding
         model.onChanged += {
-            xField.setValue(model.value.x.toDouble())
-            yField.setValue(model.value.y.toDouble())
-            zField.setValue(model.value.z.toDouble())
-
+            Platform.runLater {
+                xField.setValue(model.value.x.toDouble())
+                yField.setValue(model.value.y.toDouble())
+                zField.setValue(model.value.z.toDouble())
+            }
         }
         model.fireLatest()
         children.add(box)

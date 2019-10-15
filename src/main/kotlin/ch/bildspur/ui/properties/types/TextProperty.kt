@@ -2,6 +2,7 @@ package ch.bildspur.ui.properties.types
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.TextParameter
+import javafx.application.Platform
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
 import javafx.scene.layout.VBox
@@ -34,7 +35,9 @@ class TextProperty(field: Field, obj: Any, val annotation: TextParameter) : Base
         // setup binding
         val model = field.get(obj) as DataModel<String>
         model.onChanged += {
-            textArea.text = model.value
+            Platform.runLater {
+                textArea.text = model.value
+            }
         }
         model.fireLatest()
 

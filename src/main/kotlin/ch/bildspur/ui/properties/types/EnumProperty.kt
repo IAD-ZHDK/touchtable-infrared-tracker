@@ -2,6 +2,7 @@ package ch.bildspur.ui.properties.types
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.EnumParameter
+import javafx.application.Platform
 import javafx.scene.control.ComboBox
 import java.lang.reflect.Field
 
@@ -25,7 +26,9 @@ class EnumProperty(field: Field, obj: Any, val annotation: EnumParameter) : Base
 
         // add binding
         model.onChanged += {
-            box.selectionModel.select(model.value)
+            Platform.runLater {
+                box.selectionModel.select(model.value)
+            }
         }
         model.fireLatest()
 

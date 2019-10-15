@@ -3,6 +3,7 @@ package ch.bildspur.ui.properties.types
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.NumberParameter
 import ch.bildspur.ui.RelationNumberField
+import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.TextFormatter
@@ -36,7 +37,9 @@ class NumberProperty(field: Field, obj: Any, val annotation: NumberParameter) : 
 
         val model = field.get(obj) as DataModel<Number>
         model.onChanged += {
-            numberField.setValue(model.value.toDouble())
+            Platform.runLater {
+                numberField.setValue(model.value.toDouble())
+            }
         }
         model.fireLatest()
 

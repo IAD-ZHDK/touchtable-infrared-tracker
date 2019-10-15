@@ -8,7 +8,6 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
-import javafx.application.Platform
 import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
@@ -73,18 +72,14 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
                     // update info
                     if (updateTimer.elapsed()) {
-                        Platform.runLater {
-                            config.frameTime.value = "${frameWatch.elapsed()} ms"
-                            config.processingTime.value = "${processWatch.elapsed()} ms"
-                            config.actualObjectCount.value = tactileObjects.count()
-                            config.uniqueId.fire()
-                        }
+                        config.frameTime.value = "${frameWatch.elapsed()} ms"
+                        config.processingTime.value = "${processWatch.elapsed()} ms"
+                        config.actualObjectCount.value = tactileObjects.count()
+                        config.uniqueId.fire()
                     }
 
                     onFrameProcessed.invoke(this)
-                }
-                else
-                {
+                } else {
                     // do a short sleep
                     Thread.sleep(1)
                 }
@@ -111,17 +106,15 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         var preProcessFrame = input.clone()
 
         // exit if pipeline is not enabled
-        if(!config.enabled.value) {
+        if (!config.enabled.value) {
             // copy input frame
             inputFrame = preProcessFrame.clone()
             return true
         }
 
         // set normalization values
-        Platform.runLater {
-            config.inputWidth.value = input.imageWidth
-            config.inputHeight.value = input.imageHeight
-        }
+        config.inputWidth.value = input.imageWidth
+        config.inputHeight.value = input.imageHeight
 
         val mat = input.toMat()
 

@@ -4,6 +4,7 @@ import ch.bildspur.ui.properties.PVectorAngleParameter
 import ch.bildspur.model.DataModel
 import ch.bildspur.util.toDegrees
 import ch.bildspur.util.toRadians
+import javafx.application.Platform
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.HBox
@@ -23,9 +24,10 @@ class PVectorAngleProperty(field: Field, obj: Any, val annotation: PVectorAngleP
     val zField = Slider(minAngle, maxAngle, initValue)
 
     val fields = mapOf(
-            Pair("X", xField),
-            Pair("Y", yField),
-            Pair("Z", zField))
+        Pair("X", xField),
+        Pair("Y", yField),
+        Pair("Z", zField)
+    )
 
     init {
         val box = VBox()
@@ -45,7 +47,7 @@ class PVectorAngleProperty(field: Field, obj: Any, val annotation: PVectorAngleP
 
             slider.valueProperty().addListener { _, _, _ ->
                 run {
-                    when(it.key) {
+                    when (it.key) {
                         "X" -> model.value.x = xField.value.toFloat().toRadians()
                         "Y" -> model.value.y = yField.value.toFloat().toRadians()
                         "Z" -> model.value.z = zField.value.toFloat().toRadians()
@@ -64,9 +66,11 @@ class PVectorAngleProperty(field: Field, obj: Any, val annotation: PVectorAngleP
 
         // setup binding
         model.onChanged += {
-            xField.value = model.value.x.toDegrees().toDouble()
-            yField.value = model.value.y.toDegrees().toDouble()
-            zField.value = model.value.z.toDegrees().toDouble()
+            Platform.runLater {
+                xField.value = model.value.x.toDegrees().toDouble()
+                yField.value = model.value.y.toDegrees().toDouble()
+                zField.value = model.value.z.toDegrees().toDouble()
+            }
         }
         model.fireLatest()
         children.add(box)

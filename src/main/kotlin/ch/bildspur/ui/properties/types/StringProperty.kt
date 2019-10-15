@@ -2,6 +2,7 @@ package ch.bildspur.ui.properties.types
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.StringParameter
+import javafx.application.Platform
 import javafx.scene.control.TextField
 import java.lang.reflect.Field
 
@@ -19,7 +20,9 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
         // setup binding
         val model = field.get(obj) as DataModel<Any>
         model.onChanged += {
-            textField.text = model.value.toString()
+            Platform.runLater {
+                textField.text = model.value.toString()
+            }
         }
         model.fireLatest()
 
