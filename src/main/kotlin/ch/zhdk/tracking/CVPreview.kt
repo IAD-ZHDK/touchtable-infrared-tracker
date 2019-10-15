@@ -9,11 +9,8 @@ import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
-import org.bytedeco.javacv.RealSense2FrameGrabber
 import java.net.InetAddress
 import java.nio.file.Paths
-import javax.swing.WindowConstants
-import kotlin.concurrent.thread
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
