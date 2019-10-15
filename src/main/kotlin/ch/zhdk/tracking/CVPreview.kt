@@ -3,8 +3,6 @@ package ch.zhdk.tracking
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.io.*
-import ch.zhdk.tracking.javacv.toBufferedImage
-import ch.zhdk.tracking.javacv.toIplImage
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
@@ -43,6 +41,8 @@ object CVPreview {
         initOSC()
 
         while (running) {
+            config.message.value = "starting pipeline..."
+
             // pipeline init
             var pipeline = createPipeline()
 
@@ -55,12 +55,13 @@ object CVPreview {
             // try to start pipeline
             pipeline = try {
                 pipeline.start()
-                config.message.value = "started"
+                config.message.value = "pipeline started"
                 pipeline
             } catch (ex: Exception) {
                 println("Error: ${ex.message}")
                 println(ex.printStackTrace())
-                config.message.value = "Error: ${ex.message}"
+                config.message.value = "error on startup"
+                config.errorMessage.value = "${ex.message}"
 
                 PassthroughPipeline(config.pipeline, EmptyInputProvider())
             }
@@ -105,14 +106,14 @@ object CVPreview {
     }
 
     private fun setupConfigChangedHandlers() {
-        config.output.updateFrequency.onChanged += {
-            oscTimer.duration = (1000.0 / config.output.updateFrequency.value).roundToLong()
+        config.osc.updateFrequency.onChanged += {
+            oscTimer.duration = (1000.0 / config.osc.updateFrequency.value).roundToLong()
         }
-        config.output.updateFrequency.fireLatest()
+        config.osc.updateFrequency.fireLatest()
     }
 
     fun initOSC() {
-        osc.init(InetAddress.getByName(config.output.oscAddress.value), config.output.oscPort.value)
+        osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
     }
 
     private fun createInputProvider(): InputProvider {

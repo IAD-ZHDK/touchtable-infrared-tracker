@@ -7,7 +7,7 @@ import ch.bildspur.ui.properties.StringParameter
 import ch.zhdk.tracking.CVPreview
 import com.google.gson.annotations.Expose
 
-class OutputConfig {
+class OscConfig {
     @Expose
     @StringParameter("OSC Address")
     var oscAddress = DataModel("192.168.1.255")

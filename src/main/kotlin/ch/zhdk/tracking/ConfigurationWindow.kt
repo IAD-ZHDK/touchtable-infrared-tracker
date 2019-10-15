@@ -60,11 +60,10 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
         val top = HBox(saveButton, spacerButton)
 
         val settings = mapOf(
-            "App" to config,
+            "General" to config,
             "Pipeline" to config.pipeline,
             "Input" to config.input,
-            "Output" to config.output,
-            "Visual" to config.visual
+            "OSC" to config.osc
             )
 
         settings.forEach { (name, cfg) ->
@@ -79,6 +78,7 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
             it.padding = Insets(5.0)
         }
         top.padding = Insets(10.0)
+        top.spacing = 5.0
         return BorderPane(ScrollPane(propertiesControl), top, null, null, null)
     }
 }

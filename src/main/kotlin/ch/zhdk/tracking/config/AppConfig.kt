@@ -13,7 +13,7 @@ class AppConfig {
     var pipeline = PipelineConfig()
 
     @Expose
-    var output = OutputConfig()
+    var osc = OscConfig()
 
     @Expose
     @BooleanParameter("Debugging Mode")
@@ -43,6 +43,9 @@ class AppConfig {
     @LabelParameter("Information")
     val infoLabel = ""
 
-    @TextParameter("Message", isEditable = false, wordWrap = true)
+    @StringParameter("Message", isEditable = false)
     var message = DataModel("")
+
+    @TextParameter("Error", isEditable = false, wordWrap = true)
+    var errorMessage = DataModel("")
 }
