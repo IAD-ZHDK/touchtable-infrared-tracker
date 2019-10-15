@@ -118,6 +118,7 @@ object CVPreview {
             InputProviderType.CameraInput -> CameraInputProvider(config.input.deviceIndex.value, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
             InputProviderType.RealSense2 -> RealSense2InputProvider(config.input.deviceIndex.value, 848, 480, 60)
+            InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_1512.png"))
         }
     }
 
