@@ -68,6 +68,8 @@ object CVPreview {
 
             // run
             while (!restartRequested && running && canvasFrame.isVisible) {
+
+                // if frame save requested
                 if (saveFrameRequested) {
                     val outfile = File("image_pipeline.png")
                     ImageIO.write(pipeline.inputFrame, "png", outfile)
@@ -76,10 +78,12 @@ object CVPreview {
                 }
 
                 // display frames
-                if (config.displayProcessed.value) {
-                    canvasFrame.showImage(pipeline.processedFrame)
-                } else {
-                    canvasFrame.showImage(pipeline.inputFrame)
+                if(pipeline.isRunning) {
+                    if (config.displayProcessed.value) {
+                        canvasFrame.showImage(pipeline.processedFrame)
+                    } else {
+                        canvasFrame.showImage(pipeline.inputFrame)
+                    }
                 }
 
                 // ui refresh speed

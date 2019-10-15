@@ -62,7 +62,6 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         if (isRunning)
             return
 
-        isRunning = true
         shutdownRequested = false
 
         // open input provider
@@ -103,6 +102,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         while(!isPipelineUp) {
             Thread.sleep(10)
         }
+
+        isRunning = true
     }
 
     private fun processFrame(): Boolean {
