@@ -155,8 +155,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
         // lock frame reading
         synchronized(pipelineLock) {
-            processedFrame = createBufferedImage(mat, processedFrame)
-            inputFrame = createBufferedImage(inputMat, inputFrame)
+            processedFrame = createBufferedImage(mat.clone(), processedFrame)
+            inputFrame = createBufferedImage(inputMat.clone(), inputFrame)
         }
         return true
     }
