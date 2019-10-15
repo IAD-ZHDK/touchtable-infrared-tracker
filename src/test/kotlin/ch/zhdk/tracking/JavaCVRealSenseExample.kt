@@ -1,8 +1,10 @@
 package ch.zhdk.tracking
 
 import ch.zhdk.tracking.javacv.toFrame
+import org.bytedeco.javacpp.Loader
 import org.bytedeco.javacv.*
 import org.bytedeco.librealsense.global.RealSense
+import org.bytedeco.opencv.global.opencv_core
 
 
 object JavaCVRealSenseExample {

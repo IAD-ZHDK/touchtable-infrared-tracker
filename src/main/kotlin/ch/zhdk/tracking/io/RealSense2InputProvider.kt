@@ -8,7 +8,7 @@ class RealSense2InputProvider(
     val width: Int = 640,
     val height: Int = 480,
     val frameRate: Int = 30
-) : InputProvider {
+) : InputProvider() {
 
     private lateinit var rs2: RealSense2FrameGrabber
     private var timestamp = 0L
@@ -17,6 +17,7 @@ class RealSense2InputProvider(
         rs2 = RealSense2FrameGrabber(deviceNumber)
         rs2.enableIRStream(width, height, frameRate)
         rs2.start()
+        super.open()
     }
 
     override fun read(): Frame {
@@ -28,6 +29,7 @@ class RealSense2InputProvider(
     override fun close() {
         rs2.stop()
         rs2.release()
+        super.close()
     }
 
 }

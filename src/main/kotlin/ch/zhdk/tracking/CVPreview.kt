@@ -9,9 +9,11 @@ import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
+import org.bytedeco.javacv.RealSense2FrameGrabber
 import java.net.InetAddress
 import java.nio.file.Paths
 import javax.swing.WindowConstants
+import kotlin.concurrent.thread
 import kotlin.math.roundToLong
 
 object CVPreview {
@@ -26,6 +28,20 @@ object CVPreview {
     private val osc = OscPublisher()
     private val oscTimer = ElapsedTimer()
 
+    fun createRealSenseTest() {
+        // create realsense
+        thread {
+            println("starting realsense:")
+            val rs2 = RealSense2FrameGrabber()
+            rs2.enableColorStream(640, 480, 30)
+            rs2.start()
+
+            val frame = rs2.grab()
+
+            println("Rs2Frame: ${frame.imageWidth} / ${frame.imageHeight}")
+        }
+    }
+
     fun start(config: AppConfig) {
         this.config = config
         val canvasFrame = CanvasFrame("Preview")
@@ -36,7 +52,6 @@ object CVPreview {
         initOSC()
 
         while(running) {
-
             // pipeline init
             var pipeline = createPipeline()
 
@@ -97,6 +112,7 @@ object CVPreview {
 
     private fun createPipeline(): Pipeline {
         return when (config.pipeline.pipelineType.value) {
+            PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider())
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider())
         }
     }

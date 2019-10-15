@@ -377,7 +377,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     private int getDeviceCount() throws FrameGrabber.Exception {
         rs2_device_list deviceList = createDeviceList();
         int count = rs2_get_device_count(deviceList, error);
-
         checkError(error);
         rs2_delete_device_list(deviceList);
         return count;

@@ -2,10 +2,17 @@ package ch.zhdk.tracking.io
 
 import org.bytedeco.javacv.Frame
 
-interface InputProvider {
-    fun open()
+abstract class InputProvider {
+    var isOpen : Boolean = false
+        protected set
 
-    fun read() : Frame
+    open fun open() {
+        isOpen = true
+    }
 
-    fun close()
+    abstract fun read() : Frame
+
+    open fun close() {
+        isOpen = false
+    }
 }

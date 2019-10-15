@@ -2,11 +2,11 @@ package ch.zhdk.tracking.io
 
 import org.bytedeco.javacv.Frame
 
-class EmptyInputProvider : InputProvider {
+class EmptyInputProvider : InputProvider() {
     val frame = Frame(100, 100, 8, 3)
 
     override fun open() {
-
+        super.open()
     }
 
     override fun read(): Frame {
@@ -14,7 +14,7 @@ class EmptyInputProvider : InputProvider {
     }
 
     override fun close() {
-
+        super.close()
     }
 
 }

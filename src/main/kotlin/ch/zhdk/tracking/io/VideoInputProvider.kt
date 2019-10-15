@@ -6,7 +6,7 @@ import org.bytedeco.javacv.FrameGrabber
 import java.nio.file.Path
 import kotlin.math.roundToLong
 
-class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider {
+class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider() {
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
     private var timestamp = 0L
 
@@ -15,6 +15,7 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
 
         println("video size: ${videoGrabber.imageWidth}x${videoGrabber.imageHeight}")
         println("video framerate: ${videoGrabber.frameRate}")
+        super.open()
     }
 
     override fun read(): Frame {
@@ -46,6 +47,7 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
 
     override fun close() {
         videoGrabber.stop()
+        super.close()
     }
 
 }

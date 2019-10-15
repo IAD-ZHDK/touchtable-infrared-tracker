@@ -1,9 +1,11 @@
 package ch.zhdk.tracking
 
+import org.bytedeco.javacpp.Loader
 import org.bytedeco.javacv.CanvasFrame
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.OpenCVFrameGrabber
+import org.bytedeco.opencv.global.opencv_core
 import java.nio.file.Paths
 
 
