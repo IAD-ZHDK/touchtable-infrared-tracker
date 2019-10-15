@@ -17,6 +17,10 @@ class PipelineConfig {
     @BooleanParameter("Annotate Output")
     var annotateOutput = DataModel(true)
 
+    @Expose
+    @BooleanParameter("Display Output")
+    var displayOutput = DataModel(true)
+
     @LabelParameter("Information")
     val informationLabel = ""
 
@@ -77,7 +81,11 @@ class PipelineConfig {
     var maxDelta = DataModel(40.0)
 
     @LabelParameter("Identification")
-    val identificationLabel = ""
+    private val identificationLabel = ""
+
+    @Expose
+    @BooleanParameter("Identification Enabled")
+    var identificationEnabled = DataModel(true)
 
     @Expose
     @NumberParameter("Min LifeTime", "frames")

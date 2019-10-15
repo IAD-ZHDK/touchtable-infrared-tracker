@@ -1,18 +1,20 @@
 package ch.zhdk.tracking.javacv
 
 import org.bytedeco.javacv.Frame
+import org.bytedeco.javacv.Java2DFrameConverter
 import org.bytedeco.javacv.OpenCVFrameConverter
+import org.bytedeco.opencv.global.opencv_core.*
 import org.bytedeco.opencv.opencv_core.IplImage
 import org.bytedeco.opencv.opencv_core.Mat
 import org.opencv.imgproc.Imgproc
+import processing.core.PConstants.ARGB
 import processing.core.PImage
-import java.awt.image.BufferedImage
-import java.awt.image.DataBufferInt
+import java.awt.Transparency
+import java.awt.color.ColorSpace
+import java.awt.image.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import org.bytedeco.javacv.Java2DFrameConverter
-import org.bytedeco.opencv.global.opencv_core.*
-import processing.core.PConstants.ARGB
+
 
 private var matConverter = OpenCVFrameConverter.ToMat()
 
@@ -64,6 +66,56 @@ fun Mat.toOpenCVMat(): org.opencv.core.Mat {
 
 fun Frame.toOpenCVMat(): org.opencv.core.Mat {
     return matConverter.convertToOrgOpenCvCoreMat(this)
+}
+
+fun Frame.createBufferedImageFast(image: BufferedImage?): BufferedImage {
+    val buffer = this.image[0].position(0) as ByteBuffer
+
+    if (image == null) {
+        val cs = ColorSpace.getInstance(ColorSpace.CS_sRGB)
+
+        val cm = ComponentColorModel(cs, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE)
+        // this assumes BGR format
+        val dataBuffer = DataBufferByte(buffer.limit())
+        val wr = Raster.createWritableRaster(
+            ComponentSampleModel(
+                DataBuffer.TYPE_BYTE,
+                this.imageWidth,
+                this.imageHeight,
+                this.imageChannels,
+                this.imageStride,
+                intArrayOf(2, 1, 0)
+            ), dataBuffer, null
+        )
+        val bufferPixels = (wr.dataBuffer as DataBufferByte).data
+
+        buffer.get(bufferPixels)
+
+        return BufferedImage(cm, wr, false, null)
+    } else {
+        val wr = image.raster
+        val bufferPixels = (wr.dataBuffer as DataBufferByte).data
+
+        buffer.get(bufferPixels)
+
+        return image
+    }
+}
+
+fun BufferedImage.createFrameFast(frame: Frame?): Frame {
+    var frame = frame
+    val imageBuffer = this.raster.dataBuffer as DataBufferByte
+    val stride = imageBuffer.data.size / this.height
+
+    if (frame == null || frame.imageWidth != this.width || frame.imageHeight != this.height)
+        frame = Frame(this.width, this.height, 8, 3, stride)
+
+    val frameBuffer = frame.image[0].position(0) as ByteBuffer
+
+    frameBuffer.put((this.raster.dataBuffer as DataBufferByte).data)
+    frameBuffer.position(0)
+
+    return frame
 }
 
 fun org.opencv.core.Mat.toJavaCVMat(): Mat {

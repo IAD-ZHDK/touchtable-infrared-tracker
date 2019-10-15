@@ -8,7 +8,6 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
-import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.global.opencv_imgproc.drawContours
@@ -16,6 +15,9 @@ import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.MatVector
 import org.bytedeco.opencv.opencv_core.Rect
+import java.awt.image.BufferedImage
+import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
+import java.awt.image.BufferedImage.TYPE_INT_RGB
 import kotlin.concurrent.thread
 
 abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
@@ -39,12 +41,12 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
     private var isPipelineUp = false
 
     @Volatile
-    var inputFrame: Frame = Frame(100, 100, 8, 3)
+    lateinit var inputFrame: BufferedImage
         @Synchronized get
         @Synchronized private set
 
     @Volatile
-    var processedFrame: Frame = Frame(100, 100, 8, 3)
+    lateinit var processedFrame: BufferedImage
         @Synchronized get
         @Synchronized private set
 
@@ -66,6 +68,10 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // open input provider
         inputProvider.open()
 
+        // create buffer for output
+        inputFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
+        processedFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
+
         // start processing thread
         pipelineThread = thread(start = true, name = "Pipeline Thread") {
             while (!shutdownRequested) {
@@ -83,9 +89,6 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                     }
 
                     onFrameProcessed.invoke(this)
-                } else {
-                    // do a short sleep
-                    Thread.sleep(1)
                 }
 
                 // mark that pipeline thead is up
@@ -116,12 +119,13 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         isZeroFrame = false
 
         // set pre process frame
-        var preProcessFrame = input.clone()
+        var preProcessFrame = input
 
         // exit if pipeline is not enabled
         if (!config.enabled.value) {
             // copy input frame
-            inputFrame = preProcessFrame.clone()
+            println("clone preProcessFrame")
+            //inputFrame = preProcessFrame.clone()
             return true
         }
 
@@ -136,6 +140,11 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         mapRegionToObjects(tactileObjects, regions)
         recognizeObjectId(tactileObjects)
 
+        // if no output should be shown (production)
+        if(!config.displayOutput.value) {
+            return true
+        }
+
         // annotate
         if (config.annotateOutput.value) {
             // annotate input
@@ -148,8 +157,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         }
 
         // lock frame reading
-        processedFrame = mat.toFrame().clone()
-        inputFrame = preProcessFrame.clone()
+        processedFrame = mat.toFrame().createBufferedImageFast(processedFrame)
+        inputFrame = preProcessFrame.createBufferedImageFast(inputFrame)
         return true
     }
 

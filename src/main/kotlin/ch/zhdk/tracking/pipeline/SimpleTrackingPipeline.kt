@@ -33,7 +33,8 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
     }
 
     override fun recognizeObjectId(objects: List<TactileObject>) {
-        objectIdentifier.recognizeObjectId(objects)
+        if(config.identificationEnabled.value)
+            objectIdentifier.recognizeObjectId(objects)
     }
 
 }

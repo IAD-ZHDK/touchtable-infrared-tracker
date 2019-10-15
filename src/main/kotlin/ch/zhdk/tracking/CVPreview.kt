@@ -19,7 +19,6 @@ import javax.imageio.ImageIO
 import java.io.File
 
 
-
 object CVPreview {
     lateinit var config: AppConfig
 
@@ -43,12 +42,12 @@ object CVPreview {
         setupConfigChangedHandlers()
         initOSC()
 
-        while(running) {
+        while (running) {
             // pipeline init
             var pipeline = createPipeline()
 
             pipeline.onFrameProcessed += {
-                if(oscTimer.elapsed()) {
+                if (oscTimer.elapsed()) {
                     osc.publish(pipeline.tactileObjects)
                 }
             }
@@ -58,7 +57,7 @@ object CVPreview {
                 pipeline.start()
                 config.message.value = "started"
                 pipeline
-            } catch (ex : Exception) {
+            } catch (ex: Exception) {
                 println("Error: ${ex.message}")
                 println(ex.printStackTrace())
                 config.message.value = "Error: ${ex.message}"
@@ -68,14 +67,14 @@ object CVPreview {
 
             // run
             while (!restartRequested && running && canvasFrame.isVisible) {
-                if(saveFrameRequested) {
-                    val img = pipeline.inputFrame.toIplImage().toBufferedImage()
-                    val outfile = File("image_${pipeline.inputFrame.timestamp}.png")
-                    ImageIO.write(img, "png", outfile)
+                if (saveFrameRequested) {
+                    val outfile = File("image_pipeline.png")
+                    ImageIO.write(pipeline.inputFrame, "png", outfile)
                     println("frame ${outfile.name} saved!")
                     saveFrameRequested = false
                 }
 
+                // display frames
                 if (config.displayProcessed.value) {
                     canvasFrame.showImage(pipeline.processedFrame)
                 } else {
@@ -83,12 +82,12 @@ object CVPreview {
                 }
             }
 
-            if(!canvasFrame.isVisible) {
+            if (!canvasFrame.isVisible) {
                 config.message.value = "shutting down..."
                 running = false
             }
 
-            if(restartRequested)
+            if (restartRequested)
                 config.message.value = "restart requested..."
 
             pipeline.stop()
@@ -117,7 +116,12 @@ object CVPreview {
         return when (config.input.inputProvider.value) {
             InputProviderType.CameraInput -> CameraInputProvider(config.input.deviceIndex.value, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
-            InputProviderType.RealSense2 -> RealSense2InputProvider(config.input.deviceIndex.value, 848, 480, 60)
+            InputProviderType.RealSense2 -> RealSense2InputProvider(
+                config.input.deviceIndex.value,
+                config.input.inputWidth.value,
+                config.input.inputHeight.value,
+                config.input.inputFrameRate.value
+            )
             InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_1512.png"))
         }
     }
