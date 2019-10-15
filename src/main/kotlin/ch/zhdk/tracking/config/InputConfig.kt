@@ -12,22 +12,37 @@ class InputConfig {
     @EnumParameter("Input Provider")
     var inputProvider = DataModel(InputProviderType.Image)
 
-    @LabelParameter("RealSense")
-    private val cameraLabel = ""
-
-    @Expose
-    @NumberParameter("Input Width", "px")
-    var inputWidth = DataModel(848)
-
-    @Expose
-    @NumberParameter("Input Height", "px")
-    var inputHeight = DataModel(480)
-
-    @Expose
-    @NumberParameter("Frame Rate", "fps")
-    var inputFrameRate = DataModel(60)
+    @LabelParameter("WebCam")
+    private val webCamLabel = ""
 
     @Expose
     @NumberParameter("Device Index")
-    var deviceIndex = DataModel(0)
+    var webCamDeviceIndex = DataModel(0)
+
+    @Expose
+    @NumberParameter("Input Width", "px")
+    var webCamWidth = DataModel(1280)
+
+    @Expose
+    @NumberParameter("Input Height", "px")
+    var webCamHeight = DataModel(720)
+
+    @LabelParameter("RealSense")
+    private val realSenseLabel = ""
+
+    @Expose
+    @NumberParameter("Device Index")
+    var realSenseDeviceIndex = DataModel(0)
+
+    @Expose
+    @NumberParameter("Input Width", "px")
+    var realSenseWidth = DataModel(848)
+
+    @Expose
+    @NumberParameter("Input Height", "px")
+    var realSenseHeight = DataModel(480)
+
+    @Expose
+    @NumberParameter("Frame Rate", "fps")
+    var realSenseFrameRate = DataModel(60)
 }

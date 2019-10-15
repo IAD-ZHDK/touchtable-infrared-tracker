@@ -118,13 +118,17 @@ object CVPreview {
 
     private fun createInputProvider(): InputProvider {
         return when (config.input.inputProvider.value) {
-            InputProviderType.CameraInput -> CameraInputProvider(config.input.deviceIndex.value, 1280, 720)
+            InputProviderType.CameraInput -> CameraInputProvider(
+                config.input.webCamDeviceIndex.value,
+                config.input.webCamWidth.value,
+                config.input.webCamHeight.value
+            )
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
             InputProviderType.RealSense2 -> RealSense2InputProvider(
-                config.input.deviceIndex.value,
-                config.input.inputWidth.value,
-                config.input.inputHeight.value,
-                config.input.inputFrameRate.value
+                config.input.realSenseDeviceIndex.value,
+                config.input.realSenseWidth.value,
+                config.input.realSenseHeight.value,
+                config.input.realSenseFrameRate.value
             )
             InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_1512.png"))
         }
