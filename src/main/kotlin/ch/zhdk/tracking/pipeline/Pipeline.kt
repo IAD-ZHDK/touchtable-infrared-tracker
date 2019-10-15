@@ -193,10 +193,12 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
             )
 
             // display shape
+            /*
             if (it.polygon.rows() > 0) {
                 val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
                 drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
             }
+            */
         }
 
         // annotate tactile objects
