@@ -122,7 +122,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         isZeroFrame = false
 
         // set pre process frame
-        val inputMat = input.toMat()
+        val inputMat = input.clone().toMat()
 
         // exit if pipeline is not enabled
         if (!config.enabled.value) {
