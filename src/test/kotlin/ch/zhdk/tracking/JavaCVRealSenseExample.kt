@@ -8,13 +8,10 @@ import org.bytedeco.librealsense.global.RealSense
 object JavaCVRealSenseExample {
     @JvmStatic
     fun main(args: Array<String>) {
-        val grabber = RealSenseFrameGrabber(0)
+        val grabber = RealSense2FrameGrabber(0)
         println("grabber created")
 
-        grabber.loadDevice()
-        grabber.enableIRStream()
-        grabber.imageWidth = 640
-        grabber.imageHeight = 480
+        grabber.enableIRStream(640, 480, 30)
         grabber.start()
         println("grabber started")
 
@@ -26,7 +23,7 @@ object JavaCVRealSenseExample {
         println("framerate = " + grabber.frameRate)
 
         while (canvasFrame.isVisible) {
-            grabbedImage = grabber.grabIR().toFrame()
+            grabbedImage = grabber.grabIR()
             canvasFrame.showImage(grabbedImage)
         }
 

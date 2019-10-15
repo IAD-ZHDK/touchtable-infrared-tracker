@@ -93,7 +93,7 @@ object CVPreview {
         return when (config.input.inputProvider.value) {
             InputProviderType.CameraInput -> CameraInputProvider(config.input.deviceIndex.value, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
-            InputProviderType.RealSense -> RealSenseInputProvider(config.input.deviceIndex.value, 1280, 720)
+            InputProviderType.RealSense2 -> RealSense2InputProvider(config.input.deviceIndex.value, 640, 480)
             //InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/nr88.mp4"))
         }
     }
