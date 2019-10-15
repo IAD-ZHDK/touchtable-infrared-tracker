@@ -3,6 +3,8 @@ package ch.zhdk.tracking
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.io.*
+import ch.zhdk.tracking.javacv.toBufferedImage
+import ch.zhdk.tracking.javacv.toIplImage
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
@@ -13,6 +15,10 @@ import java.net.InetAddress
 import java.nio.file.Paths
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
+import javax.imageio.ImageIO
+import java.io.File
+
+
 
 object CVPreview {
     lateinit var config: AppConfig
@@ -22,6 +28,9 @@ object CVPreview {
 
     @Volatile
     var restartRequested = false
+
+    @Volatile
+    var saveFrameRequested = false
 
     private val osc = OscPublisher()
     private val oscTimer = ElapsedTimer()
@@ -59,6 +68,14 @@ object CVPreview {
 
             // run
             while (!restartRequested && running && canvasFrame.isVisible) {
+                if(saveFrameRequested) {
+                    val img = pipeline.inputFrame.toIplImage().toBufferedImage()
+                    val outfile = File("image_${pipeline.inputFrame.timestamp}.png")
+                    ImageIO.write(img, "png", outfile)
+                    println("frame ${outfile.name} saved!")
+                    saveFrameRequested = false
+                }
+
                 if (config.displayProcessed.value) {
                     canvasFrame.showImage(pipeline.processedFrame)
                 } else {

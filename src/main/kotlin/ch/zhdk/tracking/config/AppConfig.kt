@@ -31,6 +31,11 @@ class AppConfig {
     @BooleanParameter("Display Processed")
     var displayProcessed = DataModel(true)
 
+    @ActionParameter("Input Frame", "Save", false)
+    private val requestScreenshot = {
+        CVPreview.saveFrameRequested = true
+    }
+
     @ActionParameter("Pipeline", "Restart")
     val restartPipeline = {
         CVPreview.restartRequested = true
