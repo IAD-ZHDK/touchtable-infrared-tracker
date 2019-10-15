@@ -10,9 +10,9 @@ import com.google.gson.annotations.Expose
 class InputConfig {
     @Expose
     @EnumParameter("Input Provider")
-    var inputProvider = DataModel(InputProviderType.Image)
+    var inputProvider = DataModel(InputProviderType.CameraInput)
 
-    @LabelParameter("WebCam")
+    @LabelParameter("CameraInput")
     private val webCamLabel = ""
 
     @Expose
@@ -27,7 +27,7 @@ class InputConfig {
     @NumberParameter("Input Height", "px")
     var webCamHeight = DataModel(720)
 
-    @LabelParameter("RealSense")
+    @LabelParameter("RealSense2")
     private val realSenseLabel = ""
 
     @Expose
