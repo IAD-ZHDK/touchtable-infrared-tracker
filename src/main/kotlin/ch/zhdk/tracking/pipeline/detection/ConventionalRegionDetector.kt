@@ -52,11 +52,15 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
 
                 for (i in 0 until contours.size()) {
                     val contour = Contour(contours.get(i))
-                    val approx = contour.approxPolyDP(config.approximationEpsilon.value)
+                    //val minBox = contour.minAreaBox()
+
+                    // calculate angle
+                    //regions[i.toInt()].rotation = minBox.angle().toDouble()
 
                     //val indexer = approx.createIndexer<IntRawIndexer>()
                     //println("Rows: ${indexer.rows()} Cols: ${indexer.cols()}")
 
+                    val approx = contour.approxPolyDP(config.approximationEpsilon.value)
                     if (i == 0L) {
                         regions[i.toInt()].polygon = approx
                     }

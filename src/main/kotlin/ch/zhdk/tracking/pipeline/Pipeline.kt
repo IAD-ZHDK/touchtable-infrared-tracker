@@ -169,7 +169,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
 
             // draw timestamp
             mat.drawText(
-                "A: ${it.area}",
+                "A: ${it.area} R: ${it.rotation}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4

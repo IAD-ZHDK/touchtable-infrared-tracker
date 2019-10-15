@@ -14,4 +14,5 @@ fun ActiveRegion.toTactileObject(tactileObject : TactileObject)
     tactileObject.position = this.center
     tactileObject.intensity = this.area
     tactileObject.timestamp = this.timestamp
+    tactileObject.rotation = this.rotation
 }
