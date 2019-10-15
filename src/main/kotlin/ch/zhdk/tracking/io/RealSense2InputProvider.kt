@@ -21,6 +21,8 @@ class RealSense2InputProvider(
     }
 
     override fun read(): Frame {
+        rs2.trigger()
+
         val frame = rs2.grabIR()
         frame.timestamp = timestamp++
         return frame.clone()
