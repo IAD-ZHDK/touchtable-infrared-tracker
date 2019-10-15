@@ -29,6 +29,8 @@ object CVPreview {
     @Volatile
     var saveFrameRequested = false
 
+    private val pipelineLock = Any()
+
     private val osc = OscPublisher()
     private val oscTimer = ElapsedTimer()
 
@@ -63,7 +65,7 @@ object CVPreview {
                 config.message.value = "error on startup"
                 config.errorMessage.value = "${ex.message}"
 
-                PassthroughPipeline(config.pipeline, EmptyInputProvider())
+                PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             }
 
             // run
@@ -79,7 +81,7 @@ object CVPreview {
 
                 // display frames
                 if(pipeline.isRunning) {
-                    synchronized(pipeline.pipelineLock) {
+                    synchronized(pipelineLock) {
                         if (config.displayProcessed.value) {
                             canvasFrame.showImage(pipeline.processedFrame)
                         } else {
@@ -142,8 +144,8 @@ object CVPreview {
 
     private fun createPipeline(): Pipeline {
         return when (config.pipeline.pipelineType.value) {
-            PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider())
-            PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider())
+            PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
+            PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
         }
     }
 }

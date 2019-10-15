@@ -16,8 +16,9 @@ import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
 import kotlin.concurrent.thread
 
-abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProvider) {
-    val pipelineLock = java.lang.Object()
+abstract class Pipeline(val config: PipelineConfig,
+                        val inputProvider: InputProvider,
+                        val pipelineLock : Any = Any()) {
 
     private lateinit var pipelineThread: Thread
 
@@ -184,7 +185,7 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // annotate active regions
         regions.forEach {
             // mark region
-            //mat.drawCircle(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
+            mat.drawCircle(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
             // draw timestamp
             mat.drawText(

@@ -11,7 +11,9 @@ import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.Point2d
 
 
-class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider) : Pipeline(config, inputProvider) {
+class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
+    Pipeline(config, inputProvider, pipelineLock) {
+
     private val regionDetector = ConventionalRegionDetector(config)
     private val regionTracker = DistanceRegionTracker(config)
     private val objectIdentifier = BinaryObjectIdentifier(config)
@@ -25,15 +27,16 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
         // add normalized values
         objects.forEach {
-            it.normalizedPosition =  Point2d(
+            it.normalizedPosition = Point2d(
                 it.position.x() / config.inputWidth.value,
-                it.position.y() / config.inputHeight.value)
+                it.position.y() / config.inputHeight.value
+            )
             it.normalizedIntensity = it.intensity / (config.inputWidth.value * config.inputHeight.value)
         }
     }
 
     override fun recognizeObjectId(objects: List<TactileObject>) {
-        if(config.identificationEnabled.value)
+        if (config.identificationEnabled.value)
             objectIdentifier.recognizeObjectId(objects)
     }
 
