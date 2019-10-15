@@ -22,9 +22,11 @@ class DistanceRegionTracker(config : PipelineConfig = PipelineConfig()) : Region
         objects.forEach { it.lifeTime++ }
 
         // create new regions
-        val uniqueId = config.uniqueId.value + 1
-        config.uniqueId.setSilent(uniqueId)
-        objects.addAll(regions.filter { !it.matched }.map { it.toTactileObject(uniqueId) })
+        objects.addAll(regions.filter { !it.matched }.map {
+            val uniqueId = config.uniqueId.value + 1
+            config.uniqueId.setSilent(uniqueId)
+            it.toTactileObject(uniqueId)
+        })
     }
 
     private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta : Double) {
