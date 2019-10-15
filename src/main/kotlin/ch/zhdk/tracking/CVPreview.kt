@@ -15,6 +15,7 @@ import java.nio.file.Paths
 import javax.swing.WindowConstants
 import kotlin.concurrent.thread
 import kotlin.math.roundToLong
+import kotlin.system.exitProcess
 
 object CVPreview {
     lateinit var config: AppConfig
@@ -31,7 +32,7 @@ object CVPreview {
     fun start(config: AppConfig) {
         this.config = config
         val canvasFrame = CanvasFrame("Preview")
-        canvasFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+        //canvasFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         canvasFrame.setCanvasSize(1280, 720)
 
         setupConfigChangedHandlers()
@@ -69,17 +70,23 @@ object CVPreview {
                 }
             }
 
-            if(restartRequested)
-            {
-                config.message.value = "restart requested..."
+            if(!canvasFrame.isVisible) {
+                config.message.value = "shutting down..."
+                running = false
             }
+
+            if(restartRequested)
+                config.message.value = "restart requested..."
 
             pipeline.stop()
             restartRequested = false
         }
 
+        config.message.value = "ended!"
         canvasFrame.dispose()
         running = false
+
+        exitProcess(0)
     }
 
     private fun setupConfigChangedHandlers() {
