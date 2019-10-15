@@ -27,6 +27,10 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
             propertiesControl.resize(primaryStage.scene.width, primaryStage.scene.height)
         }
 
+        primaryStage.setOnCloseRequest {
+            CVPreview.running = false
+        }
+
         val primScreenBounds = Screen.getPrimary().visualBounds
         primaryStage.x = primScreenBounds.width / 8.0 * 7.0
 
