@@ -2,14 +2,18 @@ package ch.zhdk.tracking.pipeline.detection
 
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.*
+import ch.zhdk.tracking.javacv.analysis.ConnectedComponent
 import ch.zhdk.tracking.javacv.contour.Contour
 import ch.zhdk.tracking.model.ActiveRegion
 import org.bytedeco.opencv.global.opencv_core
 import org.bytedeco.opencv.global.opencv_imgproc
-import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.MatVector
-import org.bytedeco.opencv.global.opencv_imgproc.CV_THRESH_OTSU
-import org.bytedeco.opencv.global.opencv_imgproc.CV_THRESH_BINARY
+import org.bytedeco.opencv.global.opencv_imgproc.*
+import org.bytedeco.opencv.global.opencv_imgproc.cvFitEllipse2
+import org.bytedeco.javacpp.FloatPointer
+import org.bytedeco.javacpp.indexer.IntRawIndexer
+import org.bytedeco.opencv.global.opencv_core.CV_32FC2
+import org.bytedeco.opencv.global.opencv_core.cvMat
+import org.bytedeco.opencv.opencv_core.*
 
 
 class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : RegionDetector(config) {
@@ -38,36 +42,49 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         val regions = components.map { ActiveRegion(it.centroid, it.position, it.size, it.area.toDouble(), timestamp) }
 
         // find orientation
-        // todo: implement find contours for components
         if (config.detectOrientation.value) {
             components.forEachIndexed { i, component ->
-                val roi = component.getROI(frame)
-                val contours = MatVector()
-                opencv_imgproc.findContours(
-                    roi,
-                    contours,
-                    opencv_imgproc.CV_RETR_EXTERNAL,
-                    opencv_imgproc.CV_CHAIN_APPROX_SIMPLE
-                )
-
-                for (i in 0 until contours.size()) {
-                    val contour = Contour(contours.get(i))
-                    //val minBox = contour.minAreaBox()
-
-                    // calculate angle
-                    //regions[i.toInt()].rotation = minBox.angle().toDouble()
-
-                    //val indexer = approx.createIndexer<IntRawIndexer>()
-                    //println("Rows: ${indexer.rows()} Cols: ${indexer.cols()}")
-
-                    val approx = contour.approxPolyDP(config.approximationEpsilon.value)
-                    if (i == 0L) {
-                        regions[i.toInt()].polygon = approx
-                    }
-                }
+                detectRotation(frame, regions[i], component)
             }
         }
 
         return regions
+    }
+
+    private fun detectRotation(frame : Mat, region : ActiveRegion, component : ConnectedComponent) {
+        val roi = component.getROI(frame)
+        val contours = MatVector()
+        opencv_imgproc.findContours(
+            roi,
+            contours,
+            opencv_imgproc.CV_RETR_EXTERNAL,
+            opencv_imgproc.CV_CHAIN_APPROX_SIMPLE
+        )
+
+        // check if contour was found
+        if(contours.empty())
+            return
+
+        // just get first contour
+        val contour = Contour(contours.get(0))
+
+        // extract points
+        val indexer = contour.nativeContour.createIndexer<IntRawIndexer>()
+        val points = (0 until indexer.rows()).map { i ->
+            listOf(indexer[i, 0].toFloat(), indexer[i, 1].toFloat())
+        }.flatten().toFloatArray()
+
+        // check points
+        if(points.size / 2 < 6)
+            return
+
+        // try to fit ellipse
+        val mat = cvMat(1, points.size / 2, CV_32FC2, FloatPointer(*points))
+        val result = cvFitEllipse2(mat)
+
+        region.rotation = result.angle().toDouble()
+
+        // cleanup
+        contour.release()
     }
 }

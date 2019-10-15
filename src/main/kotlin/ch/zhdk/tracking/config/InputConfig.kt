@@ -10,7 +10,7 @@ import com.google.gson.annotations.Expose
 class InputConfig {
     @Expose
     @EnumParameter("Input Provider")
-    var inputProvider = DataModel(InputProviderType.CameraInput)
+    var inputProvider = DataModel(InputProviderType.Image)
 
     @LabelParameter("CameraInput")
     private val webCamLabel = ""

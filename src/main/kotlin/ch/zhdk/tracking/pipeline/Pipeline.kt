@@ -3,6 +3,7 @@ package ch.zhdk.tracking.pipeline
 import ch.bildspur.event.Event
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
+import ch.bildspur.util.format
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
@@ -10,8 +11,11 @@ import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
+import org.bytedeco.opencv.global.opencv_imgproc.drawContours
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.MatVector
+import org.bytedeco.opencv.opencv_core.Rect
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
 import kotlin.concurrent.thread
@@ -189,19 +193,17 @@ abstract class Pipeline(val config: PipelineConfig,
 
             // draw timestamp
             mat.drawText(
-                "A: ${it.area} R: ${it.rotation}",
+                "A: ${it.area} R: ${it.rotation.format(2)}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4
             )
 
             // display shape
-            /*
             if (it.polygon.rows() > 0) {
                 val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
                 drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
             }
-            */
         }
 
         // annotate tactile objects
