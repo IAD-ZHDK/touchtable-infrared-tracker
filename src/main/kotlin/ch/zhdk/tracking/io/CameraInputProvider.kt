@@ -4,8 +4,8 @@ import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.OpenCVFrameGrabber
 
 class CameraInputProvider(deviceNumber : Int = 0,
-                          val width : Int = 640,
-                          val height : Int = 480) : InputProvider() {
+                          width : Int = 640,
+                          height : Int = 480) : InputProvider(width, height) {
 
     private val grabber = OpenCVFrameGrabber(deviceNumber)
     private var timestamp = 0L

@@ -13,6 +13,9 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
     override fun open() {
         videoGrabber.start()
 
+        this.width = videoGrabber.imageWidth
+        this.height = videoGrabber.imageHeight
+
         println("video size: ${videoGrabber.imageWidth}x${videoGrabber.imageHeight}")
         println("video framerate: ${videoGrabber.frameRate}")
         super.open()

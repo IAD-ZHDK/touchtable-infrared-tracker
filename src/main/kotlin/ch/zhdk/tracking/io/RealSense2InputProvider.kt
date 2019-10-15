@@ -5,10 +5,10 @@ import org.bytedeco.javacv.RealSense2FrameGrabber
 
 class RealSense2InputProvider(
     val deviceNumber: Int = 0,
-    val width: Int = 640,
-    val height: Int = 480,
+    width: Int = 640,
+    height: Int = 480,
     val frameRate: Int = 30
-) : InputProvider() {
+) : InputProvider(width, height) {
 
     private lateinit var rs2: RealSense2FrameGrabber
     private var timestamp = 0L

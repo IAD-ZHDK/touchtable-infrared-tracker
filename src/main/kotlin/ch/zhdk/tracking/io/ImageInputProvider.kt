@@ -12,6 +12,9 @@ class ImageInputProvider(val imageFilePath : Path) : InputProvider() {
         val src = imread(imageFilePath.toAbsolutePath().toString())
         image = src.toFrame()
 
+        this.width = image.imageWidth
+        this.height = image.imageHeight
+
         super.open()
     }
 
