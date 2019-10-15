@@ -1,12 +1,7 @@
 package ch.zhdk.tracking.io
 
-import ch.zhdk.tracking.javacv.toFrame
-import org.bytedeco.ffmpeg.global.avformat.av_register_all
-import org.bytedeco.javacpp.Loader
 import org.bytedeco.javacv.Frame
-import org.bytedeco.javacv.OpenCVFrameGrabber
 import org.bytedeco.javacv.RealSense2FrameGrabber
-import org.bytedeco.javacv.RealSenseFrameGrabber
 
 class RealSense2InputProvider(
     val deviceNumber: Int = 0,
@@ -15,24 +10,24 @@ class RealSense2InputProvider(
     val frameRate: Int = 30
 ) : InputProvider {
 
-    private lateinit var grabber: RealSense2FrameGrabber
+    private lateinit var rs2: RealSense2FrameGrabber
     private var timestamp = 0L
 
     override fun open() {
-        grabber = RealSense2FrameGrabber(deviceNumber)
-        grabber.enableIRStream(width, height, frameRate)
-        grabber.start()
+        rs2 = RealSense2FrameGrabber(deviceNumber)
+        rs2.enableIRStream(width, height, frameRate)
+        rs2.start()
     }
 
     override fun read(): Frame {
-        val frame = grabber.grabIR()
+        val frame = rs2.grabIR()
         frame.timestamp = timestamp++
         return frame.clone()
     }
 
     override fun close() {
-        grabber.stop()
-        grabber.release()
+        rs2.stop()
+        rs2.release()
     }
 
 }
