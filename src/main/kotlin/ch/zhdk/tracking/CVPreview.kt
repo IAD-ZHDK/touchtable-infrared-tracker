@@ -29,7 +29,6 @@ object CVPreview {
     fun start(config: AppConfig) {
         this.config = config
         val canvasFrame = CanvasFrame("Preview")
-        //canvasFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         canvasFrame.setCanvasSize(1280, 720)
 
         setupConfigChangedHandlers()
@@ -101,7 +100,7 @@ object CVPreview {
         return when (config.input.inputProvider.value) {
             InputProviderType.CameraInput -> CameraInputProvider(config.input.deviceIndex.value, 1280, 720)
             InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
-            InputProviderType.RealSense2 -> RealSense2InputProvider(config.input.deviceIndex.value, 848, 480, 90)
+            InputProviderType.RealSense2 -> RealSense2InputProvider(config.input.deviceIndex.value, 848, 480, 60)
         }
     }
 

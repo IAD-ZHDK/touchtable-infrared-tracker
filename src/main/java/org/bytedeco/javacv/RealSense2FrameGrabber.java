@@ -42,7 +42,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     private rs2_pipeline_profile pipelineProfile;
 
     private rs2_frame frameset;
-    private boolean useTriggerToLoadFrames = false;
 
     private int deviceNumber;
     private List<RealSenseStream> streams = new ArrayList<>();
@@ -89,7 +88,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         rs2.release();
 
         String[] deviceDescriptions = new String[infos.size()];
-        for(int i = 0; i < deviceDescriptions.length; i++) {
+        for (int i = 0; i < deviceDescriptions.length; i++) {
             RealSense2DeviceInfo info = infos.get(i);
             deviceDescriptions[i] = info.toString();
         }
@@ -155,6 +154,9 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         this.pipeline = createPipeline();
         this.config = createConfig();
 
+        // disbale ir emitter
+        disableIREmitter();
+
         // check if streams is not empty
         if (streams.isEmpty())
             throw new FrameGrabber.Exception("No stream has been added to be enabled.");
@@ -209,8 +211,8 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     @Override
     public void trigger() throws FrameGrabber.Exception {
         // set trigger load flag
-        if(!useTriggerToLoadFrames)
-            useTriggerToLoadFrames = true;
+        if (!triggerMode)
+            triggerMode = true;
 
         // read frames
         readNextFrameSet();
@@ -244,14 +246,14 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     }
 
     public Frame grabColor() throws Exception {
-        if(!useTriggerToLoadFrames)
+        if (!triggerMode)
             readNextFrameSet();
 
         return grabCVFrame(RS2_STREAM_COLOR, 0, IPL_DEPTH_8U, 3);
     }
 
     public Frame grabDepth() throws Exception {
-        if(!useTriggerToLoadFrames)
+        if (!triggerMode)
             readNextFrameSet();
 
         return grabCVFrame(RS2_STREAM_DEPTH, 0, IPL_DEPTH_16U, 1);
@@ -262,7 +264,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     }
 
     public Frame grabIR(int streamIndex) throws Exception {
-        if(!useTriggerToLoadFrames)
+        if (!triggerMode)
             readNextFrameSet();
 
         return grabCVFrame(RS2_STREAM_INFRARED, streamIndex, IPL_DEPTH_8U, 1);
@@ -270,8 +272,8 @@ public class RealSense2FrameGrabber extends FrameGrabber {
 
     private RealSenseStream getLargestStreamByArea() {
         RealSenseStream largest = streams.get(0);
-        for(RealSenseStream rs : streams) {
-            if(rs.size.area() > largest.size.area()) {
+        for (RealSenseStream rs : streams) {
+            if (rs.size.area() > largest.size.area()) {
                 largest = rs;
             }
         }
@@ -377,6 +379,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     private int getDeviceCount() throws FrameGrabber.Exception {
         rs2_device_list deviceList = createDeviceList();
         int count = rs2_get_device_count(deviceList, error);
+
         checkError(error);
         rs2_delete_device_list(deviceList);
         return count;
@@ -537,5 +540,35 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         public String toString() {
             return String.format("%s", name);
         }
+    }
+
+    // experimential
+    private void disableIREmitter() throws Exception {
+        rs2_sensor_list sensorList = rs2_query_sensors(this.device, error);
+        checkError(error);
+
+        int sensorCount = rs2_get_sensors_count(sensorList, error);
+        checkError(error);
+
+        System.out.println("Sensor Count: " + sensorCount);
+
+        for(int i = 0; i < sensorCount; i++) {
+            rs2_sensor sensor = rs2_create_sensor(sensorList, i, error);
+            checkError(error);
+
+            rs2_options options = new rs2_options(sensor);
+
+            boolean isEmitting = toBoolean(rs2_supports_option(options, RS2_OPTION_EMITTER_ENABLED, error));
+            checkError(error);
+
+            if(isEmitting) {
+                rs2_set_option(options, RS2_OPTION_EMITTER_ENABLED, 0f, error);
+                checkError(error);
+                System.out.println("emitter set to zero!");
+            }
+
+            rs2_delete_sensor(sensor);
+        }
+        rs2_delete_sensor_list(sensorList);
     }
 }
