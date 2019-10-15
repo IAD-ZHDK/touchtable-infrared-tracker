@@ -4,6 +4,7 @@ import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.contour.Contour
 import ch.zhdk.tracking.model.ActiveRegion
+import org.bytedeco.opencv.global.opencv_core
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.MatVector
@@ -11,7 +12,8 @@ import org.bytedeco.opencv.opencv_core.MatVector
 class ConventionalRegionDetector(config : PipelineConfig = PipelineConfig()) : RegionDetector(config) {
     override fun detectRegions(frame: Mat, timestamp : Long): List<ActiveRegion> {
         // prepare frame for detection
-        frame.convertColor(opencv_imgproc.COLOR_BGR2GRAY)
+        if (frame.type() == opencv_core.CV_8UC3)
+            frame.convertColor(opencv_imgproc.COLOR_BGR2GRAY)
         frame.threshold(config.threshold.value)
 
         // filter small elements
