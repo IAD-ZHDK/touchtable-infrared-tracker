@@ -80,6 +80,8 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
                         config.frameTime.value = "${frameWatch.elapsed()} ms"
                         config.processingTime.value = "${processWatch.elapsed()} ms"
                         config.actualObjectCount.value = tactileObjects.count()
+                        config.inputWidth.fire()
+                        config.inputHeight.fire()
                         config.uniqueId.fire()
                     }
 
@@ -120,16 +122,18 @@ abstract class Pipeline(val config: PipelineConfig, val inputProvider: InputProv
         // set pre process frame
         val inputMat = input.toMat()
 
+        // set normalization values
+        config.inputWidth.setSilent(input.imageWidth)
+        config.inputHeight.setSilent(input.imageHeight)
+
         // exit if pipeline is not enabled
         if (!config.enabled.value) {
             // copy input frame
-            inputFrame = createBufferedImage(inputMat, inputFrame)
+            synchronized(pipelineLock) {
+                inputFrame = createBufferedImage(inputMat.clone(), inputFrame)
+            }
             return true
         }
-
-        // set normalization values
-        config.inputWidth.value = input.imageWidth
-        config.inputHeight.value = input.imageHeight
 
         // get input mat
         val mat = inputMat.clone()
