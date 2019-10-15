@@ -31,6 +31,10 @@ class AppConfig {
     @BooleanParameter("Display Processed")
     var displayProcessed = DataModel(true)
 
+    @Expose
+    @NumberParameter("Preview Update Frequency", " FPS")
+    var updateFrequency = DataModel(90)
+
     @ActionParameter("Input Frame", "Save", false)
     private val requestScreenshot = {
         CVPreview.saveFrameRequested = true

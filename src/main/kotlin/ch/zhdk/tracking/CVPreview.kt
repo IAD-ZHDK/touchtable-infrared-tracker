@@ -80,6 +80,9 @@ object CVPreview {
                 } else {
                     canvasFrame.showImage(pipeline.inputFrame)
                 }
+
+                // ui refresh speed
+                Thread.sleep(1000L / config.updateFrequency.value)
             }
 
             if (!canvasFrame.isVisible) {
