@@ -51,7 +51,7 @@ class PipelineConfig {
 
     @Expose
     @BooleanParameter("Use OTSU")
-    var useOTSUThreshold = DataModel(true)
+    var useOTSUThreshold = DataModel(false)
 
     @Expose
     @BooleanParameter("Morphology Filter")
