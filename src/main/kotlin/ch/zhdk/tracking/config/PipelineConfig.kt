@@ -69,10 +69,6 @@ class PipelineConfig {
     @BooleanParameter("Detect Orientation")
     var detectOrientation = DataModel(true)
 
-    @Expose
-    @SliderParameter("Approximation Level", 0.1, 10.0, 0.1, snap = true)
-    var approximationEpsilon = DataModel(3.0)
-
     @LabelParameter("Tracking")
     val trackingLabel = ""
 
