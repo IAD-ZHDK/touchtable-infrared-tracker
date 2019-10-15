@@ -8,13 +8,21 @@ import org.bytedeco.opencv.global.opencv_core
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.MatVector
+import org.bytedeco.opencv.global.opencv_imgproc.CV_THRESH_OTSU
+import org.bytedeco.opencv.global.opencv_imgproc.CV_THRESH_BINARY
 
-class ConventionalRegionDetector(config : PipelineConfig = PipelineConfig()) : RegionDetector(config) {
-    override fun detectRegions(frame: Mat, timestamp : Long): List<ActiveRegion> {
+
+class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : RegionDetector(config) {
+    override fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion> {
         // prepare frame for detection
         if (frame.type() == opencv_core.CV_8UC3)
             frame.convertColor(opencv_imgproc.COLOR_BGR2GRAY)
-        frame.threshold(config.threshold.value)
+
+        // running threshold
+        if (config.useOTSUThreshold.value)
+            frame.threshold(config.threshold.value, type = CV_THRESH_BINARY or CV_THRESH_OTSU)
+        else
+            frame.threshold(config.threshold.value)
 
         // filter small elements
         if (config.morphologyFilterEnabled.value) {
@@ -31,7 +39,7 @@ class ConventionalRegionDetector(config : PipelineConfig = PipelineConfig()) : R
 
         // find orientation
         // todo: implement find contours for components
-        if(config.detectOrientation.value) {
+        if (config.detectOrientation.value) {
             components.forEachIndexed { i, component ->
                 val roi = component.getROI(frame)
                 val contours = MatVector()
@@ -42,14 +50,14 @@ class ConventionalRegionDetector(config : PipelineConfig = PipelineConfig()) : R
                     opencv_imgproc.CV_CHAIN_APPROX_SIMPLE
                 )
 
-                for(i in 0 until contours.size()) {
+                for (i in 0 until contours.size()) {
                     val contour = Contour(contours.get(i))
                     val approx = contour.approxPolyDP(config.approximationEpsilon.value)
 
                     //val indexer = approx.createIndexer<IntRawIndexer>()
                     //println("Rows: ${indexer.rows()} Cols: ${indexer.cols()}")
 
-                    if(i == 0L) {
+                    if (i == 0L) {
                         regions[i.toInt()].polygon = approx
                     }
                 }
