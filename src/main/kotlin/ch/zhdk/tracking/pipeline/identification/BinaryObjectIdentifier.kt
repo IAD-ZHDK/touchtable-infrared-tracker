@@ -104,7 +104,13 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
     private fun detectNaturalThreshold(identification: Identification): Boolean {
         val intensities = identification.samples.map { it.intensity }
-        val breaks = JenksFisher.createJenksFisherBreaksArray(intensities, 3)
+
+        val breaks = try {
+            JenksFisher.createJenksFisherBreaksArray(intensities, 3)
+        } catch (ex : Exception) {
+            println("JenksFisher error: ${ex.message}")
+            return false
+        }
         println("Natural Breaks: ${breaks.joinToString { it.toString() }}")
 
         // create thresholds and margin
