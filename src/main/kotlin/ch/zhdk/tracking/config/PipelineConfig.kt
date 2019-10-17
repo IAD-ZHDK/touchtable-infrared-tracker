@@ -13,7 +13,7 @@ class PipelineConfig {
     @EnumParameter("Pipeline")
     var pipelineType = DataModel(PipelineType.Simple)
 
-    @BooleanParameter("Enabled")
+    @BooleanParameter("Processing Enabled")
     var enabled = DataModel(true)
 
     @Expose
@@ -52,6 +52,10 @@ class PipelineConfig {
 
     @LabelParameter("Detection")
     val detectionLabel = ""
+
+    @Expose
+    @SliderParameter("Gamma Correction", 0.0, 1.0, 0.1)
+    var gammaCorrection = DataModel(0.0)
 
     @Expose
     @SliderParameter("Threshold", 0.0, 255.0, 1.0)

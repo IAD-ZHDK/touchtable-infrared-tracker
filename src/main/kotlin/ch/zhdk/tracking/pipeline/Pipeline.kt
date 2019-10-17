@@ -13,10 +13,7 @@ import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.global.opencv_imgproc.*
-import org.bytedeco.opencv.opencv_core.AbstractScalar
-import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.MatVector
-import org.bytedeco.opencv.opencv_core.Rect
+import org.bytedeco.opencv.opencv_core.*
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
 import kotlin.concurrent.thread
@@ -178,6 +175,7 @@ abstract class Pipeline(val config: PipelineConfig,
             mat.release()
             inputMat.release()
         }
+
         return true
     }
 
@@ -248,20 +246,20 @@ abstract class Pipeline(val config: PipelineConfig,
         val screen = Float2(mat.width().toFloat(), mat.height().toFloat())
 
         val tl = screen * config.calibration.topLeft.value
-        val tr = screen * config.calibration.topRight.value
+        //val tr = screen * config.calibration.topRight.value
         val br = screen * config.calibration.bottomRight.value
-        val bl = screen * config.calibration.bottomLeft.value
+        //val bl = screen * config.calibration.bottomLeft.value
 
         mat.drawMarker(tl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-        mat.drawMarker(tr.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
+        //mat.drawMarker(tr.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
         mat.drawMarker(br.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-        mat.drawMarker(bl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
+        //mat.drawMarker(bl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
 
         val size = br - tl
 
-        // draw net
+        // draw screen
         val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
-        mat.drawRect(rect, AbstractScalar.YELLOW)
+        mat.drawRect(rect, AbstractScalar.GRAY)
 
         // todo: show polygon
         //mat.drawPolygon(listOf(tl.toPoint(), tr.toPoint(), br.toPoint(), bl.toPoint()), true, AbstractScalar.YELLOW)
