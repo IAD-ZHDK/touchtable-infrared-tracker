@@ -16,6 +16,7 @@ import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.*
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
+import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
@@ -33,6 +34,8 @@ abstract class Pipeline(val config: PipelineConfig,
 
     @Volatile
     private var shutdownRequested = false
+
+    private var startupLatch = CountDownLatch(1)
 
     var isRunning = false
         private set
@@ -64,6 +67,7 @@ abstract class Pipeline(val config: PipelineConfig,
         if (isRunning)
             return
 
+        startupLatch = CountDownLatch(1)
         shutdownRequested = false
 
         // open input provider
@@ -97,15 +101,15 @@ abstract class Pipeline(val config: PipelineConfig,
                 }
 
                 // mark that pipeline thead is up
-                if(!isPipelineUp)
+                if(!isPipelineUp) {
                     isPipelineUp = true
+                    startupLatch.countDown()
+                }
             }
         }
 
         // wait till pipeline thread is up
-        while(!isPipelineUp) {
-            Thread.sleep(10)
-        }
+        startupLatch.await()
 
         isRunning = true
     }
