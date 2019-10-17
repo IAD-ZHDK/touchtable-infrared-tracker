@@ -50,12 +50,19 @@ class PipelineConfig {
         uniqueId.value = 0
     }
 
-    @LabelParameter("Detection")
-    val detectionLabel = ""
+    @LabelParameter("Pre-Processing")
+    val inputLabel = ""
 
     @Expose
-    @SliderParameter("Gamma Correction", 0.0, 1.0, 0.1)
-    var gammaCorrection = DataModel(0.0)
+    @BooleanParameter("Enable Pre-Processing")
+    var enablePreProcessing = DataModel(true)
+
+    @Expose
+    @SliderParameter("Gamma Correction", 0.04, 25.0, 0.01)
+    var gammaCorrection = DataModel(1.0)
+
+    @LabelParameter("Detection")
+    val detectionLabel = ""
 
     @Expose
     @SliderParameter("Threshold", 0.0, 255.0, 1.0)

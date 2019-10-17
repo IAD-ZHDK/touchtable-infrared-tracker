@@ -1,10 +1,7 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.ui.properties.ActionParameter
-import ch.bildspur.ui.properties.EnumParameter
-import ch.bildspur.ui.properties.LabelParameter
-import ch.bildspur.ui.properties.NumberParameter
+import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.CVPreview
 import ch.zhdk.tracking.io.InputProviderType
 import com.google.gson.annotations.Expose
@@ -14,6 +11,9 @@ class InputConfig {
     private val restartPipeline = {
         CVPreview.restartRequested = true
     }
+
+    @LabelParameter("Input")
+    val inputLabel = ""
 
     @Expose
     @EnumParameter("Input Provider")

@@ -4,6 +4,7 @@ import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.analysis.ConnectedComponent
 import ch.zhdk.tracking.javacv.contour.Contour
+import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import org.bytedeco.opencv.global.opencv_core
 import org.bytedeco.opencv.global.opencv_imgproc
@@ -20,7 +21,7 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
     override fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion> {
         // prepare frame for detection
         if (frame.type() == opencv_core.CV_8UC3)
-            frame.convertColor(opencv_imgproc.COLOR_BGR2GRAY)
+            frame.convertColor(COLOR_BGR2GRAY)
 
         // running threshold
         if (config.useOTSUThreshold.value)
@@ -51,7 +52,7 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         return regions
     }
 
-    private fun detectRotation(frame : Mat, region : ActiveRegion, component : ConnectedComponent) {
+    private fun detectRotation(frame: Mat, region: ActiveRegion, component: ConnectedComponent) {
         val roi = component.getROI(frame)
         val contours = MatVector()
         opencv_imgproc.findContours(
@@ -62,7 +63,7 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         )
 
         // check if contour was found
-        if(contours.empty())
+        if (contours.empty())
             return
 
         // just get first contour
@@ -75,7 +76,7 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         }.flatten().toFloatArray()
 
         // check points
-        if(points.size / 2 < 6)
+        if (points.size / 2 < 6)
             return
 
         // try to fit ellipse

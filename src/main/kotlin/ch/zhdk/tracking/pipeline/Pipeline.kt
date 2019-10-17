@@ -8,6 +8,7 @@ import ch.bildspur.util.format
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
+import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
@@ -36,6 +37,8 @@ abstract class Pipeline(val config: PipelineConfig,
     private var shutdownRequested = false
 
     private var startupLatch = CountDownLatch(1)
+
+    private val gammaCorrection = GammaCorrection(config.gammaCorrection.value)
 
     var isRunning = false
         private set
@@ -146,6 +149,13 @@ abstract class Pipeline(val config: PipelineConfig,
                 inputMat.release()
             }
             return true
+        }
+
+        // preprocessing
+
+        if(config.enablePreProcessing.value) {
+            // apply gamma correction
+            gammaCorrection.correct(inputMat, config.gammaCorrection.value)
         }
 
         // get input mat
