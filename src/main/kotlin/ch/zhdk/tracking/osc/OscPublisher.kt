@@ -20,22 +20,43 @@ class OscPublisher {
         tactileObjects.forEach { publishObject(it) }
     }
 
-    private fun publishObject(tactileObject: TactileObject) {
+    fun newObject(tactileObject : TactileObject) {
         val args = mutableListOf<Any>()
         args.add(tactileObject.uniqueId)
-        args.add(tactileObject.identifier)
-        args.add(tactileObject.normalizedPosition.x().toFloat())
-        args.add(tactileObject.normalizedPosition.y().toFloat())
+        args.add(tactileObject.calibratedPosition.x().toFloat())
+        args.add(tactileObject.calibratedPosition.y().toFloat())
         args.add(tactileObject.rotation.toFloat())
         args.add(tactileObject.normalizedIntensity.toFloat())
 
-        val msg = OSCMessage("/ir/object", args)
+        val msg = OSCMessage("/newID/${tactileObject.uniqueId}", args)
+        sendMessage(msg)
+    }
 
+    fun removeObject(tactileObject : TactileObject) {
+        val args = mutableListOf<Any>()
+        args.add(tactileObject.uniqueId)
+
+        val msg = OSCMessage("/untrack/${tactileObject.uniqueId}", args)
+        sendMessage(msg)
+    }
+
+    private fun publishObject(tactileObject: TactileObject) {
+        val args = mutableListOf<Any>()
+        args.add(tactileObject.uniqueId)
+        args.add(tactileObject.calibratedPosition.x().toFloat())
+        args.add(tactileObject.calibratedPosition.y().toFloat())
+        args.add(tactileObject.rotation.toFloat())
+        args.add(tactileObject.normalizedIntensity.toFloat())
+
+        val msg = OSCMessage("/update/${tactileObject.uniqueId}", args)
+        sendMessage(msg)
+    }
+
+    private fun sendMessage(msg : OSCMessage) {
         try {
             sender.send(msg)
         } catch (e: Exception) {
             println("Couldn't send osc message: ${e.message}")
         }
-
     }
 }

@@ -60,6 +60,8 @@ abstract class Pipeline(val config: PipelineConfig,
     val tactileObjects = mutableListOf<TactileObject>()
 
     val onFrameProcessed = Event<Pipeline>()
+    val onObjectDetected = Event<TactileObject>()
+    val onObjectRemoved = Event<TactileObject>()
 
     fun start() {
         if (isRunning)

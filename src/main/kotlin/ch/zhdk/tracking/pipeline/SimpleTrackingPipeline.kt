@@ -16,7 +16,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
     Pipeline(config, inputProvider, pipelineLock) {
 
     private val regionDetector = ConventionalRegionDetector(config)
-    private val regionTracker = DistanceRegionTracker(config)
+    private val regionTracker = DistanceRegionTracker(this, config)
     private val objectIdentifier = BinaryObjectIdentifier(config)
 
     override fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion> {

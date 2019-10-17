@@ -68,12 +68,7 @@ object CVPreview {
 
             // pipeline init
             var pipeline = createPipeline()
-
-            pipeline.onFrameProcessed += {
-                if (oscTimer.elapsed()) {
-                    osc.publish(pipeline.tactileObjects)
-                }
-            }
+            initPipelineHandlers(pipeline)
 
             // try to start pipeline
             pipeline = try {
@@ -143,6 +138,22 @@ object CVPreview {
 
     fun initOSC() {
         osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
+    }
+
+    fun initPipelineHandlers(pipeline : Pipeline) {
+        pipeline.onFrameProcessed += {
+            if (oscTimer.elapsed()) {
+                osc.publish(pipeline.tactileObjects)
+            }
+        }
+
+        pipeline.onObjectDetected += {
+            osc.newObject(it)
+        }
+
+        pipeline.onObjectRemoved += {
+            osc.removeObject(it)
+        }
     }
 
     fun requestMousePressed(): Float2 {
