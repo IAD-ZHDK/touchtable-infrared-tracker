@@ -1,9 +1,9 @@
 package ch.zhdk.tracking.javacv
 
+import ch.bildspur.util.toInt
+import org.bytedeco.javacpp.IntPointer
 import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.*
-import org.bytedeco.librealsense.global.RealSense.points
-import org.bytedeco.opencv.opencv_core.Point2f
 import kotlin.math.roundToInt
 
 
@@ -91,4 +91,18 @@ fun Mat.drawRotatedRect(rect: RotatedRect, color: Scalar, thickness: Int = 1, li
 
         this.drawLine(p1, p2, color, thickness, lineTyp, shift)
     }
+}
+
+fun Mat.drawPolygon(
+    points: List<Point>,
+    isClosed: Boolean,
+    color: Scalar,
+    thickness: Int = 1,
+    lineTyp: Int = LINE_8,
+    shift: Int = 0
+) {
+    val polygon = Point(points.size.toLong())
+    val count = IntPointer(1).put(points.size)
+
+    polylines(this, polygon, count, 1, isClosed, color, thickness, lineTyp, shift)
 }

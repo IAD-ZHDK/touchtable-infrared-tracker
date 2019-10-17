@@ -7,6 +7,9 @@ import com.google.gson.annotations.Expose
 
 class PipelineConfig {
     @Expose
+    var calibration = CalibrationConfig()
+
+    @Expose
     @EnumParameter("Pipeline")
     var pipelineType = DataModel(PipelineType.Simple)
 

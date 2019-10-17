@@ -22,7 +22,7 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
         primaryStage.title = windowName
 
         val root = createUI(primaryStage)
-        primaryStage.scene = Scene(root, 420.0, 600.0)
+        primaryStage.scene = Scene(root, 420.0, 700.0)
         primaryStage.setOnShown {
             propertiesControl.resize(primaryStage.scene.width, primaryStage.scene.height)
         }
@@ -61,9 +61,9 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
 
         val settings = mapOf(
             "General" to config,
-            "Pipeline" to config.pipeline,
             "Input" to config.input,
-            "Calibration" to config.calibration,
+            "Pipeline" to config.pipeline,
+            "Calibration" to config.pipeline.calibration,
             "OSC" to config.osc
             )
 

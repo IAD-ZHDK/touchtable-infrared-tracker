@@ -10,6 +10,14 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
+fun Mat.width() : Int {
+    return this.cols()
+}
+
+fun Mat.height() : Int {
+    return this.rows()
+}
+
 fun Mat.clear() {
     this.setTo(Mat(1, 1, opencv_core.CV_32SC4, Scalar.ALPHA255))
 }

@@ -11,6 +11,7 @@ import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
 import org.bytedeco.javacv.FrameGrabber
+import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -21,6 +22,7 @@ import kotlin.system.exitProcess
 import javax.imageio.ImageIO
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import kotlin.math.roundToInt
 
 
 object CVPreview {
@@ -146,7 +148,7 @@ object CVPreview {
     fun requestMousePressed(): Float2 {
         mousePressedLedge = CountDownLatch(1)
         mousePressedLedge.await()
-        return Float2(mousePressedPosition.x / canvasFrame.width, mousePressedPosition.x / canvasFrame.height)
+        return Float2(mousePressedPosition.x / canvasFrame.width, mousePressedPosition.y / canvasFrame.height)
     }
 
     private fun createInputProvider(): InputProvider {

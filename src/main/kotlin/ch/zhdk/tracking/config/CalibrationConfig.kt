@@ -12,8 +12,8 @@ class CalibrationConfig {
     @BooleanParameter("Calibration Enabled")
     var calibrationEnabled = DataModel(false)
 
-    @BooleanParameter("Display Screen")
-    var displayScreen = DataModel(true)
+    @BooleanParameter("Display Annotation")
+    var displayAnnotation = DataModel(true)
 
     @LabelParameter("Calibration")
     private val calibrationLabel = ""

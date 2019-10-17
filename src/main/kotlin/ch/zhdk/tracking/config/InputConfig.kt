@@ -1,13 +1,20 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
+import ch.bildspur.ui.properties.ActionParameter
 import ch.bildspur.ui.properties.EnumParameter
 import ch.bildspur.ui.properties.LabelParameter
 import ch.bildspur.ui.properties.NumberParameter
+import ch.zhdk.tracking.CVPreview
 import ch.zhdk.tracking.io.InputProviderType
 import com.google.gson.annotations.Expose
 
 class InputConfig {
+    @ActionParameter("Pipeline", "Restart")
+    private val restartPipeline = {
+        CVPreview.restartRequested = true
+    }
+
     @Expose
     @EnumParameter("Input Provider")
     var inputProvider = DataModel(InputProviderType.Image)

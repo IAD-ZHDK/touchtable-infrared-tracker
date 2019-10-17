@@ -16,9 +16,6 @@ class AppConfig {
     var osc = OscConfig()
 
     @Expose
-    var calibration = CalibrationConfig()
-
-    @Expose
     @BooleanParameter("Debugging Mode")
     var debuggingMode = DataModel(true)
 
