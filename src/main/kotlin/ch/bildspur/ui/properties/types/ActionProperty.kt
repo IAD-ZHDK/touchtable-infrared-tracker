@@ -30,6 +30,7 @@ class ActionProperty(field: Field, obj: Any, val annotation: ActionParameter) : 
         button.setOnAction {
             progress.isVisible = true
             errorText.isVisible = false
+            button.isDisable = true
 
             thread {
                 try {
@@ -39,6 +40,7 @@ class ActionProperty(field: Field, obj: Any, val annotation: ActionParameter) : 
                     errorText.text = "${ex.message}"
                 } finally {
                     Platform.runLater {
+                        button.isDisable = false
                         progress.isVisible = false
                         if (annotation.invokesChange)
                             propertyChanged.invoke(this)

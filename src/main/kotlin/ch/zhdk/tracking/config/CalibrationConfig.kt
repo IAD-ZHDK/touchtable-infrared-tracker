@@ -23,21 +23,19 @@ class CalibrationConfig {
 
     @ActionParameter("Edge Selection", "Start")
     private val selectEdgesAction = {
-        thread {
-            instruction.value = "Press top left..."
-            topLeft.value = CVPreview.requestMousePressed()
+        instruction.value = "Press top left..."
+        topLeft.value = CVPreview.requestMousePressed()
 
-            instruction.value = "Press top right..."
-            topRight.value = CVPreview.requestMousePressed()
+        instruction.value = "Press top right..."
+        topRight.value = CVPreview.requestMousePressed()
 
-            instruction.value = "Press bottom right..."
-            bottomRight.value = CVPreview.requestMousePressed()
+        instruction.value = "Press bottom right..."
+        bottomRight.value = CVPreview.requestMousePressed()
 
-            instruction.value = "Press bottom left..."
-            bottomLeft.value = CVPreview.requestMousePressed()
+        instruction.value = "Press bottom left..."
+        bottomLeft.value = CVPreview.requestMousePressed()
 
-            instruction.value = "Calibration finished"
-        }
+        instruction.value = "Calibration finished"
     }
 
     @LabelParameter("Screen Edges")
