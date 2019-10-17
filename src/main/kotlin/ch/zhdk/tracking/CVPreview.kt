@@ -3,6 +3,7 @@ package ch.zhdk.tracking
 import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
+import ch.zhdk.tracking.config.OscConfig
 import ch.zhdk.tracking.io.*
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.PassthroughPipeline
@@ -39,7 +40,7 @@ object CVPreview {
 
     private val pipelineLock = Any()
 
-    private val osc = OscPublisher()
+    private lateinit var osc : OscPublisher
     private val oscTimer = ElapsedTimer()
 
     val canvasFrame = CanvasFrame("Preview")
@@ -59,6 +60,8 @@ object CVPreview {
                 mousePressedLedge.countDown()
             }
         })
+
+        osc = OscPublisher(config.osc)
 
         setupConfigChangedHandlers()
         initOSC()
@@ -140,7 +143,7 @@ object CVPreview {
         osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
     }
 
-    fun initPipelineHandlers(pipeline : Pipeline) {
+    private fun initPipelineHandlers(pipeline : Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
                 osc.publish(pipeline.tactileObjects)

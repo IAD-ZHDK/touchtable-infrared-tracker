@@ -2,6 +2,7 @@ package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.ActionParameter
+import ch.bildspur.ui.properties.BooleanParameter
 import ch.bildspur.ui.properties.NumberParameter
 import ch.bildspur.ui.properties.StringParameter
 import ch.zhdk.tracking.CVPreview
@@ -24,4 +25,8 @@ class OscConfig {
     @Expose
     @NumberParameter("Update Frequency", " FPS")
     var updateFrequency = DataModel(20)
+
+    @Expose
+    @BooleanParameter("Debug OSC")
+    var debugOSC = DataModel(false)
 }

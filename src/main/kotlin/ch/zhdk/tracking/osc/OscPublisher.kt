@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.osc
 
+import ch.zhdk.tracking.config.OscConfig
 import ch.zhdk.tracking.model.TactileObject
 import com.illposed.osc.OSCMessage
 import com.illposed.osc.transport.udp.OSCPort
@@ -7,7 +8,7 @@ import com.illposed.osc.transport.udp.OSCPortOut
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
-class OscPublisher {
+class OscPublisher(val config : OscConfig) {
     private lateinit var sender : OSCPortOut
 
     fun init(address : InetAddress, port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
@@ -54,6 +55,10 @@ class OscPublisher {
 
     private fun sendMessage(msg : OSCMessage) {
         try {
+            if(config.debugOSC.value) {
+                println("Message: ${msg.address} (${msg.arguments.size})")
+            }
+
             sender.send(msg)
         } catch (e: Exception) {
             println("Couldn't send osc message: ${e.message}")

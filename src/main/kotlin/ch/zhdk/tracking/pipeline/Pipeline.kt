@@ -94,7 +94,7 @@ abstract class Pipeline(val config: PipelineConfig,
                         config.uniqueId.fire()
                     }
 
-                    //onFrameProcessed.invoke(this)
+                    onFrameProcessed.invoke(this)
                 } else {
                     Thread.sleep(1)
                 }
