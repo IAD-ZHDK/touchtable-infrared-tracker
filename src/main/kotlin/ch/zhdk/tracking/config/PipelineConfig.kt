@@ -84,16 +84,20 @@ class PipelineConfig {
     @SliderParameter("Max Delta", 0.0, 200.0, 1.0)
     var maxDelta = DataModel(40.0)
 
+    @Expose
+    @NumberParameter("Min Life Time", "frames")
+    var minLifeTime = DataModel(5)
+
+    @Expose
+    @NumberParameter("Max Dead Time", "frames")
+    var maxDeadTime = DataModel(5)
+
     @LabelParameter("Identification")
     private val identificationLabel = ""
 
     @Expose
     @BooleanParameter("Identification Enabled")
     var identificationEnabled = DataModel(true)
-
-    @Expose
-    @NumberParameter("Min LifeTime", "frames")
-    var minLifeTime = DataModel(10)
 
     @Expose
     @SliderParameter("Samples", 0.0, 300.0, 1.0, snap = true)

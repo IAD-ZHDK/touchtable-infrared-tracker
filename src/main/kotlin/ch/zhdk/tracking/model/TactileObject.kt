@@ -12,11 +12,14 @@ class TactileObject(val uniqueId: Int) {
     var normalizedIntensity: Double = 0.0
     var calibratedPosition = Point2d()
 
-    var notified = false
+    // notification for listeners
+    var aliveNotified = false
+    var deadNotified = false
 
     // tracking relevant
     var isAlive = true
     var lifeTime = 0
+    var deadTime= 0
 
     // intensity detected by active region
     var intensity = 0.0

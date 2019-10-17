@@ -6,7 +6,6 @@ import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.toTactileObject
-import javafx.application.Platform
 
 class DistanceRegionTracker(pipeline : Pipeline, config : PipelineConfig = PipelineConfig()) : RegionTracker(pipeline, config) {
     override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
@@ -17,11 +16,31 @@ class DistanceRegionTracker(pipeline : Pipeline, config : PipelineConfig = Pipel
         matchNearest(objects, regions, config.maxDelta.value)
 
         // remove dead regions
-        objects.filter { !it.isAlive }.forEach { pipeline.onObjectRemoved(it) }
-        objects.removeAll { !it.isAlive }
+        objects.removeAll { !it.isAlive && it.deadTime > config.maxDeadTime.value }
 
         // update regions
-        objects.forEach { it.lifeTime++ }
+        objects.forEach {
+            it.lifeTime++
+
+            // check if object is dead
+            if(!it.isAlive) {
+                it.deadTime++
+            } else {
+                // reset dead time
+                it.deadTime = 0
+            }
+
+            // send object deleted notification
+            if(!it.isAlive && it.deadTime > config.maxDeadTime.value) {
+                pipeline.onObjectRemoved(it)
+            }
+
+            // send object detected notification
+            if(it.lifeTime > config.minLifeTime.value && !it.aliveNotified) {
+                pipeline.onObjectDetected(it)
+                it.aliveNotified = true
+            }
+        }
 
         // create new regions
         objects.addAll(regions.filter { !it.matched }.map {
@@ -29,14 +48,6 @@ class DistanceRegionTracker(pipeline : Pipeline, config : PipelineConfig = Pipel
             config.uniqueId.setSilent(uniqueId)
             it.toTactileObject(uniqueId)
         })
-
-        // check if a new object has been added lately
-        objects.forEach {
-            if(it.lifeTime > config.minLifeTime.value && !it.notified) {
-                pipeline.onObjectDetected(it)
-                it.notified = true
-            }
-        }
     }
 
     private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta : Double) {

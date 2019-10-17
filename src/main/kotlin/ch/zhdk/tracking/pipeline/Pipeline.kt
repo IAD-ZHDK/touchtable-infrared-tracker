@@ -225,11 +225,12 @@ abstract class Pipeline(val config: PipelineConfig,
     private fun annotateTactileObjects(mat : Mat) {
         // annotate tactile objects
         tactileObjects.forEach {
-            mat.drawCross(it.position.toPoint(), 22, AbstractScalar.GREEN, thickness = 1)
+            val color = if(it.deadTime == 0) AbstractScalar.GREEN else AbstractScalar.BLUE
+            mat.drawCross(it.position.toPoint(), 22, color, thickness = 1)
             mat.drawText(
                 "N:${it.uniqueId} #${it.identifier} [${it.lifeTime}]",
                 it.position.toPoint().transform(20, -20),
-                AbstractScalar.GREEN,
+                color,
                 scale = 0.4
             )
         }
