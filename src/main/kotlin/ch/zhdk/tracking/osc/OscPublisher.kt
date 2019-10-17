@@ -8,10 +8,10 @@ import com.illposed.osc.transport.udp.OSCPortOut
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
-class OscPublisher(val config : OscConfig) {
-    private lateinit var sender : OSCPortOut
+class OscPublisher(val config: OscConfig) {
+    private lateinit var sender: OSCPortOut
 
-    fun init(address : InetAddress, port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
+    fun init(address: InetAddress, port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
         val target = InetSocketAddress(address, port)
         sender = OSCPortOut(target)
         println("sending OSC on  ${target.address}:${target.port}")
@@ -21,7 +21,7 @@ class OscPublisher(val config : OscConfig) {
         tactileObjects.forEach { publishObject(it) }
     }
 
-    fun newObject(tactileObject : TactileObject) {
+    fun newObject(tactileObject: TactileObject) {
         val args = mutableListOf<Any>()
         args.add(tactileObject.uniqueId)
         args.add(tactileObject.calibratedPosition.x().toFloat())
@@ -33,7 +33,7 @@ class OscPublisher(val config : OscConfig) {
         sendMessage(msg)
     }
 
-    fun removeObject(tactileObject : TactileObject) {
+    fun removeObject(tactileObject: TactileObject) {
         val args = mutableListOf<Any>()
         args.add(tactileObject.uniqueId)
 
@@ -49,13 +49,17 @@ class OscPublisher(val config : OscConfig) {
         args.add(tactileObject.rotation.toFloat())
         args.add(tactileObject.normalizedIntensity.toFloat())
 
+        if (config.debugOSC.value) {
+            println("TO [${tactileObject.uniqueId}]: x: ${tactileObject.calibratedPosition.x().toFloat()} y: ${tactileObject.calibratedPosition.y().toFloat()}")
+        }
+
         val msg = OSCMessage("/update/${tactileObject.uniqueId}", args)
         sendMessage(msg)
     }
 
-    private fun sendMessage(msg : OSCMessage) {
+    private fun sendMessage(msg: OSCMessage) {
         try {
-            if(config.debugOSC.value) {
+            if (config.debugOSC.value) {
                 println("Message: ${msg.address} (${msg.arguments.size})")
             }
 
