@@ -58,7 +58,7 @@ class PipelineConfig {
     var enablePreProcessing = DataModel(true)
 
     @Expose
-    @SliderParameter("Gamma Correction", 0.04, 25.0, 0.01)
+    @SliderParameter("Gamma Correction", 0.04, 8.0, 0.01)
     var gammaCorrection = DataModel(1.0)
 
     @LabelParameter("Detection")
