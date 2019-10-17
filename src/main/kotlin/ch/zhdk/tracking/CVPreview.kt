@@ -43,7 +43,7 @@ object CVPreview {
     private lateinit var osc: OscPublisher
     private val oscTimer = ElapsedTimer()
 
-    val canvasFrame = CanvasFrame("Preview")
+    val canvasFrame = CanvasFrame("Preview", 0.0)
 
     private var mousePressedLedge = CountDownLatch(1)
     private var mousePressedPosition = Float2()

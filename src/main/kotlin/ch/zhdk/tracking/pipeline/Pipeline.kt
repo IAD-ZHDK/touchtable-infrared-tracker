@@ -139,7 +139,10 @@ abstract class Pipeline(val config: PipelineConfig,
         if (!config.enabled.value) {
             // copy input frame
             synchronized(pipelineLock) {
-                inputFrame = createBufferedImage(inputMat.clone(), inputFrame)
+                inputFrame = createBufferedImage(inputMat, inputFrame)
+
+                // release input
+                inputMat.release()
             }
             return true
         }
@@ -168,8 +171,12 @@ abstract class Pipeline(val config: PipelineConfig,
 
         // lock frame reading
         synchronized(pipelineLock) {
-            processedFrame = createBufferedImage(mat.clone(), processedFrame)
-            inputFrame = createBufferedImage(inputMat.clone(), inputFrame)
+            processedFrame = createBufferedImage(mat, processedFrame)
+            inputFrame = createBufferedImage(inputMat, inputFrame)
+
+            // release
+            mat.release()
+            inputMat.release()
         }
         return true
     }
