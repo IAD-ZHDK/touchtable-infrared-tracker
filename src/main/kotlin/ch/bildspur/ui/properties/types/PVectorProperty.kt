@@ -1,7 +1,7 @@
 package ch.bildspur.ui.properties.types
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.ui.RelationNumberField
+import ch.bildspur.ui.NumberField
 import ch.bildspur.ui.properties.PVectorParameter
 import javafx.application.Platform
 import javafx.scene.control.Label
@@ -15,9 +15,9 @@ import java.lang.reflect.Field
 class PVectorProperty(field: Field, obj: Any, val annotation: PVectorParameter) : BaseProperty(field, obj) {
 
     val model = field.get(obj) as DataModel<PVector>
-    val xField = RelationNumberField<Float>(TextFormatter(FloatStringConverter()))
-    val yField = RelationNumberField<Float>(TextFormatter(FloatStringConverter()))
-    val zField = RelationNumberField<Float>(TextFormatter(FloatStringConverter()))
+    val xField = NumberField<Float>(TextFormatter(FloatStringConverter()))
+    val yField = NumberField<Float>(TextFormatter(FloatStringConverter()))
+    val zField = NumberField<Float>(TextFormatter(FloatStringConverter()))
 
     val fields = mapOf(
             Pair("X", xField),
@@ -32,15 +32,14 @@ class PVectorProperty(field: Field, obj: Any, val annotation: PVectorParameter) 
         fields.forEach {
             val label = Label("${it.key}:")
 
-            it.value.prefWidth = RelationNumberField.PREFERRED_WIDTH - 20.0
-            it.value.isShowRange = false
+            it.value.prefWidth = 160.0
             label.prefWidth = 20.0
 
             it.value.setOnAction {
                 model.value = PVector(
-                        xField.getValue().toFloat(),
-                        yField.getValue().toFloat(),
-                        zField.getValue().toFloat())
+                        xField.value.toFloat(),
+                        yField.value.toFloat(),
+                        zField.value.toFloat())
             }
 
             box.children.add(HBox(label, it.value))
@@ -49,9 +48,9 @@ class PVectorProperty(field: Field, obj: Any, val annotation: PVectorParameter) 
         // setup binding
         model.onChanged += {
             Platform.runLater {
-                xField.setValue(model.value.x.toDouble())
-                yField.setValue(model.value.y.toDouble())
-                zField.setValue(model.value.z.toDouble())
+                xField.value = model.value.x.toDouble()
+                yField.value = model.value.y.toDouble()
+                zField.value = model.value.z.toDouble()
             }
         }
         model.fireLatest()

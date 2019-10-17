@@ -1,6 +1,7 @@
 package ch.bildspur.ui.properties.types
 
 import ch.bildspur.model.DataModel
+import ch.bildspur.ui.EditTextField
 import ch.bildspur.ui.properties.StringParameter
 import javafx.application.Platform
 import javafx.scene.control.TextField
@@ -8,7 +9,7 @@ import java.lang.reflect.Field
 
 class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : BaseProperty(field, obj) {
 
-    val textField = TextField()
+    val textField = EditTextField()
 
     init {
         textField.prefWidth = 180.0
@@ -26,11 +27,6 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
         }
         model.fireLatest()
 
-        textField.setOnKeyPressed {
-            // change in field
-            applyStyle(true)
-        }
-
         textField.setOnAction {
             model.value = textField.text
             propertyChanged(this)
@@ -38,7 +34,7 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
         }
     }
 
-    private fun applyStyle(warning: Boolean = false) {
+    private fun applyStyle() {
         if (annotation.isEditable) {
             textField.style = ""
         } else {
@@ -47,8 +43,5 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
                     "-fx-border-color: rgba(200, 200, 200, 1.0);\n" +
                     "-fx-border-width: 1px;"
         }
-
-        if (warning)
-            textField.style += "-fx-text-box-border: #ff9f43; -fx-focus-color: #ff9f43;"
     }
 }

@@ -1,8 +1,8 @@
 package ch.bildspur.ui.properties.types
 
 import ch.bildspur.model.DataModel
+import ch.bildspur.ui.NumberField
 import ch.bildspur.ui.properties.NumberParameter
-import ch.bildspur.ui.RelationNumberField
 import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Label
@@ -20,15 +20,13 @@ class NumberProperty(field: Field, obj: Any, val annotation: NumberParameter) : 
     val numberStringConverter = NumberStringConverter(format)
     val textFormatter = TextFormatter(numberStringConverter)
 
-    val numberField = RelationNumberField<Number>(textFormatter)
+    val numberField = NumberField<Number>(textFormatter)
     val unitField = Label(annotation.unit)
 
     val box = HBox(numberField, unitField)
 
     init {
         format.isGroupingUsed = false
-        numberField.setValue(10.0)
-
         unitField.font = Font("Helvetica", 8.0)
 
         box.spacing = 10.0
@@ -38,23 +36,23 @@ class NumberProperty(field: Field, obj: Any, val annotation: NumberParameter) : 
         val model = field.get(obj) as DataModel<Number>
         model.onChanged += {
             Platform.runLater {
-                numberField.setValue(model.value.toDouble())
+                numberField.value = model.value.toDouble()
             }
         }
         model.fireLatest()
 
         numberField.setOnAction {
             if (model.value is Short)
-                model.value = numberField.getValue().toShort()
+                model.value = numberField.value.toShort()
 
             if (model.value is Int)
-                model.value = numberField.getValue().toInt()
+                model.value = numberField.value.toInt()
 
             if (model.value is Float)
-                model.value = numberField.getValue().toFloat()
+                model.value = numberField.value.toFloat()
 
             if (model.value is Double)
-                model.value = numberField.getValue()
+                model.value = numberField.value
             propertyChanged(this)
         }
     }
