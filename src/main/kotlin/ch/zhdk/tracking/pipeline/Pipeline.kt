@@ -12,8 +12,7 @@ import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_imgproc
-import org.bytedeco.opencv.global.opencv_imgproc.MARKER_CROSS
-import org.bytedeco.opencv.global.opencv_imgproc.drawContours
+import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.AbstractScalar
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.MatVector
@@ -21,6 +20,7 @@ import org.bytedeco.opencv.opencv_core.Rect
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
 import kotlin.concurrent.thread
+import kotlin.math.roundToInt
 
 abstract class Pipeline(val config: PipelineConfig,
                         val inputProvider: InputProvider,
@@ -247,7 +247,13 @@ abstract class Pipeline(val config: PipelineConfig,
         mat.drawMarker(br.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
         mat.drawMarker(bl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
 
+        val size = br - tl
+
         // draw net
+        val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
+        mat.drawRect(rect, AbstractScalar.YELLOW)
+
+        // todo: show polygon
         //mat.drawPolygon(listOf(tl.toPoint(), tr.toPoint(), br.toPoint(), bl.toPoint()), true, AbstractScalar.YELLOW)
     }
 

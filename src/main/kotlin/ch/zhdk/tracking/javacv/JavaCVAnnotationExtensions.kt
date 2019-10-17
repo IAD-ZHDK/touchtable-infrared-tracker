@@ -53,8 +53,8 @@ fun Mat.drawText(
     putText(this, text, position, fontFace, scale, color, thickness, lineTyp, bottomLeftOrigin)
 }
 
-fun Mat.drawRect(rect: Rect, color: Scalar, thickness: Int = 1) {
-    this.drawRect(rect.tl(), rect.size(), color, thickness)
+fun Mat.drawRect(rect: Rect, color: Scalar, thickness: Int = 1, lineTyp: Int = LINE_8, shift: Int = 0) {
+    this.drawRect(rect.tl(), rect.size(), color, thickness, lineTyp, shift)
 }
 
 fun Mat.drawRect(origin: Point, size: Size, color: Scalar, thickness: Int = 1, lineTyp: Int = LINE_8, shift: Int = 0) {

@@ -7,8 +7,10 @@ class TactileObject(val uniqueId: Int) {
     var identifier = -1
     var position = Point2d()
     var rotation = 0.0
-    lateinit var normalizedPosition: Point2d
+
+    var normalizedPosition = Point2d()
     var normalizedIntensity: Double = 0.0
+    var mappedNormalizedPosition = Point2d()
 
     // tracking relevant
     var isAlive = true

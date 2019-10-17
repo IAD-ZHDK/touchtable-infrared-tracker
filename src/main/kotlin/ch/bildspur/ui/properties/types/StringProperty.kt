@@ -38,7 +38,7 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
         }
     }
 
-    private fun applyStyle(warning : Boolean = false) {
+    private fun applyStyle(warning: Boolean = false) {
         if (annotation.isEditable) {
             textField.style = ""
         } else {
@@ -48,7 +48,7 @@ class StringProperty(field: Field, obj: Any, val annotation: StringParameter) : 
                     "-fx-border-width: 1px;"
         }
 
-        if(warning)
-        textField.style += "-fx-text-box-border: #ff9f43; -fx-focus-color: #ff9f43;"
+        if (warning)
+            textField.style += "-fx-text-box-border: #ff9f43; -fx-focus-color: #ff9f43;"
     }
 }

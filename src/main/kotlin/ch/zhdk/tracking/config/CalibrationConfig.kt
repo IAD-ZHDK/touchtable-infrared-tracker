@@ -43,17 +43,17 @@ class CalibrationConfig {
 
     @Expose
     @Float2Parameter("Top Left")
-    var topLeft = DataModel(Float2())
+    var topLeft = DataModel(Float2(0f, 0f))
 
     @Expose
     @Float2Parameter("Top Right")
-    var topRight = DataModel(Float2())
+    var topRight = DataModel(Float2(1f, 0f))
 
     @Expose
     @Float2Parameter("Bottom Right")
-    var bottomRight = DataModel(Float2())
+    var bottomRight = DataModel(Float2(1f, 1f))
 
     @Expose
     @Float2Parameter("Bottom Left")
-    var bottomLeft = DataModel(Float2())
+    var bottomLeft = DataModel(Float2(0f, 1f))
 }
