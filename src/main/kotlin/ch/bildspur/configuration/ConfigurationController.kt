@@ -16,19 +16,19 @@ import java.nio.file.Paths
 /**
  * Created by cansik on 11.07.17.
  */
-class ConfigurationController(appName : String, publisherName : String, appUri : String) {
+class ConfigurationController(appName: String, publisherName: String, appUri: String) {
     private val configurationFileName = "$appName.json"
     private val configurationPath: Path = Paths.get(System.getProperty("user.home"), ".$publisherName", appUri)
     private val configurationFile: Path = Paths.get(configurationPath.toString(), configurationFileName)
 
     val gson: Gson = GsonBuilder()
-            .setPrettyPrinting()
-            .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(DataModel::class.java, DataModelInstanceCreator())
-            .registerTypeAdapter(PVector::class.java, PVectorSerializer())
-            .registerTypeAdapter(PVector::class.java, PVectorDeserializer())
-            .registerTypeAdapterFactory(PostProcessingEnabler())
-            .create()
+        .setPrettyPrinting()
+        .excludeFieldsWithoutExposeAnnotation()
+        .registerTypeAdapter(DataModel::class.java, DataModelInstanceCreator())
+        .registerTypeAdapter(PVector::class.java, PVectorSerializer())
+        .registerTypeAdapter(PVector::class.java, PVectorDeserializer())
+        .registerTypeAdapterFactory(PostProcessingEnabler())
+        .create()
 
     fun loadAppConfig(): AppConfig {
         if (!Files.exists(configurationPath)) {
