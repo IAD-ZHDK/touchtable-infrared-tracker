@@ -23,7 +23,7 @@ class AppConfig {
     var debuggingMode = DataModel(true)
 
     @LabelParameter("Preview")
-    val outputLabel = ""
+    private val outputLabel = ""
 
     @Expose
     @BooleanParameter("Display Processed")
@@ -39,12 +39,12 @@ class AppConfig {
     }
 
     @ActionParameter("Pipeline", "Restart")
-    val restartPipeline = {
+    private val restartPipeline = {
         CVPreview.restartRequested = true
     }
 
     @LabelParameter("Information")
-    val infoLabel = ""
+    private val infoLabel = ""
 
     @StringParameter("Message", isEditable = false)
     var message = DataModel("")

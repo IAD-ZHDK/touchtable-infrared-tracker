@@ -77,19 +77,19 @@ class PropertiesControl : VBox() {
                 addProperty(annotation.name, TextProperty(it, obj, annotation))
             }
 
-            if (it.isAnnotationPresent(LabelParameter::class.java)) {
-                val annotation = it.getAnnotation(LabelParameter::class.java)
-                addLabel(LabelProperty(it, obj, annotation))
-            }
-
             if (it.isAnnotationPresent(Float2Parameter::class.java)) {
                 val annotation = it.getAnnotation(Float2Parameter::class.java)
-                addLabel(Float2Property(it, obj, annotation))
+                addProperty(annotation.name, Float2Property(it, obj, annotation))
             }
 
             if (it.isAnnotationPresent(Float3Parameter::class.java)) {
                 val annotation = it.getAnnotation(Float3Parameter::class.java)
-                addLabel(Float3Property(it, obj, annotation))
+                addProperty(annotation.name, Float3Property(it, obj, annotation))
+            }
+
+            if (it.isAnnotationPresent(LabelParameter::class.java)) {
+                val annotation = it.getAnnotation(LabelParameter::class.java)
+                addLabel(LabelProperty(it, obj, annotation))
             }
         }
     }

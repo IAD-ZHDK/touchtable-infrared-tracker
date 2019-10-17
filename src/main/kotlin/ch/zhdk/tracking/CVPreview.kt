@@ -1,5 +1,6 @@
 package ch.zhdk.tracking
 
+import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.io.*
@@ -9,12 +10,16 @@ import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
+import org.bytedeco.javacv.FrameGrabber
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.net.InetAddress
 import java.nio.file.Paths
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 import javax.imageio.ImageIO
 import java.io.File
+import java.util.concurrent.CountDownLatch
 
 
 object CVPreview {
@@ -34,10 +39,22 @@ object CVPreview {
     private val osc = OscPublisher()
     private val oscTimer = ElapsedTimer()
 
+    val canvasFrame = CanvasFrame("Preview")
+
+    private var mousePressedLedge = CountDownLatch(1)
+    private var mousePressedPosition = Float2()
+
     fun start(config: AppConfig) {
         this.config = config
-        val canvasFrame = CanvasFrame("Preview")
         canvasFrame.setCanvasSize(1280, 720)
+
+        // setup mouse listener
+        canvasFrame.canvas.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
+                mousePressedLedge.countDown()
+            }
+        })
 
         setupConfigChangedHandlers()
         initOSC()
@@ -122,6 +139,12 @@ object CVPreview {
 
     fun initOSC() {
         osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
+    }
+
+    fun requestMousePressed() : Float2 {
+        mousePressedLedge = CountDownLatch(1)
+        mousePressedLedge.await()
+        return Float2(mousePressedPosition.x / canvasFrame.width, mousePressedPosition.x / canvasFrame.height)
     }
 
     private fun createInputProvider(): InputProvider {
