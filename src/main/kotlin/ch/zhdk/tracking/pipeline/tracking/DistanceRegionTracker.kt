@@ -33,9 +33,16 @@ class DistanceRegionTracker(pipeline : Pipeline, config : PipelineConfig = Pipel
 
             config.uniqueId.setSilent(uniqueId)
             val to = it.toTactileObject(uniqueId)
-            pipeline.onObjectDetected(to)
             to
         })
+
+        // todo: maybe do not do this
+        objects.forEach {
+            if(it.lifeTime > config.minLifeTime.value && !it.notified) {
+                pipeline.onObjectDetected(it)
+                it.notified = true
+            }
+        }
     }
 
     private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta : Double) {

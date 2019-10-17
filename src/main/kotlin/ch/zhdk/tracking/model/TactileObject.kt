@@ -12,6 +12,8 @@ class TactileObject(val uniqueId: Int) {
     var normalizedIntensity: Double = 0.0
     var calibratedPosition = Point2d()
 
+    var notified = false
+
     // tracking relevant
     var isAlive = true
     var lifeTime = 0
