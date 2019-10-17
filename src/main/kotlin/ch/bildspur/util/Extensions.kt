@@ -4,6 +4,7 @@ import ch.fhnw.exakt.util.BatchingSequence
 import processing.core.*
 import processing.core.PConstants.QUAD_STRIP
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * Created by cansik on 04.02.17.
@@ -16,6 +17,23 @@ fun Float.isApproximate(value: Double, error: Double): Boolean {
 
 fun Float.limit(min: Float, max: Float): Float {
     return Math.max(Math.min(max, this), min)
+}
+
+fun Float.map(start1 : Float, stop1 : Float, start2 : Float, stop2: Float) : Float {
+    return start2 + (stop2 - start2) * ((this - start1) / (stop1 - start1))
+}
+
+fun Int.map(start1: Int, stop1: Int, start2: Int, stop2: Int): Int {
+    return this.toDouble().map(
+        start1.toDouble(),
+        stop1.toDouble(),
+        start2.toDouble(),
+        stop2.toDouble()
+    ).roundToInt()
+}
+
+fun Double.map(start1: Double, stop1: Double, start2: Double, stop2: Double): Double {
+    return start2 + (stop2 - start2) * ((this - start1) / (stop1 - start1))
 }
 
 fun Double.isBetween(low: Double, high: Double): Boolean {

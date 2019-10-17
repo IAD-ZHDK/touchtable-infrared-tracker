@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.pipeline
 
+import ch.bildspur.util.map
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.model.ActiveRegion
@@ -7,17 +8,8 @@ import ch.zhdk.tracking.model.TactileObject
 import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
 import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
-import org.bytedeco.javacpp.FloatPointer
-import org.bytedeco.opencv.global.opencv_core.CV_32F
-import org.bytedeco.opencv.global.opencv_core.transform
-import org.bytedeco.opencv.global.opencv_imgproc.getPerspectiveTransform
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.Point2d
-import org.bytedeco.opencv.opencv_core.Size
-import org.bytedeco.librealsense.global.RealSense.points
-import org.bytedeco.opencv.opencv_core.Point2f
-
-
 
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
@@ -42,30 +34,8 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
     }
 
     private fun normalizeObjects(objects: MutableList<TactileObject>) {
-        // create perspective transform
-        val inputMat =
-            Mat(
-                Size(2, 4), CV_32F,
-                FloatPointer(
-                    0f, 0f,
-                    1f, 0f,
-                    0f, 1f,
-                    1f, 1f
-                )
-            )
-
-        val outputMat = Mat(
-            Size(2, 4), CV_32F,
-            FloatPointer(
-                config.calibration.topLeft.value.x, config.calibration.topLeft.value.y,
-                config.calibration.topRight.value.x, config.calibration.topRight.value.y,
-                config.calibration.bottomLeft.value.x, config.calibration.bottomLeft.value.y,
-                config.calibration.bottomRight.value.x, config.calibration.bottomRight.value.y
-            )
-        )
-
-        // create transform
-        val transform = getPerspectiveTransform(inputMat, outputMat)
+        val tl = config.calibration.topLeft.value
+        val br = config.calibration.bottomRight.value
 
         // add normalized values
         objects.forEach {
@@ -75,16 +45,10 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
             )
             it.normalizedIntensity = it.intensity / (config.inputWidth.value * config.inputHeight.value)
 
-            // map position to defined calibration
-            print("Pos: ${it.normalizedPosition.x()} | ${it.normalizedPosition.y()}\t")
-            //val input = Mat(Size(2, 1), CV_32F, FloatPointer(it.normalizedPosition.x().toFloat(), it.normalizedPosition.y().toFloat()))
-            //(input, input, transform)
-
-            //val out = Point2f(input)
-
-           // println("After: ${out.x()} | ${out.y()}")
-
-            //it.mappedNormalizedPosition = transform.mul(it.normalizedPosition.)
+            it.calibratedPosition = Point2d(
+                it.normalizedPosition.x().map(tl.x.toDouble(), br.x.toDouble(), 0.0, 1.0),
+                it.normalizedPosition.y().map(tl.y.toDouble(), br.y.toDouble(), 0.0, 1.0)
+            )
         }
     }
 }

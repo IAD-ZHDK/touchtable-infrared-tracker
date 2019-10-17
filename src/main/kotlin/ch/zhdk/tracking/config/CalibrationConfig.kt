@@ -10,7 +10,7 @@ import kotlin.concurrent.thread
 class CalibrationConfig {
 
     @BooleanParameter("Calibration Enabled")
-    var calibrationEnabled = DataModel(false)
+    var calibrationEnabled = DataModel(true)
 
     @BooleanParameter("Display Annotation")
     var displayAnnotation = DataModel(true)
@@ -26,14 +26,15 @@ class CalibrationConfig {
         instruction.value = "Press top left..."
         topLeft.value = CVPreview.requestMousePressed()
 
+        // todo: re-enable this
         instruction.value = "Press top right..."
-        topRight.value = CVPreview.requestMousePressed()
+        //topRight.value = CVPreview.requestMousePressed()
 
         instruction.value = "Press bottom right..."
         bottomRight.value = CVPreview.requestMousePressed()
 
         instruction.value = "Press bottom left..."
-        bottomLeft.value = CVPreview.requestMousePressed()
+        //bottomLeft.value = CVPreview.requestMousePressed()
 
         instruction.value = "Calibration finished"
     }
