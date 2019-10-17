@@ -8,6 +8,9 @@ open class EditTextField : TextField() {
     private var textHasBeenEdited = false
 
     init {
+        // set height
+        prefHeight = 32.0
+
         // detect change
         this.setOnKeyTyped {
             textHasBeenEdited = true
