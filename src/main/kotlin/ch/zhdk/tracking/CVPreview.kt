@@ -11,6 +11,7 @@ import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
 import org.bytedeco.javacv.FrameGrabber
+import java.awt.Cursor
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.net.InetAddress
@@ -49,6 +50,7 @@ object CVPreview {
         canvasFrame.setCanvasSize(1280, 720)
 
         // setup mouse listener
+        canvasFrame.canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
         canvasFrame.canvas.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
                 mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
@@ -97,7 +99,7 @@ object CVPreview {
                 }
 
                 // display frames
-                if(pipeline.isRunning) {
+                if (pipeline.isRunning) {
                     synchronized(pipelineLock) {
                         if (config.displayProcessed.value) {
                             canvasFrame.showImage(pipeline.processedFrame)
@@ -141,7 +143,7 @@ object CVPreview {
         osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
     }
 
-    fun requestMousePressed() : Float2 {
+    fun requestMousePressed(): Float2 {
         mousePressedLedge = CountDownLatch(1)
         mousePressedLedge.await()
         return Float2(mousePressedPosition.x / canvasFrame.width, mousePressedPosition.x / canvasFrame.height)
