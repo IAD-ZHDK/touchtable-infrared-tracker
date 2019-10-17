@@ -63,6 +63,7 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
             "General" to config,
             "Pipeline" to config.pipeline,
             "Input" to config.input,
+            "Calibration" to config.calibration,
             "OSC" to config.osc
             )
 

@@ -42,6 +42,14 @@ annotation class PVectorParameter(val name: String)
 
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
+annotation class Float2Parameter(val name: String)
+
+@Target(AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Float3Parameter(val name: String)
+
+@Target(AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class PVectorAngleParameter(val name: String)
 
 @Target(AnnotationTarget.FIELD)

@@ -81,6 +81,16 @@ class PropertiesControl : VBox() {
                 val annotation = it.getAnnotation(LabelParameter::class.java)
                 addLabel(LabelProperty(it, obj, annotation))
             }
+
+            if (it.isAnnotationPresent(Float2Parameter::class.java)) {
+                val annotation = it.getAnnotation(Float2Parameter::class.java)
+                addLabel(Float2Property(it, obj, annotation))
+            }
+
+            if (it.isAnnotationPresent(Float3Parameter::class.java)) {
+                val annotation = it.getAnnotation(Float3Parameter::class.java)
+                addLabel(Float3Property(it, obj, annotation))
+            }
         }
     }
 
@@ -123,6 +133,8 @@ class PropertiesControl : VBox() {
                     it.isAnnotationPresent(PVectorAngleParameter::class.java) ||
                     it.isAnnotationPresent(LabelParameter::class.java) ||
                     it.isAnnotationPresent(TextParameter::class.java) ||
+                    it.isAnnotationPresent(Float2Parameter::class.java) ||
+                    it.isAnnotationPresent(Float3Parameter::class.java) ||
                     it.isAnnotationPresent(RangeSliderParameter::class.java)
 
         }
