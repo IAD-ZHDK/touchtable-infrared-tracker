@@ -148,10 +148,12 @@ object CVPreview {
         }
 
         pipeline.onObjectDetected += {
+            println("+ adding object: ${it.uniqueId}")
             osc.newObject(it)
         }
 
         pipeline.onObjectRemoved += {
+            println("- removing object: ${it.uniqueId}")
             osc.removeObject(it)
         }
     }
