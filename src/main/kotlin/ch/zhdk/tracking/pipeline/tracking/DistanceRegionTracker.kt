@@ -25,7 +25,12 @@ class DistanceRegionTracker(pipeline : Pipeline, config : PipelineConfig = Pipel
 
         // create new regions
         objects.addAll(regions.filter { !it.matched }.map {
-            val uniqueId = config.uniqueId.value + 1
+            var uniqueId = config.uniqueId.value + 1
+
+            // todo: ugly fix for visu
+            if(config.actualObjectCount.value == 0)
+                uniqueId = 0
+
             config.uniqueId.setSilent(uniqueId)
             val to = it.toTactileObject(uniqueId)
             pipeline.onObjectDetected(to)
