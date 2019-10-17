@@ -45,6 +45,11 @@ class PipelineConfig {
     @StringParameter("Processing Time", isEditable = false)
     var processingTime = DataModel("- ms")
 
+    @ActionParameter("Unique Id", "Reset")
+    private var resetUniqueId = {
+        uniqueId.value = 0
+    }
+
     @LabelParameter("Detection")
     val detectionLabel = ""
 
