@@ -40,7 +40,7 @@ object CVPreview {
 
     private val pipelineLock = Any()
 
-    private lateinit var osc : OscPublisher
+    private lateinit var osc: OscPublisher
     private val oscTimer = ElapsedTimer()
 
     val canvasFrame = CanvasFrame("Preview")
@@ -50,16 +50,7 @@ object CVPreview {
 
     fun start(config: AppConfig) {
         this.config = config
-        canvasFrame.setCanvasSize(1280, 720)
-
-        // setup mouse listener
-        canvasFrame.canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
-        canvasFrame.canvas.addMouseListener(object : MouseAdapter() {
-            override fun mousePressed(e: MouseEvent) {
-                mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
-                mousePressedLedge.countDown()
-            }
-        })
+        setupCanvas()
 
         osc = OscPublisher(config.osc)
 
@@ -132,6 +123,21 @@ object CVPreview {
         exitProcess(0)
     }
 
+    // internal setup
+
+    private fun setupCanvas() {
+        canvasFrame.setCanvasSize(1280, 720)
+
+        // setup mouse listener
+        canvasFrame.canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
+        canvasFrame.canvas.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
+                mousePressedLedge.countDown()
+            }
+        })
+    }
+
     private fun setupConfigChangedHandlers() {
         config.osc.updateFrequency.onChanged += {
             oscTimer.duration = (1000.0 / config.osc.updateFrequency.value).roundToLong()
@@ -139,11 +145,7 @@ object CVPreview {
         config.osc.updateFrequency.fireLatest()
     }
 
-    fun initOSC() {
-        osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
-    }
-
-    private fun initPipelineHandlers(pipeline : Pipeline) {
+    private fun initPipelineHandlers(pipeline: Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
                 osc.publish(pipeline.tactileObjects)
@@ -161,11 +163,22 @@ object CVPreview {
         }
     }
 
+    // public methods
+
+    fun initOSC() {
+        osc.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
+    }
+
     fun requestMousePressed(): Float2 {
         mousePressedLedge = CountDownLatch(1)
         mousePressedLedge.await()
-        return Float2(mousePressedPosition.x / canvasFrame.width, mousePressedPosition.y / canvasFrame.height)
+        return Float2(
+            mousePressedPosition.x / canvasFrame.canvasSize.width,
+            mousePressedPosition.y / canvasFrame.canvasSize.height
+        )
     }
+
+    // factory methods
 
     private fun createInputProvider(): InputProvider {
         return when (config.input.inputProvider.value) {
