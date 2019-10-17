@@ -11,7 +11,7 @@ import com.google.gson.annotations.Expose
 class OscConfig {
     @Expose
     @StringParameter("OSC Address")
-    var oscAddress = DataModel("192.168.1.255")
+    var oscAddress = DataModel("127.0.0.1")
 
     @Expose
     @NumberParameter("OSC Port")

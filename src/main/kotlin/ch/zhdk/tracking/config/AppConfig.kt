@@ -15,10 +15,6 @@ class AppConfig {
     @Expose
     var osc = OscConfig()
 
-    @Expose
-    @BooleanParameter("Debugging Mode")
-    var debuggingMode = DataModel(true)
-
     @LabelParameter("Preview")
     private val outputLabel = ""
 

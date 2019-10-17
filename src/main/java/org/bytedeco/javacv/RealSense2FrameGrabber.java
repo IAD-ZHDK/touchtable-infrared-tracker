@@ -128,14 +128,18 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         ));
     }
 
-    public void enableIRStream(int width, int height, int frameRate) {
+    public void enableIRStream(int width, int height, int frameRate, int index) {
         enableStream(new RealSenseStream(
                 RS2_STREAM_INFRARED,
-                1,
+                index,
                 new Size(width, height),
                 frameRate,
                 RS2_FORMAT_Y8
         ));
+    }
+
+    public void enableIRStream(int width, int height, int frameRate) {
+        enableIRStream(width, height, frameRate, 1);
     }
 
     @Override
@@ -326,9 +330,9 @@ public class RealSense2FrameGrabber extends FrameGrabber {
                 break;
             }
 
-            rs2_delete_stream_profile(streamProfile);
             rs2_release_frame(frame);
             i++;
+            searchIndex++;
         }
 
         return result;
@@ -552,7 +556,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
 
         System.out.println("Sensor Count: " + sensorCount);
 
-        for(int i = 0; i < sensorCount; i++) {
+        for (int i = 0; i < sensorCount; i++) {
             rs2_sensor sensor = rs2_create_sensor(sensorList, i, error);
             checkError(error);
 
@@ -561,7 +565,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
             boolean isEmitting = toBoolean(rs2_supports_option(options, RS2_OPTION_EMITTER_ENABLED, error));
             checkError(error);
 
-            if(isEmitting) {
+            if (isEmitting) {
                 rs2_set_option(options, RS2_OPTION_EMITTER_ENABLED, 0f, error);
                 checkError(error);
                 System.out.println("emitter set to zero!");

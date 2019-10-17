@@ -4,6 +4,7 @@ import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.OscConfig
+import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.PassthroughPipeline
@@ -48,6 +49,8 @@ object CVPreview {
     private var mousePressedLedge = CountDownLatch(1)
     private var mousePressedPosition = Float2()
 
+    private var pipeline : Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
+
     fun start(config: AppConfig) {
         this.config = config
         setupCanvas()
@@ -61,7 +64,7 @@ object CVPreview {
             config.message.value = "starting pipeline..."
 
             // pipeline init
-            var pipeline = createPipeline()
+            pipeline = createPipeline()
             initPipelineHandlers(pipeline)
 
             // try to start pipeline
@@ -143,6 +146,12 @@ object CVPreview {
             oscTimer.duration = (1000.0 / config.osc.updateFrequency.value).roundToLong()
         }
         config.osc.updateFrequency.fireLatest()
+
+        config.input.displaySecondIRStream.onChanged += {
+            if(pipeline.inputProvider is RealSense2InputProvider) {
+                (pipeline.inputProvider as RealSense2InputProvider).displaySecondChannel = it
+            }
+        }
     }
 
     private fun initPipelineHandlers(pipeline: Pipeline) {
@@ -192,7 +201,9 @@ object CVPreview {
                 config.input.realSenseDeviceIndex.value,
                 config.input.realSenseWidth.value,
                 config.input.realSenseHeight.value,
-                config.input.realSenseFrameRate.value
+                config.input.realSenseFrameRate.value,
+                config.input.enableDualIR.value,
+                config.input.displaySecondIRStream.value
             )
             InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_1512.png"))
         }

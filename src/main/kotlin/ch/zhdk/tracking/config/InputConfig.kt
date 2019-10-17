@@ -52,4 +52,12 @@ class InputConfig {
     @Expose
     @NumberParameter("Frame Rate", "fps")
     var realSenseFrameRate = DataModel(60)
+
+    @Expose
+    @BooleanParameter("Enable Dual-IR Stream")
+    var enableDualIR = DataModel(false)
+
+    @Expose
+    @BooleanParameter("Display Second IR Stream")
+    var displaySecondIRStream = DataModel(false)
 }
