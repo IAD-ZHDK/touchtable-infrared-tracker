@@ -33,7 +33,6 @@ class GammaCorrection(private var gamma : Double = 0.0) {
     fun correct(image : Mat, gamma: Double) {
         // check if looktable is valid
         if(this.gamma != gamma) {
-            println("resetting lookup table...")
             this.gamma = gamma
             initLookupTable()
         }
