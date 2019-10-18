@@ -11,12 +11,15 @@ import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
+import composite.BlendComposite
 import org.bytedeco.javacv.CanvasFrame
 import org.bytedeco.javacv.FrameGrabber
+import java.awt.AlphaComposite
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.awt.image.BufferedImage
 import java.net.InetAddress
 import java.nio.file.Paths
 import kotlin.math.roundToLong
@@ -102,9 +105,9 @@ object CVPreview {
                 if (pipeline.isRunning) {
                     synchronized(pipelineLock) {
                         if (config.displayProcessed.value) {
-                            canvasFrame.showImage(pipeline.processedFrame)
+                            drawImage(pipeline.processedFrame, pipeline.annotationFrame)
                         } else {
-                            canvasFrame.showImage(pipeline.inputFrame)
+                            drawImage(pipeline.inputFrame, pipeline.annotationFrame)
                         }
                     }
                 }
@@ -130,6 +133,25 @@ object CVPreview {
         running = false
 
         exitProcess(0)
+    }
+
+    private fun drawImage(image : BufferedImage, overlay : BufferedImage) {
+        val g = canvasFrame.createGraphics()
+
+        // clear canvas
+        g.color = Color.black
+        g.fillRect(0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height)
+
+        // draw images
+        g.drawImage(image, 0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height, null)
+
+        if(config.pipeline.annotateOutput.value) {
+            g.composite = BlendComposite.Screen
+            g.drawImage(overlay, 0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height, null)
+        }
+
+        // paint
+        canvasFrame.releaseGraphics(g)
     }
 
     fun requestPipelineRestart(blocking: Boolean = false) {

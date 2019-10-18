@@ -12,6 +12,7 @@ import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
+import org.bytedeco.opencv.global.opencv_core.CV_8UC3
 import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.*
 import java.awt.image.BufferedImage
@@ -23,7 +24,7 @@ import kotlin.math.roundToInt
 abstract class Pipeline(
     val config: PipelineConfig,
     val inputProvider: InputProvider,
-    val pipelineLock: Any = Any()
+    private val pipelineLock: Any = Any()
 ) {
 
     private lateinit var pipelineThread: Thread
@@ -58,6 +59,11 @@ abstract class Pipeline(
         @Synchronized private set
 
     @Volatile
+    lateinit var annotationFrame: BufferedImage
+        @Synchronized get
+        @Synchronized private set
+
+    @Volatile
     var isZeroFrame = true
         private set
 
@@ -80,6 +86,7 @@ abstract class Pipeline(
         // create buffer for output
         inputFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
         processedFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
+        annotationFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
 
         // start processing thread
         pipelineThread = thread(start = true, name = "Pipeline Thread") {
@@ -160,6 +167,7 @@ abstract class Pipeline(
 
         // get input mat
         val processedMat = inputMat.clone()
+        val annotationMat = inputMat.zeros(CV_8UC3)
 
         // process
         val regions = detectRegions(processedMat, input.timestamp)
@@ -173,19 +181,17 @@ abstract class Pipeline(
 
         // annotate
         if (config.annotateOutput.value) {
-            // annotate input
-            annotateFrame(inputMat, regions)
-
-            // annotate debug
-            annotateFrame(processedMat, regions)
+            annotateFrame(annotationMat, regions)
         }
 
         synchronized(pipelineLock) {
             // lock frame reading
             processedFrame = createBufferedImage(processedMat, processedFrame)
             inputFrame = createBufferedImage(inputMat, inputFrame)
+            annotationFrame = createBufferedImage(annotationMat, annotationFrame)
 
             // release
+            annotationMat.release()
             processedMat.release()
             inputMat.release()
         }
