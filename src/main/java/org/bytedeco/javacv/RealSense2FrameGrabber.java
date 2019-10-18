@@ -298,7 +298,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     }
 
     private Frame grabCVFrame(int streamType, int streamIndex, int iplDepth, int iplChannels) throws Exception {
-        Frame colorFrame;
+        Frame outputFrame;
 
         // get frame of type if available
         rs2_frame frame = findFrameByStreamType(this.frameset, streamType, streamIndex);
@@ -312,12 +312,16 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         // create cv frame
         IplImage image = IplImage.createHeader(size.width(), size.height(), iplDepth, iplChannels);
         cvSetData(image, frameData, size.width() * iplChannels * iplDepth / 8);
-        colorFrame = converter.convert(image);
+        outputFrame = converter.convert(image);
+
+        // add timestamp
+        double timestamp = getFrameTimeStamp(frame);
+        outputFrame.timestamp = Math.round(timestamp);
 
         // cleanup
         rs2_release_frame(frame);
 
-        return colorFrame;
+        return outputFrame;
     }
 
     private rs2_frame findFrameByStreamType(rs2_frame frameset, int streamType, int index) throws FrameGrabber.Exception {
