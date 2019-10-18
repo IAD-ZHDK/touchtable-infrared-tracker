@@ -64,6 +64,7 @@ object CVPreview {
         initOSC()
 
         while (running) {
+            drawText("starting pipeline...")
             config.message.value = "starting pipeline..."
 
             // pipeline init
@@ -145,6 +146,25 @@ object CVPreview {
             g.composite = BlendComposite.Screen
             g.drawImage(overlay, 0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height, null)
         }
+
+        // paint
+        canvasFrame.releaseGraphics(g)
+    }
+
+    private fun drawText(message : String) {
+        val g = canvasFrame.createGraphics()
+
+        // clear canvas
+        g.color = Color.DARK_GRAY
+        g.fillRect(0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height)
+
+        g.font = g.font.deriveFont(30f)
+        g.color = Color.WHITE
+
+        val metrics = g.getFontMetrics(g.font)
+        g.drawString(message,
+            (canvasFrame.canvas.width / 2f) - (metrics.stringWidth(message) / 2f),
+            (canvasFrame.canvas.height / 2f) - (metrics.height / 2f))
 
         // paint
         canvasFrame.releaseGraphics(g)

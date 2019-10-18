@@ -108,7 +108,7 @@ class PipelineConfig {
 
     @Expose
     @BooleanParameter("Identification Enabled")
-    var identificationEnabled = DataModel(true)
+    var identificationEnabled = DataModel(false)
 
     @Expose
     @SliderParameter("Samples", 0.0, 300.0, 1.0, snap = true)
