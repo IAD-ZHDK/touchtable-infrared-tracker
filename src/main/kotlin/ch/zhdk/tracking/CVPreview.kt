@@ -34,10 +34,13 @@ object CVPreview {
     var running = true
 
     @Volatile
-    var restartRequested = false
+    var saveFrameRequested = false
 
     @Volatile
-    var saveFrameRequested = false
+    private var restartRequested = false
+
+    @Volatile
+    private var pipelineStartedLatch = CountDownLatch(1)
 
     private val pipelineLock = Any()
 
@@ -46,6 +49,7 @@ object CVPreview {
 
     val canvasFrame = CanvasFrame("Preview", 0.0)
 
+    @Volatile
     private var mousePressedLedge = CountDownLatch(1)
     private var mousePressedPosition = Float2()
 
@@ -80,6 +84,8 @@ object CVPreview {
 
                 PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             }
+
+            pipelineStartedLatch.countDown()
 
             // run
             while (!restartRequested && running && canvasFrame.isVisible) {
@@ -124,6 +130,13 @@ object CVPreview {
         running = false
 
         exitProcess(0)
+    }
+
+    fun requestPipelineRestart(blocking: Boolean = false) {
+        pipelineStartedLatch = CountDownLatch(1)
+        restartRequested = true
+        if(blocking)
+            pipelineStartedLatch.await()
     }
 
     // internal setup
@@ -202,6 +215,7 @@ object CVPreview {
                 config.input.realSenseWidth.value,
                 config.input.realSenseHeight.value,
                 config.input.realSenseFrameRate.value,
+                config.input.enableRGBIRStream.value,
                 config.input.enableDualIR.value,
                 config.input.displaySecondIRStream.value
             )
