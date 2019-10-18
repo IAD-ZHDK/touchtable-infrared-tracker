@@ -33,7 +33,7 @@ class AppConfig {
 
     @ActionParameter("Pipeline", "Restart")
     private val restartPipeline = {
-        CVPreview.restartRequested = true
+        CVPreview.requestPipelineRestart(true)
     }
 
     @LabelParameter("Information")

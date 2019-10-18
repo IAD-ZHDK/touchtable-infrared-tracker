@@ -9,7 +9,7 @@ import com.google.gson.annotations.Expose
 class InputConfig {
     @ActionParameter("Pipeline", "Restart")
     private val restartPipeline = {
-        CVPreview.restartRequested = true
+        CVPreview.requestPipelineRestart(true)
     }
 
     @LabelParameter("Input")
@@ -52,6 +52,10 @@ class InputConfig {
     @Expose
     @NumberParameter("Frame Rate", "fps")
     var realSenseFrameRate = DataModel(60)
+
+    @Expose
+    @BooleanParameter("Enable RGB IR Stream")
+    var enableRGBIRStream = DataModel(false)
 
     @Expose
     @BooleanParameter("Enable Dual-IR Stream")
