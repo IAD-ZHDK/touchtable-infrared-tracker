@@ -31,8 +31,9 @@ class DistanceRegionTracker(pipeline : Pipeline, config : PipelineConfig = Pipel
             }
 
             // send object deleted notification
-            if(!it.isAlive && it.deadTime > config.maxDeadTime.value) {
+            if(!it.isAlive && it.deadTime > config.maxDeadTime.value && !it.deadNotified) {
                 pipeline.onObjectRemoved(it)
+                it.deadNotified = true
             }
 
             // send object detected notification
