@@ -12,7 +12,6 @@ import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
-import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.*
 import java.awt.image.BufferedImage
@@ -161,10 +160,11 @@ abstract class Pipeline(
         }
 
         // get input mat
-        val mat = inputMat.clone()
+        val processedMat = inputMat.clone()
+        val rawMat = inputMat.clone()
 
         // process
-        val regions = detectRegions(mat, input.timestamp)
+        val regions = detectRegions(processedMat, input.timestamp)
         mapRegionToObjects(tactileObjects, regions)
         recognizeObjectId(tactileObjects)
 
@@ -174,21 +174,22 @@ abstract class Pipeline(
         }
 
         // annotate
+        if (config.annotateOutput.value) {
+            // annotate input
+            annotateFrame(rawMat, regions)
+
+            // annotate debug
+            annotateFrame(processedMat, regions)
+        }
+
         synchronized(pipelineLock) {
-            if (config.annotateOutput.value) {
-                // annotate input
-                annotateFrame(inputMat, regions)
-
-                // annotate debug
-                annotateFrame(mat, regions)
-            }
-
             // lock frame reading
-            processedFrame = createBufferedImage(mat, processedFrame)
-            inputFrame = createBufferedImage(inputMat, inputFrame)
+            processedFrame = createBufferedImage(processedMat, processedFrame)
+            inputFrame = createBufferedImage(rawMat, inputFrame)
 
             // release
-            mat.release()
+            processedMat.release()
+            rawMat.release()
             inputMat.release()
         }
 
@@ -201,15 +202,16 @@ abstract class Pipeline(
 
     private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
         if (mat.type() == CV_8UC1)
-            mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
+            mat.convertColor(COLOR_GRAY2BGR)
 
         return mat.toFrame().createBufferedImageFast(image)
     }
 
     private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
         // convert to color if needed
-        if (mat.type() == CV_8UC1)
-            mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
+        if (mat.type() == CV_8UC1) {
+            mat.convertColor(COLOR_GRAY2BGR)
+        }
 
         // annotate pipeline output
         annotateActiveRegions(mat, regions)
