@@ -46,6 +46,8 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     private int deviceNumber;
     private List<RealSenseStream> streams = new ArrayList<>();
 
+    private boolean disableIREmitter = false;
+
     private FrameConverter converter = new OpenCVFrameConverter.ToIplImage();
 
     public RealSense2FrameGrabber() throws Exception {
@@ -142,6 +144,10 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         enableIRStream(width, height, frameRate, 1);
     }
 
+    public void disableIREmitter() {
+        this.disableIREmitter = true;
+    }
+
     @Override
     public void start() throws FrameGrabber.Exception {
         // check if device is available
@@ -154,12 +160,14 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         this.device = createDevice(devices, this.deviceNumber);
         rs2_delete_device_list(devices);
 
+        // ir emitter
+        if(disableIREmitter) {
+            setIREmitter(false);
+        }
+
         // create pipeline
         this.pipeline = createPipeline();
         this.config = createConfig();
-
-        // disbale ir emitter
-        disableIREmitter();
 
         // check if streams is not empty
         if (streams.isEmpty())
@@ -177,8 +185,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
                     error);
             checkError(error);
         }
-
-        // todo: set options (emitter)
 
         // set image width & height to largest stream
         RealSenseStream largestStream = getLargestStreamByArea();
@@ -236,6 +242,13 @@ public class RealSense2FrameGrabber extends FrameGrabber {
             default:
                 return grabColor();
         }
+    }
+
+    public Frame grab(int streamType, int streamIndex, int iplDepth, int channels) throws Exception {
+        if (!triggerMode)
+            readNextFrameSet();
+
+        return grabCVFrame(streamType, streamIndex, iplDepth, channels);
     }
 
     public float getDistance(int x, int y) throws Exception {
@@ -546,15 +559,13 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         }
     }
 
-    // experimential
-    private void disableIREmitter() throws Exception {
+    // experiential
+    private void setIREmitter(boolean enabled) throws Exception {
         rs2_sensor_list sensorList = rs2_query_sensors(this.device, error);
         checkError(error);
 
         int sensorCount = rs2_get_sensors_count(sensorList, error);
         checkError(error);
-
-        System.out.println("Sensor Count: " + sensorCount);
 
         for (int i = 0; i < sensorCount; i++) {
             rs2_sensor sensor = rs2_create_sensor(sensorList, i, error);
@@ -566,9 +577,9 @@ public class RealSense2FrameGrabber extends FrameGrabber {
             checkError(error);
 
             if (isEmitting) {
-                rs2_set_option(options, RS2_OPTION_EMITTER_ENABLED, 0f, error);
+                rs2_set_option(options, RS2_OPTION_EMITTER_ENABLED, enabled ? 1f : 0f, error);
                 checkError(error);
-                System.out.println("emitter set to zero!");
+                System.out.println("IR emitter set to " + enabled);
             }
 
             rs2_delete_sensor(sensor);

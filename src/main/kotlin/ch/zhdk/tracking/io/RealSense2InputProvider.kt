@@ -24,6 +24,7 @@ class RealSense2InputProvider(
             rs2.enableIRStream(width, height, frameRate, 2)
         }
 
+        rs2.disableIREmitter()
         rs2.start()
         super.open()
     }
