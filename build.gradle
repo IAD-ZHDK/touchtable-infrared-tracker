@@ -43,9 +43,11 @@ dependencies {
     // statistics
     compile 'org.nield:kotlin-statistics:1.2.1'
 
-    // realsense2
-    compile files('lib/librealsense2-2.25.0-1.5.2-20191010.225216-49-macosx-x86_64.jar')
-    compile files('lib/librealsense2-2.25.0-1.5.2-20191010.225216-49.jar')
+    // librealsense2
+    compile files('lib/librealsense2-2.25.0-1.5.2.jar')
+    compile files('lib/librealsense2-2.25.0-1.5.2-macosx-x86_64.jar')
+    compile files('lib/librealsense2-2.25.0-1.5.2-linux-x86_64.jar')
+    compile files('lib/librealsense2-2.25.0-1.5.2-windows-x86_64.jar')
 }
 
 compileKotlin {
