@@ -14,6 +14,7 @@ class GammaCorrection(private var gamma : Double = 0.0) {
         initLookupTable()
     }
 
+    @Synchronized
     fun initLookupTable() {
         val lookUpTableData = ByteArray((lookUpTable.total() * lookUpTable.channels()).toInt())
         for (i in 0 until lookUpTable.cols()) {
@@ -28,6 +29,7 @@ class GammaCorrection(private var gamma : Double = 0.0) {
         return iVal.toByte()
     }
 
+    @Synchronized
     fun correct(image : Mat, gamma: Double) {
         // check if looktable is valid
         if(this.gamma != gamma) {
