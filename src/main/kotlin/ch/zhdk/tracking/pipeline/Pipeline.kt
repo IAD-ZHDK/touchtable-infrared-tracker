@@ -107,14 +107,14 @@ abstract class Pipeline(
                     }
 
                     onFrameProcessed.invoke(this)
+
+                    // mark that pipeline thead is up if first image has been read
+                    if (!isPipelineUp) {
+                        isPipelineUp = true
+                        startupLatch.countDown()
+                    }
                 } else {
                     Thread.sleep(1)
-                }
-
-                // mark that pipeline thead is up
-                if (!isPipelineUp) {
-                    isPipelineUp = true
-                    startupLatch.countDown()
                 }
             }
         }
