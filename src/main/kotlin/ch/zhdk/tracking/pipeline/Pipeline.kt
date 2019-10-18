@@ -134,7 +134,7 @@ abstract class Pipeline(
         isZeroFrame = false
 
         // set pre process frame
-        val inputMat = input.toMat()
+        val inputMat = input.toMat().clone()
 
         // set normalization values
         config.inputWidth.setSilent(input.imageWidth)
@@ -152,8 +152,7 @@ abstract class Pipeline(
             return true
         }
 
-        // preprocessing
-
+        // pre-processing
         if (config.enablePreProcessing.value) {
             // apply gamma correction
             gammaCorrection.correct(inputMat, config.gammaCorrection.value)
@@ -161,7 +160,6 @@ abstract class Pipeline(
 
         // get input mat
         val processedMat = inputMat.clone()
-        val rawMat = inputMat.clone()
 
         // process
         val regions = detectRegions(processedMat, input.timestamp)
@@ -176,7 +174,7 @@ abstract class Pipeline(
         // annotate
         if (config.annotateOutput.value) {
             // annotate input
-            annotateFrame(rawMat, regions)
+            annotateFrame(inputMat, regions)
 
             // annotate debug
             annotateFrame(processedMat, regions)
@@ -185,11 +183,10 @@ abstract class Pipeline(
         synchronized(pipelineLock) {
             // lock frame reading
             processedFrame = createBufferedImage(processedMat, processedFrame)
-            inputFrame = createBufferedImage(rawMat, inputFrame)
+            inputFrame = createBufferedImage(inputMat, inputFrame)
 
             // release
             processedMat.release()
-            rawMat.release()
             inputMat.release()
         }
 

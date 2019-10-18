@@ -58,7 +58,7 @@ class RealSense2InputProvider(
             rs2.grabIR(channel)
 
         frame.timestamp = timestamp++
-        return frame.clone()
+        return frame
     }
 
     override fun close() {
