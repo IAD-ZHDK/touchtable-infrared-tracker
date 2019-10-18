@@ -3,7 +3,6 @@ package ch.zhdk.tracking
 import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
-import ch.zhdk.tracking.config.OscConfig
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
 import ch.zhdk.tracking.osc.OscPublisher
@@ -11,23 +10,20 @@ import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
-import composite.BlendComposite
 import org.bytedeco.javacv.CanvasFrame
-import org.bytedeco.javacv.FrameGrabber
-import java.awt.AlphaComposite
+import org.guy.composite.BlendComposite
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
+import java.io.File
 import java.net.InetAddress
 import java.nio.file.Paths
+import java.util.concurrent.CountDownLatch
+import javax.imageio.ImageIO
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
-import javax.imageio.ImageIO
-import java.io.File
-import java.util.concurrent.CountDownLatch
-import kotlin.math.roundToInt
 
 
 object CVPreview {
