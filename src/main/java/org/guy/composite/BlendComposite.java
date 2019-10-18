@@ -188,11 +188,19 @@ public final class BlendComposite implements Composite {
         }
 
         public void compose(Raster src, Raster dstIn, WritableRaster dstOut) {
-            if (src.getSampleModel().getDataType() != DataBuffer.TYPE_INT ||
-                    dstIn.getSampleModel().getDataType() != DataBuffer.TYPE_INT ||
-                    dstOut.getSampleModel().getDataType() != DataBuffer.TYPE_INT) {
+            if (src.getSampleModel().getDataType() != DataBuffer.TYPE_INT) {
                 throw new IllegalStateException(
-                        "Source and destination must store pixels as INT.");
+                        "Source must store pixels as INT.");
+            }
+
+            if(dstIn.getSampleModel().getDataType() != DataBuffer.TYPE_INT) {
+                throw new IllegalStateException(
+                        "Destination in must store pixels as INT.");
+            }
+
+            if(dstOut.getSampleModel().getDataType() != DataBuffer.TYPE_INT) {
+                throw new IllegalStateException(
+                        "Destination out must store pixels as INT.");
             }
 
             int width = Math.min(src.getWidth(), dstIn.getWidth());
