@@ -21,9 +21,11 @@ import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
-abstract class Pipeline(val config: PipelineConfig,
-                        val inputProvider: InputProvider,
-                        val pipelineLock : Any = Any()) {
+abstract class Pipeline(
+    val config: PipelineConfig,
+    val inputProvider: InputProvider,
+    val pipelineLock: Any = Any()
+) {
 
     private lateinit var pipelineThread: Thread
 
@@ -104,7 +106,7 @@ abstract class Pipeline(val config: PipelineConfig,
                 }
 
                 // mark that pipeline thead is up
-                if(!isPipelineUp) {
+                if (!isPipelineUp) {
                     isPipelineUp = true
                     startupLatch.countDown()
                 }
@@ -153,7 +155,7 @@ abstract class Pipeline(val config: PipelineConfig,
 
         // preprocessing
 
-        if(config.enablePreProcessing.value) {
+        if (config.enablePreProcessing.value) {
             // apply gamma correction
             gammaCorrection.correct(inputMat, config.gammaCorrection.value)
         }
@@ -167,21 +169,21 @@ abstract class Pipeline(val config: PipelineConfig,
         recognizeObjectId(tactileObjects)
 
         // if no output should be shown (production)
-        if(!config.displayOutput.value) {
+        if (!config.displayOutput.value) {
             return true
         }
 
         // annotate
-        if (config.annotateOutput.value) {
-            // annotate input
-            annotateFrame(inputMat, regions)
-
-            // annotate debug
-            annotateFrame(mat, regions)
-        }
-
-        // lock frame reading
         synchronized(pipelineLock) {
+            if (config.annotateOutput.value) {
+                // annotate input
+                annotateFrame(inputMat, regions)
+
+                // annotate debug
+                annotateFrame(mat, regions)
+            }
+
+            // lock frame reading
             processedFrame = createBufferedImage(mat, processedFrame)
             inputFrame = createBufferedImage(inputMat, inputFrame)
 
@@ -197,7 +199,7 @@ abstract class Pipeline(val config: PipelineConfig,
     abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
     abstract fun recognizeObjectId(objects: List<TactileObject>)
 
-    private fun createBufferedImage(mat : Mat, image : BufferedImage) : BufferedImage {
+    private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
         if (mat.type() == CV_8UC1)
             mat.convertColor(opencv_imgproc.COLOR_GRAY2BGR)
 
@@ -214,7 +216,7 @@ abstract class Pipeline(val config: PipelineConfig,
         annotateTactileObjects(mat)
 
         // annotate screen calibration
-        if(config.calibration.displayAnnotation.value) {
+        if (config.calibration.displayAnnotation.value) {
             annotateCalibration(mat)
         }
     }
@@ -241,10 +243,10 @@ abstract class Pipeline(val config: PipelineConfig,
         }
     }
 
-    private fun annotateTactileObjects(mat : Mat) {
+    private fun annotateTactileObjects(mat: Mat) {
         // annotate tactile objects
         tactileObjects.forEach {
-            val color = if(it.deadTime == 0) AbstractScalar.GREEN else AbstractScalar.BLUE
+            val color = if (it.deadTime == 0) AbstractScalar.GREEN else AbstractScalar.BLUE
             mat.drawCross(it.position.toPoint(), 22, color, thickness = 1)
             mat.drawText(
                 "N:${it.uniqueId} #${it.identifier} [${it.lifeTime}]",
@@ -255,7 +257,7 @@ abstract class Pipeline(val config: PipelineConfig,
         }
     }
 
-    private fun annotateCalibration(mat : Mat) {
+    private fun annotateCalibration(mat: Mat) {
         // display edges and screen
         val screen = Float2(mat.width().toFloat(), mat.height().toFloat())
 
