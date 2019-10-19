@@ -23,6 +23,14 @@ class AppConfig {
     var displayProcessed = DataModel(true)
 
     @Expose
+    @NumberParameter("Preview Width", " px")
+    var previewWidth = DataModel(1280)
+
+    @Expose
+    @NumberParameter("Preview Height", " px")
+    var previewHeight = DataModel(720)
+
+    @Expose
     @NumberParameter("Preview Update Frequency", " FPS")
     var updateFrequency = DataModel(90)
 

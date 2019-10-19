@@ -12,6 +12,7 @@ import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
 import org.guy.composite.BlendComposite
+import java.awt.Canvas
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.MouseAdapter
@@ -22,6 +23,7 @@ import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
+import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
@@ -46,13 +48,13 @@ object CVPreview {
     private lateinit var osc: OscPublisher
     private val oscTimer = ElapsedTimer()
 
-    val canvasFrame = CanvasFrame("Preview", 0.0)
+    private val canvasFrame = CanvasFrame("Preview", 0.0)
 
     @Volatile
     private var mousePressedLedge = CountDownLatch(1)
     private var mousePressedPosition = Float2()
 
-    private var pipeline : Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
+    private var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
 
     fun start(config: AppConfig) {
         this.config = config
@@ -85,6 +87,10 @@ object CVPreview {
                 PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             }
 
+            // aspect ratio
+            setWindowAspectRatio(config.pipeline.inputWidth.value, config.pipeline.inputHeight.value)
+
+            // indicate start finished
             pipelineStartedLatch.countDown()
 
             // run
@@ -118,8 +124,10 @@ object CVPreview {
                 running = false
             }
 
-            if (restartRequested)
+            if (restartRequested) {
                 config.message.value = "restart requested..."
+                drawText("restarting...")
+            }
 
             pipeline.stop()
             restartRequested = false
@@ -132,7 +140,7 @@ object CVPreview {
         exitProcess(0)
     }
 
-    private fun drawImage(image : BufferedImage, overlay : BufferedImage) {
+    private fun drawImage(image: BufferedImage, overlay: BufferedImage) {
         val g = canvasFrame.createGraphics()
 
         // clear canvas
@@ -140,18 +148,23 @@ object CVPreview {
         g.fillRect(0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height)
 
         // draw images
-        g.drawImage(image, 0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height, null)
+        g.drawImage(image, 0, 0, canvasFrame.canvas.width - 1, canvasFrame.canvas.height - 1, null)
 
-        if(config.pipeline.annotateOutput.value) {
+        if (config.pipeline.annotateOutput.value) {
             g.composite = BlendComposite.Screen
-            g.drawImage(overlay, 0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height, null)
+
+            try {
+                g.drawImage(overlay, 0, 0, canvasFrame.canvas.width - 1, canvasFrame.canvas.height - 1, null)
+            } catch (ex : Exception) {
+                println(ex.message)
+            }
         }
 
         // paint
         canvasFrame.releaseGraphics(g)
     }
 
-    private fun drawText(message : String) {
+    private fun drawText(message: String) {
         val g = canvasFrame.createGraphics()
 
         // clear canvas
@@ -162,9 +175,11 @@ object CVPreview {
         g.color = Color.WHITE
 
         val metrics = g.getFontMetrics(g.font)
-        g.drawString(message,
+        g.drawString(
+            message,
             (canvasFrame.canvas.width / 2f) - (metrics.stringWidth(message) / 2f),
-            (canvasFrame.canvas.height / 2f) - (metrics.height / 2f))
+            (canvasFrame.canvas.height / 2f) - (metrics.height / 2f)
+        )
 
         // paint
         canvasFrame.releaseGraphics(g)
@@ -173,14 +188,14 @@ object CVPreview {
     fun requestPipelineRestart(blocking: Boolean = false) {
         pipelineStartedLatch = CountDownLatch(1)
         restartRequested = true
-        if(blocking)
+        if (blocking)
             pipelineStartedLatch.await()
     }
 
     // internal setup
 
     private fun setupCanvas() {
-        canvasFrame.setCanvasSize(1280, 720)
+        canvasFrame.setCanvasSize(config.previewWidth.value, config.previewHeight.value)
 
         // setup mouse listener
         canvasFrame.canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
@@ -192,6 +207,11 @@ object CVPreview {
         })
     }
 
+    private fun setWindowAspectRatio(inputWidth : Int, inputHeight : Int) {
+        // use width as constant
+        // todo: calculate aspect ratio
+    }
+
     private fun setupConfigChangedHandlers() {
         config.osc.updateFrequency.onChanged += {
             oscTimer.duration = (1000.0 / config.osc.updateFrequency.value).roundToLong()
@@ -199,7 +219,7 @@ object CVPreview {
         config.osc.updateFrequency.fireLatest()
 
         config.input.displaySecondIRStream.onChanged += {
-            if(pipeline.inputProvider is RealSense2InputProvider) {
+            if (pipeline.inputProvider is RealSense2InputProvider) {
                 (pipeline.inputProvider as RealSense2InputProvider).displaySecondChannel = it
             }
         }

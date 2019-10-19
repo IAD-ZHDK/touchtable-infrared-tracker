@@ -291,7 +291,7 @@ abstract class Pipeline(
             return
 
         shutdownRequested = true
-        pipelineThread.join(5000)
+        pipelineThread.join(1000 * 10)
 
         isRunning = false
         isPipelineUp = false
