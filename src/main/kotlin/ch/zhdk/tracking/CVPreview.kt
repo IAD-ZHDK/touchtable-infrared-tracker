@@ -108,6 +108,8 @@ object CVPreview {
 
                 // display frames
                 if (pipeline.isRunning) {
+                    pipeline.waitForNewFrameAvailable()
+
                     synchronized(pipelineLock) {
                         if (config.displayProcessed.value) {
                             drawImage(pipeline.processedFrame, pipeline.annotationFrame)
@@ -116,9 +118,6 @@ object CVPreview {
                         }
                     }
                 }
-
-                // ui refresh speed
-                Thread.sleep(1000L / config.updateFrequency.value)
             }
 
             if (!canvasFrame.isVisible) {

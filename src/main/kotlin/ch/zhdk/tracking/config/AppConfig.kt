@@ -30,10 +30,6 @@ class AppConfig {
     @NumberParameter("Preview Height", " px")
     var previewHeight = DataModel(720)
 
-    @Expose
-    @NumberParameter("Preview Update Frequency", " FPS")
-    var updateFrequency = DataModel(90)
-
     @ActionParameter("Input Frame", "Save", false)
     private val requestScreenshot = {
         CVPreview.saveFrameRequested = true

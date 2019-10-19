@@ -18,6 +18,7 @@ import org.bytedeco.opencv.opencv_core.*
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
@@ -38,7 +39,9 @@ abstract class Pipeline(
     @Volatile
     private var shutdownRequested = false
 
+    // concurrency
     private var startupLatch = CountDownLatch(1)
+    private val newFrameAvailableSemaphore = Semaphore(0)
 
     private val gammaCorrection = GammaCorrection(config.gammaCorrection.value)
 
@@ -73,6 +76,10 @@ abstract class Pipeline(
     val onObjectDetected = Event<TactileObject>()
     val onObjectRemoved = Event<TactileObject>()
 
+    fun waitForNewFrameAvailable() {
+        newFrameAvailableSemaphore.acquire()
+    }
+
     fun start() {
         if (isRunning)
             return
@@ -95,6 +102,9 @@ abstract class Pipeline(
                 if (processFrame()) {
                     processWatch.stop()
                     frameWatch.stop()
+
+                    // release new frame available
+                    newFrameAvailableSemaphore.release()
 
                     // update info
                     if (updateTimer.elapsed()) {
@@ -289,6 +299,9 @@ abstract class Pipeline(
     fun stop() {
         if (!isRunning)
             return
+
+        // do not block shutdown
+        newFrameAvailableSemaphore.release()
 
         shutdownRequested = true
         pipelineThread.join(1000 * 10)
