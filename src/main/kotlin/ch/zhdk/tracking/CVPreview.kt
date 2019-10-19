@@ -56,6 +56,7 @@ object CVPreview {
 
     private var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
 
+    // todo: refactor this heavy method into smaller parts!
     fun start(config: AppConfig) {
         this.config = config
         setupCanvas()
