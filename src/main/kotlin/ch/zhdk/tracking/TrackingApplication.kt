@@ -22,6 +22,7 @@ import java.io.File
 import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Semaphore
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -41,7 +42,7 @@ object TrackingApplication {
     private var restartRequested = false
 
     @Volatile
-    private var pipelineStartedLatch = CountDownLatch(1)
+    private var pipelineStartedLatch = Semaphore(0)
 
     private val pipelineLock = Any()
 
@@ -51,7 +52,7 @@ object TrackingApplication {
     private val canvasFrame = CanvasFrame("Preview", 0.0)
 
     @Volatile
-    private var mousePressedLedge = CountDownLatch(1)
+    private var mousePressedLedge = Semaphore(0)
     private var mousePressedPosition = Float2()
 
     private var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
@@ -93,7 +94,7 @@ object TrackingApplication {
             setWindowAspectRatio(config.pipeline.inputWidth.value, config.pipeline.inputHeight.value)
 
             // indicate start finished
-            pipelineStartedLatch.countDown()
+            pipelineStartedLatch.release()
 
             // run
             while (!restartRequested && running && canvasFrame.isVisible) {
@@ -191,10 +192,9 @@ object TrackingApplication {
     }
 
     fun requestPipelineRestart(blocking: Boolean = false) {
-        pipelineStartedLatch = CountDownLatch(1)
         restartRequested = true
         if (blocking)
-            pipelineStartedLatch.await()
+            pipelineStartedLatch.acquire()
     }
 
     // internal setup
@@ -207,7 +207,7 @@ object TrackingApplication {
         canvasFrame.canvas.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
                 mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
-                mousePressedLedge.countDown()
+                mousePressedLedge.release()
             }
         })
     }
@@ -255,8 +255,7 @@ object TrackingApplication {
     }
 
     fun requestMousePressed(): Float2 {
-        mousePressedLedge = CountDownLatch(1)
-        mousePressedLedge.await()
+        mousePressedLedge.acquire()
         return Float2(
             mousePressedPosition.x / canvasFrame.canvasSize.width,
             mousePressedPosition.y / canvasFrame.canvasSize.height
