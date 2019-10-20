@@ -31,17 +31,20 @@ class TactileObject(val uniqueId: Int) {
     val identification = Identification()
 
     // methods
-    fun updateState(state : TactileObjectState) {
-        if(this.state == state)
+    fun updateState(state: TactileObjectState) {
+        if (this.state == state)
             return
 
         stateChangeTimeStamp = TimeKeeper.millis()
         this.state = state
     }
 
-    val timeSinceLastStateChange : Long
+    val timeSinceLastStateChange: Long
         get() = TimeKeeper.millis() - stateChangeTimeStamp
 
-    val timeSinceLastDetectionUpdate : Long
+    val timeSinceLastDetectionUpdate: Long
         get() = TimeKeeper.millis() - detectionUpdatedTimeStamp
+
+    val isActive: Boolean
+        get() = state == TactileObjectState.Alive || state == TactileObjectState.Missing
 }

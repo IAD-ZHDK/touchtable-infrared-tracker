@@ -5,6 +5,7 @@ import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
+import ch.zhdk.tracking.model.TactileObjectState
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
@@ -233,7 +234,7 @@ object TrackingApplication {
     private fun initPipelineHandlers(pipeline: Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
-                osc.publish(pipeline.tactileObjects)
+                osc.publish(pipeline.tactileObjects.filter { it.isActive })
             }
         }
 
