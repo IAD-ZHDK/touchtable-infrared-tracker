@@ -18,6 +18,7 @@ class PropertiesControl : VBox() {
         spacing = 10.0
         alignment = Pos.TOP_CENTER
         padding = Insets(10.0, 20.0, 10.0, 10.0)
+        width = 420.0
     }
 
     fun initView(obj: Any) {

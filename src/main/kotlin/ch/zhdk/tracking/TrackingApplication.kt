@@ -10,9 +10,10 @@ import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
+import javafx.application.Platform
+import javafx.embed.swing.SwingFXUtils
 import org.bytedeco.javacv.CanvasFrame
 import org.guy.composite.BlendComposite
-import java.awt.Canvas
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.MouseAdapter
@@ -23,12 +24,11 @@ import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
 
-object CVPreview {
+object TrackingApplication {
     lateinit var config: AppConfig
 
     @Volatile
@@ -49,6 +49,7 @@ object CVPreview {
     private val oscTimer = ElapsedTimer()
 
     private val canvasFrame = CanvasFrame("Preview", 0.0)
+    lateinit var configurationWindow : ConfigurationWindow
 
     @Volatile
     private var mousePressedLedge = CountDownLatch(1)
@@ -113,9 +114,17 @@ object CVPreview {
 
                         synchronized(pipelineLock) {
                             if (config.displayProcessed.value) {
-                                drawImage(pipeline.processedFrame, pipeline.annotationFrame)
+                                //drawImage(pipeline.processedFrame, pipeline.annotationFrame)
+
+                                val img = SwingFXUtils.toFXImage(pipeline.processedFrame, null)
+                                val overlay = SwingFXUtils.toFXImage(pipeline.annotationFrame, null)
+                                Platform.runLater { configurationWindow.drawImage(img, overlay) }
                             } else {
-                                drawImage(pipeline.inputFrame, pipeline.annotationFrame)
+                                //drawImage(pipeline.inputFrame, pipeline.annotationFrame)
+
+                                val img = SwingFXUtils.toFXImage(pipeline.inputFrame, null)
+                                val overlay = SwingFXUtils.toFXImage(pipeline.annotationFrame, null)
+                                Platform.runLater { configurationWindow.drawImage(img, overlay) }
                             }
                         }
                     } else {

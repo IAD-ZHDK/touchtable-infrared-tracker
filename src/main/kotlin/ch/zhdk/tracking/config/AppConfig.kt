@@ -2,7 +2,7 @@ package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.*
-import ch.zhdk.tracking.CVPreview
+import ch.zhdk.tracking.TrackingApplication
 import com.google.gson.annotations.Expose
 
 class AppConfig {
@@ -24,7 +24,7 @@ class AppConfig {
 
     @Expose
     @NumberParameter("Preview Width", " px")
-    var previewWidth = DataModel(1280)
+    var previewWidth = DataModel(960)
 
     @Expose
     @NumberParameter("Preview Height", " px")
@@ -32,12 +32,12 @@ class AppConfig {
 
     @ActionParameter("Input Frame", "Save", false)
     private val requestScreenshot = {
-        CVPreview.saveFrameRequested = true
+        TrackingApplication.saveFrameRequested = true
     }
 
     @ActionParameter("Pipeline", "Restart")
     private val restartPipeline = {
-        CVPreview.requestPipelineRestart(true)
+        TrackingApplication.requestPipelineRestart(true)
     }
 
     @LabelParameter("Information")

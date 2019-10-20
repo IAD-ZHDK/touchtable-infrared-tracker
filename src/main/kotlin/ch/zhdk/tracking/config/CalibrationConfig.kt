@@ -3,9 +3,8 @@ package ch.zhdk.tracking.config
 import ch.bildspur.model.DataModel
 import ch.bildspur.model.math.Float2
 import ch.bildspur.ui.properties.*
-import ch.zhdk.tracking.CVPreview
+import ch.zhdk.tracking.TrackingApplication
 import com.google.gson.annotations.Expose
-import kotlin.concurrent.thread
 
 class CalibrationConfig {
 
@@ -24,14 +23,14 @@ class CalibrationConfig {
     @ActionParameter("Edge Selection", "Start")
     private val selectEdgesAction = {
         instruction.value = "Press top left..."
-        topLeft.value = CVPreview.requestMousePressed()
+        topLeft.value = TrackingApplication.requestMousePressed()
 
         // todo: re-enable this
         instruction.value = "Press top right..."
         //topRight.value = CVPreview.requestMousePressed()
 
         instruction.value = "Press bottom right..."
-        bottomRight.value = CVPreview.requestMousePressed()
+        bottomRight.value = TrackingApplication.requestMousePressed()
 
         instruction.value = "Press bottom left..."
         //bottomLeft.value = CVPreview.requestMousePressed()

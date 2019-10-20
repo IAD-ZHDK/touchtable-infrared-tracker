@@ -12,7 +12,7 @@ sourceCompatibility = 1.8
 
 javafx {
     version = "11"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
 }
 
 repositories {
@@ -36,6 +36,7 @@ dependencies {
     // javafx
     compile group: 'org.openjfx', name: 'javafx-base', version: '11.0.2'
     compile group: 'org.openjfx', name: 'javafx-controls', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-swing', version: '11.0.2'
     compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
 
     // osc
