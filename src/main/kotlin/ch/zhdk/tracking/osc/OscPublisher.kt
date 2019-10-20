@@ -62,6 +62,7 @@ class OscPublisher(val config: OscConfig) {
     private fun TactileObject.createArgsList() : List<Any> {
         return listOf(
             this.uniqueId,
+            this.identifier,
             this.calibratedPosition.x().toFloat(),
             this.calibratedPosition.y().toFloat(),
             this.rotation.toFloat(),

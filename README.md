@@ -1,10 +1,16 @@
 # IR Tracking System
 This project aims to create an infrared tracking system for tactile tables.
 
-![Tracking Example](images/tracking-example.png)
+![Tracking Example](images/tracking-example.jpg)
 
-### Install
-Everything is installed through the gradle dependency manager. Just run the following command and gradlew will download, build and run the project.
+### Install and Run
+Everything is installed through the [gradle](https://gradle.org/) dependency manager. To run the application, OpenJDK 11 is needed and can be installed through your favourite package manager. On MacOS we recommend to use [brew](https://brew.sh/):
+
+```bash
+brew cask install java11
+```
+
+Now just run the following command and gradlew will download, build and run the project.
 
 ```bash
 # windows
@@ -24,3 +30,43 @@ gradlew.bat fatJar
 # macOS / unix
 ./gradlew fatJar
 ```
+
+The built jar is runnable on all platforms (includes all dependencies).
+
+### OSC Protocol
+The OSC protocol sends out events which are need for the visualisation. It already normalizes and filters the values.
+
+```java
+// Add is sent if a new object is detected.
+
+"/tracker/add"
+	- uniqueId (int) // unique number
+	- identifier (int) // object type
+	- x-coordinate (float) // normalized
+	- y-coordinate (float) // normalized
+	- rotation (float) // between 0.0-180.0
+	- intensity (float) // normalized
+```
+
+
+```java
+// Every n millisecond an update is sent for each active object.
+
+"/tracker/update"
+	- uniqueId (int) // unique number
+	- identifier (int) // object type
+	- x-coordinate (float) // normalized
+	- y-coordinate (float) // normalized
+	- rotation (float) // between 0.0-180.0
+	- intensity (float) // normalized
+```
+
+```java
+// Remove is sent if an object is not detected anymore.
+
+"/tracker/remove"
+	- uniqueId (int) // unique number
+```
+
+### About
+Developed at [Zurich University of the Arts ZHdK](https://www.zhdk.ch/) 2019

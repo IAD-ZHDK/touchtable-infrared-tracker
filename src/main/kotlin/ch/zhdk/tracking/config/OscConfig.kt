@@ -24,11 +24,11 @@ class OscConfig {
 
     @Expose
     @StringParameter("Namespace", isEditable = false)
-    var nameSpace = DataModel("/ir-tracker")
+    var nameSpace = DataModel("/tracker")
 
     @Expose
     @NumberParameter("Update Frequency", " FPS")
-    var updateFrequency = DataModel(20)
+    var updateFrequency = DataModel(30)
 
     @Expose
     @BooleanParameter("Debug OSC")
