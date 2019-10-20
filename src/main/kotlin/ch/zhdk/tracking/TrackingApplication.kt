@@ -5,7 +5,6 @@ import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
-import ch.zhdk.tracking.model.TactileObjectState
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
@@ -13,7 +12,6 @@ import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import org.bytedeco.javacv.CanvasFrame
 import org.guy.composite.BlendComposite
-import java.awt.Canvas
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.event.MouseAdapter
@@ -22,10 +20,8 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.net.InetAddress
 import java.nio.file.Paths
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 import javax.imageio.ImageIO
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
@@ -234,7 +230,7 @@ object TrackingApplication {
     private fun initPipelineHandlers(pipeline: Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
-                osc.publish(pipeline.tactileObjects.filter { it.isActive })
+                osc.sendUpdate(pipeline.tactileObjects.filter { it.isActive })
             }
         }
 

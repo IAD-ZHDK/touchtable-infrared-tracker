@@ -13,59 +13,59 @@ class OscPublisher(val config: OscConfig) {
 
     fun init(address: InetAddress, port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
         val target = InetSocketAddress(address, port)
+
+        if(this::sender.isInitialized && sender.isConnected)
+            sender.close()
+
         sender = OSCPortOut(target)
-        println("sending OSC on  ${target.address}:${target.port}")
+        println("starting OSC on  ${target.address}:${target.port}")
     }
 
-    fun publish(tactileObjects: List<TactileObject>) {
-        tactileObjects.forEach { publishObject(it) }
+    fun sendUpdate(tactileObjects: List<TactileObject>) {
+        tactileObjects.forEach {
+            if (config.debugOSC.value) {
+                println("UPD [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
+            }
+
+            sendMessage("update", it.createArgsList())
+        }
     }
 
     fun newObject(tactileObject: TactileObject) {
-        val args = mutableListOf<Any>()
-        args.add(tactileObject.uniqueId)
-        args.add(tactileObject.calibratedPosition.x().toFloat())
-        args.add(tactileObject.calibratedPosition.y().toFloat())
-        args.add(tactileObject.rotation.toFloat())
-        args.add(tactileObject.normalizedIntensity.toFloat())
+        if (config.debugOSC.value) {
+            println("ADD [${tactileObject.uniqueId}]: x: ${tactileObject.calibratedPosition.x().toFloat()} y: ${tactileObject.calibratedPosition.y().toFloat()}")
+        }
 
-        val msg = OSCMessage("/newID/${tactileObject.uniqueId}", args)
-        sendMessage(msg)
+        sendMessage("add", tactileObject.createArgsList())
     }
 
     fun removeObject(tactileObject: TactileObject) {
-        val args = mutableListOf<Any>()
-        args.add(tactileObject.uniqueId)
-
-        val msg = OSCMessage("/untrack/${tactileObject.uniqueId}", args)
-        sendMessage(msg)
-    }
-
-    private fun publishObject(tactileObject: TactileObject) {
-        val args = mutableListOf<Any>()
-        args.add(tactileObject.uniqueId)
-        args.add(tactileObject.calibratedPosition.x().toFloat())
-        args.add(tactileObject.calibratedPosition.y().toFloat())
-        args.add(tactileObject.rotation.toFloat())
-        args.add(tactileObject.normalizedIntensity.toFloat())
-
         if (config.debugOSC.value) {
-            println("TO [${tactileObject.uniqueId}]: x: ${tactileObject.calibratedPosition.x().toFloat()} y: ${tactileObject.calibratedPosition.y().toFloat()}")
+            println("REM [${tactileObject.uniqueId}]: x: ${tactileObject.calibratedPosition.x().toFloat()} y: ${tactileObject.calibratedPosition.y().toFloat()}")
         }
 
-        val msg = OSCMessage("/update/${tactileObject.uniqueId}", args)
-        sendMessage(msg)
+        sendMessage("remove", listOf(tactileObject.uniqueId))
+    }
+
+    private fun sendMessage(command : String, args : List<Any>) {
+        sendMessage(OSCMessage("${config.nameSpace.value}/$command", args))
     }
 
     private fun sendMessage(msg: OSCMessage) {
         try {
-            if (config.debugOSC.value) {
-                println("Message: ${msg.address} (${msg.arguments.size})")
-            }
-
             sender.send(msg)
         } catch (e: Exception) {
             println("Couldn't send osc message: ${e.message}")
         }
+    }
+
+    private fun TactileObject.createArgsList() : List<Any> {
+        return listOf(
+            this.uniqueId,
+            this.calibratedPosition.x().toFloat(),
+            this.calibratedPosition.y().toFloat(),
+            this.rotation.toFloat(),
+            this.normalizedIntensity.toFloat()
+        )
     }
 }
