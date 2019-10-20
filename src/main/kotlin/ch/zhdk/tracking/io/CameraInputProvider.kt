@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.io
 
+import ch.bildspur.util.TimeKeeper
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.OpenCVFrameGrabber
 
@@ -8,7 +9,6 @@ class CameraInputProvider(deviceNumber : Int = 0,
                           height : Int = 480) : InputProvider(width, height) {
 
     private val grabber = OpenCVFrameGrabber(deviceNumber)
-    private var timestamp = 0L
 
     // todo: implement device selection through list
 
@@ -21,7 +21,7 @@ class CameraInputProvider(deviceNumber : Int = 0,
 
     override fun read(): Frame {
         val frame = grabber.grab()
-        frame.timestamp = timestamp++
+        frame.timestamp = TimeKeeper.millis()
         return frame.clone()
     }
 

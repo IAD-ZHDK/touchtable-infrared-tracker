@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.io
 
+import ch.bildspur.util.TimeKeeper
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.RealSense2FrameGrabber
 import org.bytedeco.librealsense2.global.realsense2.RS2_FORMAT_BGR8
@@ -18,7 +19,6 @@ class RealSense2InputProvider(
 ) : InputProvider(width, height) {
 
     private lateinit var rs2: RealSense2FrameGrabber
-    private var timestamp = 0L
 
     override fun open() {
         rs2 = RealSense2FrameGrabber(deviceNumber)
@@ -57,7 +57,6 @@ class RealSense2InputProvider(
         else
             rs2.grabIR(channel)
 
-        frame.timestamp = timestamp++
         return frame
     }
 

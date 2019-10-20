@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.io
 
+import ch.bildspur.util.TimeKeeper
 import org.bytedeco.javacv.Frame
 
 class EmptyInputProvider : InputProvider(100, 100) {
@@ -10,6 +11,8 @@ class EmptyInputProvider : InputProvider(100, 100) {
     }
 
     override fun read(): Frame {
+        Thread.sleep(33)
+        frame.timestamp = TimeKeeper.millis()
         return frame
     }
 

@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.io
 
+import ch.bildspur.util.TimeKeeper
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.FrameGrabber
@@ -8,7 +9,6 @@ import kotlin.math.roundToLong
 
 class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider() {
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
-    private var timestamp = 0L
 
     override fun open() {
         videoGrabber.start()
@@ -40,12 +40,8 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
             Thread.sleep(100)
         }
 
-        // using frames as timestamp instead of millis()
-        frame.timestamp = timestamp++ //System.currentTimeMillis()
-
-        // return cloned frame
-        // (not messing up with start stop of grabber)
-        return frame.clone()
+        frame.timestamp = TimeKeeper.millis()
+        return frame
     }
 
     override fun close() {

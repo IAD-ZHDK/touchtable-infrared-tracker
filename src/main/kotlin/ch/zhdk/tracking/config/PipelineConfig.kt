@@ -96,12 +96,12 @@ class PipelineConfig {
     var maxDelta = DataModel(40.0)
 
     @Expose
-    @NumberParameter("Min Life Time", "frames")
-    var minLifeTime = DataModel(5)
+    @NumberParameter("Min Detected Time", "ms")
+    var minDetectedTime = DataModel(250)
 
     @Expose
-    @NumberParameter("Max Dead Time", "frames")
-    var maxDeadTime = DataModel(5)
+    @NumberParameter("Max Missing Time", "ms")
+    var maxMissingTime = DataModel(250)
 
     @LabelParameter("Identification")
     private val identificationLabel = ""

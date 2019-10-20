@@ -5,12 +5,14 @@ import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
 import ch.bildspur.util.format
+import ch.bildspur.util.formatSeconds
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.TactileObject
+import ch.zhdk.tracking.model.TactileObjectState
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_core.CV_8UC3
 import org.bytedeco.opencv.global.opencv_imgproc.*
@@ -261,10 +263,16 @@ abstract class Pipeline(
     private fun annotateTactileObjects(mat: Mat) {
         // annotate tactile objects
         tactileObjects.forEach {
-            val color = if (it.deadTime == 0) AbstractScalar.GREEN else AbstractScalar.BLUE
+            val color = when(it.state) {
+                TactileObjectState.Detected -> AbstractScalar.CYAN
+                TactileObjectState.Alive -> AbstractScalar.GREEN
+                TactileObjectState.Missing -> AbstractScalar.BLUE
+                TactileObjectState.Dead -> AbstractScalar.YELLOW
+            }
+
             mat.drawCross(it.position.toPoint(), 22, color, thickness = 1)
             mat.drawText(
-                "N:${it.uniqueId} #${it.identifier} [${it.lifeTime}]",
+                "N:${it.uniqueId} #${it.identifier} [${it.timeSinceLastStateChange.formatSeconds()}]",
                 it.position.toPoint().transform(20, -20),
                 color,
                 scale = 0.4

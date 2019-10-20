@@ -4,27 +4,25 @@ import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.model.identification.Identification
 import ch.zhdk.tracking.model.identification.IntensitySample
 import ch.zhdk.tracking.model.TactileObject
+import ch.zhdk.tracking.model.TactileObjectState
 import ch.zhdk.tracking.model.identification.Flank
 import ch.zhdk.tracking.model.identification.FlankType
-import org.nield.kotlinstatistics.binByDouble
 import kotlin.math.roundToLong
-import java.util.Arrays.asList
 import de.pschoepf.naturalbreaks.JenksFisher
-import kotlin.math.ceil
 import kotlin.math.max
 
 
 class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
 
     override fun recognizeObjectId(objects: List<TactileObject>) {
-        objects.forEach {
-            if(it.lifeTime > config.minLifeTime.value) {
-                when (it.identification.identifierPhase) {
-                    BinaryIdentifierPhase.Requested -> start(it)
-                    BinaryIdentifierPhase.Sampling -> sampling(it)
-                    BinaryIdentifierPhase.Identifying -> identify(it)
-                    BinaryIdentifierPhase.Detected -> {
-                    }
+        objects.filter { it.state == TactileObjectState.Alive
+                && it.timeSinceLastStateChange > config.minDetectedTime.value }
+            .forEach {
+            when (it.identification.identifierPhase) {
+                BinaryIdentifierPhase.Requested -> start(it)
+                BinaryIdentifierPhase.Sampling -> sampling(it)
+                BinaryIdentifierPhase.Identifying -> identify(it)
+                BinaryIdentifierPhase.Detected -> {
                 }
             }
         }
@@ -33,7 +31,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
     private fun start(tactileObject: TactileObject) {
         // clear detection and add start timestamp
         tactileObject.identification.samples.clear()
-        tactileObject.identification.startFrame = tactileObject.timestamp
+        tactileObject.identification.startFrame = tactileObject.detectionUpdatedTimeStamp
 
         tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Sampling
 
@@ -44,11 +42,11 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         tactileObject.identification.samples.add(
             IntensitySample(
                 tactileObject.intensity,
-                tactileObject.timestamp
+                tactileObject.detectionUpdatedTimeStamp
             )
         )
 
-        if (tactileObject.timestamp - tactileObject.identification.startFrame >= config.sampleCount.value) {
+        if (tactileObject.detectionUpdatedTimeStamp - tactileObject.identification.startFrame >= config.sampleCount.value) {
             // if sampling time is over
             tactileObject.identification.identifierPhase = BinaryIdentifierPhase.Identifying
         }
@@ -89,7 +87,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // convert to int (MSB - LSB (little-endian))
         var id = 0
         interpolatedFlanks.takeLast(8).reversed().forEachIndexed { index, flank ->
-            if(flank.type == FlankType.High)
+            if (flank.type == FlankType.High)
                 id = id or (1 shl index)
         }
         println("Id: $id")
@@ -107,7 +105,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
 
         val breaks = try {
             JenksFisher.createJenksFisherBreaksArray(intensities, 3)
-        } catch (ex : Exception) {
+        } catch (ex: Exception) {
             println("JenksFisher error: ${ex.message}")
             return false
         }
@@ -170,7 +168,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
         val minGap = max(gaps.min()!!, 2L) // (gaps.sum() / 8.0).roundToLong()
 
-        println("Gaps: ${gaps.joinToString { it.toString()}}")
+        println("Gaps: ${gaps.joinToString { it.toString() }}")
         println("Min Gap: $minGap")
 
         for (i in 1 until flankPattern.size - 1) {
@@ -181,7 +179,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             // check for gap timing
             var gap = gaps[i]
 
-            if(gap <= minGap)
+            if (gap <= minGap)
                 continue
 
             // alternative gap interpolation with adding a extra bit if rounded

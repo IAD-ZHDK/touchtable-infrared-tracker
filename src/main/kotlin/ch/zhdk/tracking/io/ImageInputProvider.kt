@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.io
 
+import ch.bildspur.util.TimeKeeper
 import ch.zhdk.tracking.javacv.toFrame
 import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_imgcodecs.imread
@@ -19,7 +20,9 @@ class ImageInputProvider(val imageFilePath : Path) : InputProvider() {
     }
 
     override fun read(): Frame {
-        return image.clone()
+        Thread.sleep(33)
+        image.timestamp = TimeKeeper.millis()
+        return image
     }
 
     override fun close() {
