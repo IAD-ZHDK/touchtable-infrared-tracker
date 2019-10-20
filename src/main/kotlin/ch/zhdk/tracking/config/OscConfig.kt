@@ -5,7 +5,7 @@ import ch.bildspur.ui.properties.ActionParameter
 import ch.bildspur.ui.properties.BooleanParameter
 import ch.bildspur.ui.properties.NumberParameter
 import ch.bildspur.ui.properties.StringParameter
-import ch.zhdk.tracking.CVPreview
+import ch.zhdk.tracking.TrackingApplication
 import com.google.gson.annotations.Expose
 
 class OscConfig {
@@ -19,7 +19,7 @@ class OscConfig {
 
     @ActionParameter("OSC", "Restart")
     private val restartOutput = {
-        CVPreview.initOSC()
+        TrackingApplication.initOSC()
     }
 
     @Expose

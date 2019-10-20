@@ -2,14 +2,14 @@ package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.*
-import ch.zhdk.tracking.CVPreview
+import ch.zhdk.tracking.TrackingApplication
 import ch.zhdk.tracking.io.InputProviderType
 import com.google.gson.annotations.Expose
 
 class InputConfig {
     @ActionParameter("Pipeline", "Restart")
     private val restartPipeline = {
-        CVPreview.requestPipelineRestart(true)
+        TrackingApplication.requestPipelineRestart(true)
     }
 
     @LabelParameter("Input")

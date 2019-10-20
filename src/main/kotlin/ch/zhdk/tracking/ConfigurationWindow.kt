@@ -14,7 +14,7 @@ import javafx.scene.layout.Pane
 import javafx.stage.Screen
 import javafx.stage.Stage
 
-class ConfigWindow(val configController : ConfigurationController, val config : AppConfig) : Application() {
+class ConfigurationWindow(val configController : ConfigurationController, val config : AppConfig) : Application() {
     private val windowName = "ZHdK - IR Tracker"
     private val propertiesControl = PropertiesControl()
 
@@ -28,7 +28,7 @@ class ConfigWindow(val configController : ConfigurationController, val config : 
         }
 
         primaryStage.setOnCloseRequest {
-            CVPreview.running = false
+            TrackingApplication.running = false
         }
 
         val primScreenBounds = Screen.getPrimary().visualBounds

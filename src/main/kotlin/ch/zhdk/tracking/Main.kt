@@ -5,9 +5,7 @@ import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Platform
 import javafx.stage.Stage
 import org.bytedeco.javacpp.Loader
-import org.bytedeco.javacv.RealSense2FrameGrabber
 import org.bytedeco.opencv.global.opencv_core
-import kotlin.concurrent.thread
 
 
 class Main {
@@ -31,12 +29,12 @@ class Main {
 
         // start configuration app
         Platform.startup {
-            val window = ConfigWindow(configuration, appConfig)
+            val window = ConfigurationWindow(configuration, appConfig)
             val stage = Stage()
             window.start(stage)
         }
 
         // start main app
-        CVPreview.start(appConfig)
+        TrackingApplication.start(appConfig)
     }
 }

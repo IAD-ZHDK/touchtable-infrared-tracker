@@ -28,7 +28,7 @@ import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
 
-object CVPreview {
+object TrackingApplication {
     lateinit var config: AppConfig
 
     @Volatile
