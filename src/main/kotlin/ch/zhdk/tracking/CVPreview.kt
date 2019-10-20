@@ -108,14 +108,18 @@ object CVPreview {
 
                 // display frames
                 if (pipeline.isRunning) {
-                    pipeline.waitForNewFrameAvailable()
+                    if(config.pipeline.displayOutput.value) {
+                        pipeline.waitForNewFrameAvailable()
 
-                    synchronized(pipelineLock) {
-                        if (config.displayProcessed.value) {
-                            drawImage(pipeline.processedFrame, pipeline.annotationFrame)
-                        } else {
-                            drawImage(pipeline.inputFrame, pipeline.annotationFrame)
+                        synchronized(pipelineLock) {
+                            if (config.displayProcessed.value) {
+                                drawImage(pipeline.processedFrame, pipeline.annotationFrame)
+                            } else {
+                                drawImage(pipeline.inputFrame, pipeline.annotationFrame)
+                            }
                         }
+                    } else {
+                        Thread.sleep(100)
                     }
                 }
             }
