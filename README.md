@@ -2,8 +2,11 @@
 This project aims to create an infrared tracking system for tactile tables.
 
 ![Tracking Example](images/tracking-example.jpg)
+*Tracking application detecting a single tactile object.*
 
-### Install and Run
+### Develop
+
+#### Install and Run
 Everything is installed through the [gradle](https://gradle.org/) dependency manager. To run the application, OpenJDK 11 is needed and can be installed through your favourite package manager. On MacOS we recommend to use [brew](https://brew.sh/):
 
 ```bash
@@ -33,7 +36,12 @@ gradlew.bat fatJar
 
 The built jar is runnable on all platforms (includes all dependencies).
 
-### OSC Protocol
+### How to use
+
+#### Example
+To connect with the IR tracking system it is possible to listen to predefined OSC messages. There is already a `TrackingClient` written for Processing to connect with the tracking application. Check out the [ExampleReceiver](https://github.com/IAD-ZHDK/IR_tracking/tree/master/examples/ExampleReceiver) sketch.
+
+#### OSC Protocol
 The OSC protocol sends out events which are need for the visualisation. It already normalizes and filters the values.
 
 ```java
