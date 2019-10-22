@@ -31,6 +31,10 @@ class OscConfig {
     var updateFrequency = DataModel(30)
 
     @Expose
+    @BooleanParameter("Use OSC Bundles")
+    var useOSCBundles = DataModel(false)
+
+    @Expose
     @BooleanParameter("Debug OSC")
     var debugOSC = DataModel(false)
 }

@@ -2,7 +2,9 @@ package ch.zhdk.tracking.osc
 
 import ch.zhdk.tracking.config.OscConfig
 import ch.zhdk.tracking.model.TactileObject
+import com.illposed.osc.OSCBundle
 import com.illposed.osc.OSCMessage
+import com.illposed.osc.OSCPacket
 import com.illposed.osc.transport.udp.OSCPort
 import com.illposed.osc.transport.udp.OSCPortOut
 import java.net.InetAddress
@@ -22,13 +24,27 @@ class OscPublisher(val config: OscConfig) {
     }
 
     fun sendUpdate(tactileObjects: List<TactileObject>) {
+        if(config.useOSCBundles.value) {
+            sendBundledUpdate(tactileObjects)
+            return
+        }
+
         tactileObjects.forEach {
             if (config.debugOSC.value) {
                 println("UPD [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
             }
 
-            sendMessage("update", it.createArgsList())
+            sendMessage(createMessage("update", it.createArgsList()))
         }
+    }
+
+    private fun sendBundledUpdate(tactileObjects: List<TactileObject>) {
+        val bundle = OSCBundle()
+
+        tactileObjects.forEach {
+            bundle.addPacket(createMessage("update", it.createArgsList()))
+        }
+        sendMessage(bundle)
     }
 
     fun newObject(tactileObject: TactileObject) {
@@ -36,7 +52,7 @@ class OscPublisher(val config: OscConfig) {
             println("ADD [${tactileObject.uniqueId}]: x: ${tactileObject.calibratedPosition.x().toFloat()} y: ${tactileObject.calibratedPosition.y().toFloat()}")
         }
 
-        sendMessage("add", tactileObject.createArgsList())
+        sendMessage(createMessage("add", tactileObject.createArgsList()))
     }
 
     fun removeObject(tactileObject: TactileObject) {
@@ -44,14 +60,14 @@ class OscPublisher(val config: OscConfig) {
             println("REM [${tactileObject.uniqueId}]: x: ${tactileObject.calibratedPosition.x().toFloat()} y: ${tactileObject.calibratedPosition.y().toFloat()}")
         }
 
-        sendMessage("remove", listOf(tactileObject.uniqueId))
+        sendMessage(createMessage("remove", listOf(tactileObject.uniqueId)))
     }
 
-    private fun sendMessage(command : String, args : List<Any>) {
-        sendMessage(OSCMessage("${config.nameSpace.value}/$command", args))
+    private fun createMessage(command : String, args : List<Any>) : OSCMessage {
+        return OSCMessage("${config.nameSpace.value}/$command", args)
     }
 
-    private fun sendMessage(msg: OSCMessage) {
+    private fun sendMessage(msg: OSCPacket) {
         try {
             sender.send(msg)
         } catch (e: Exception) {

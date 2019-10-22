@@ -106,7 +106,7 @@ object TrackingApplication {
 
                 // display frames
                 if (pipeline.isRunning) {
-                    if(config.pipeline.displayOutput.value) {
+                    if (config.pipeline.displayOutput.value) {
                         pipeline.waitForNewFrameAvailable()
 
                         synchronized(pipelineLock) {
@@ -158,7 +158,7 @@ object TrackingApplication {
 
             try {
                 g.drawImage(overlay, 0, 0, canvasFrame.canvas.width - 1, canvasFrame.canvas.height - 1, null)
-            } catch (ex : Exception) {
+            } catch (ex: Exception) {
                 println(ex.message)
             }
         }
@@ -209,7 +209,7 @@ object TrackingApplication {
         })
     }
 
-    private fun setWindowAspectRatio(inputWidth : Int, inputHeight : Int) {
+    private fun setWindowAspectRatio(inputWidth: Int, inputHeight: Int) {
         // use width as constant
         // todo: calculate aspect ratio
     }

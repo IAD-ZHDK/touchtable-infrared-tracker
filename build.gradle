@@ -39,7 +39,10 @@ dependencies {
     compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
 
     // osc
-    compile group: 'com.illposed.osc', name: 'javaosc-core', version: '0.6'
+    //compile group: 'com.illposed.osc', name: 'javaosc-core', version: '0.6'
+    // added an own compiled version with broadcast enabled
+    compile files('lib/javaosc-core-0.7-SNAPSHOT.jar')
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
 
     // statistics
     compile 'org.nield:kotlin-statistics:1.2.1'
