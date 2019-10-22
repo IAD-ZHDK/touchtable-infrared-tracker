@@ -44,16 +44,22 @@ class RGBIRPipeline(config: PipelineConfig, inputProvider: InputProvider, pipeli
             val max = Point()
             minMaxLoc(mask, minVal, maxVal, min, max, null)
 
-            //rangeMat.release()
+            // outline
+            val result = Mat()
+            bitwise_and(frame, frame, result, mask)
+
+
+
+            // which one to display
             if(config.displayRangeOne.value && index == 1) {
-                mask.copyTo(frame)
-                bitwise_and(frame, frame, mask)
+                result.copyTo(frame)
             }
 
             if(!config.displayRangeOne.value && index == 0) {
-                mask.copyTo(frame)
+                result.copyTo(frame)
             }
 
+            result.release()
 
             ActiveRegion(max.toPoint2d().transform(5.0, 5.0),
                 max,
