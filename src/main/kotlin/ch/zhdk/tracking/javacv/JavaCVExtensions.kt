@@ -9,6 +9,10 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+fun Point.toPoint2d() : Point2d {
+    return Point2d(this.x().toDouble(), this.y().toDouble())
+}
+
 fun Point2d.toPoint() : Point {
     return Point(this.x().roundToInt(), this.y().roundToInt())
 }

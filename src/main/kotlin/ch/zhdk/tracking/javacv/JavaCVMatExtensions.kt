@@ -37,7 +37,11 @@ fun Mat.zeros(type: Int): Mat {
 }
 
 fun Mat.convertColor(color : Int) {
-    cvtColor(this, this, color)
+    this.convertColor(this, color)
+}
+
+fun Mat.convertColor(target : Mat, color : Int) {
+    cvtColor(this, target, color)
 }
 
 fun Mat.threshold(thresh: Double, maxval: Double = 255.0, type: Int = THRESH_BINARY) {

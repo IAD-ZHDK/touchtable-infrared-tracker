@@ -17,7 +17,7 @@ class InputConfig {
 
     @Expose
     @EnumParameter("Input Provider")
-    var inputProvider = DataModel(InputProviderType.VideoInput)
+    var inputProvider = DataModel(InputProviderType.RealSense2)
 
     @LabelParameter("CameraInput")
     private val webCamLabel = ""
@@ -51,11 +51,11 @@ class InputConfig {
 
     @Expose
     @NumberParameter("Frame Rate", "fps")
-    var realSenseFrameRate = DataModel(60)
+    var realSenseFrameRate = DataModel(30)
 
     @Expose
     @BooleanParameter("Enable RGB IR Stream")
-    var enableRGBIRStream = DataModel(false)
+    var enableRGBIRStream = DataModel(true)
 
     @Expose
     @BooleanParameter("Enable Dual-IR Stream")

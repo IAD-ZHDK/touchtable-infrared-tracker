@@ -1,6 +1,7 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
+import ch.bildspur.model.NumberRange
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.pipeline.PipelineType
 import com.google.gson.annotations.Expose
@@ -11,7 +12,7 @@ class PipelineConfig {
 
     @Expose
     @EnumParameter("Pipeline")
-    var pipelineType = DataModel(PipelineType.Simple)
+    var pipelineType = DataModel(PipelineType.RGBIR)
 
     @BooleanParameter("Processing Enabled")
     var enabled = DataModel(true)
@@ -51,7 +52,7 @@ class PipelineConfig {
     }
 
     @LabelParameter("Pre-Processing")
-    val inputLabel = ""
+    private val inputLabel = ""
 
     @Expose
     @BooleanParameter("Enable Pre-Processing")
@@ -60,6 +61,21 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Gamma Correction", 0.04, 4.0, 0.01)
     var gammaCorrection = DataModel(1.0)
+
+    @LabelParameter("IR Color Detection")
+    private val irColorLabel = ""
+
+    @Expose
+    @BooleanParameter("Display Range 1")
+    var displayRangeOne = DataModel(false)
+
+    @Expose
+    @RangeSliderParameter("IR Hue Range 0", 0.0, 1.0, 0.01, snap = true)
+    var hueRangeZero = DataModel(NumberRange(0.0, 1.0))
+
+    @Expose
+    @RangeSliderParameter("IR Hue Range 1", 0.0, 1.0, 0.01, snap = true)
+    var hueRangeOne = DataModel(NumberRange(0.0, 1.0))
 
     @LabelParameter("Detection")
     val detectionLabel = ""

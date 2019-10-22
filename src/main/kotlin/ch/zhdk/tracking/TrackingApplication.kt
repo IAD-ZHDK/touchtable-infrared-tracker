@@ -6,10 +6,7 @@ import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
 import ch.zhdk.tracking.osc.OscPublisher
-import ch.zhdk.tracking.pipeline.PassthroughPipeline
-import ch.zhdk.tracking.pipeline.Pipeline
-import ch.zhdk.tracking.pipeline.PipelineType
-import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
+import ch.zhdk.tracking.pipeline.*
 import org.bytedeco.javacv.CanvasFrame
 import org.guy.composite.BlendComposite
 import java.awt.Color
@@ -286,6 +283,7 @@ object TrackingApplication {
         return when (config.pipeline.pipelineType.value) {
             PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
+            PipelineType.RGBIR -> RGBIRPipeline(config.pipeline, createInputProvider(), pipelineLock)
         }
     }
 }

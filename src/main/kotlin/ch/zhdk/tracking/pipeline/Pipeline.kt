@@ -263,7 +263,7 @@ abstract class Pipeline(
     private fun annotateTactileObjects(mat: Mat) {
         // annotate tactile objects
         tactileObjects.forEach {
-            val color = when(it.state) {
+            val color = when (it.state) {
                 TactileObjectState.Detected -> AbstractScalar.CYAN
                 TactileObjectState.Alive -> AbstractScalar.GREEN
                 TactileObjectState.Missing -> AbstractScalar.BLUE
