@@ -62,27 +62,12 @@ class PipelineConfig {
     @SliderParameter("Gamma Correction", 0.04, 4.0, 0.01)
     var gammaCorrection = DataModel(1.0)
 
-    @LabelParameter("IR Color Detection")
-    private val irColorLabel = ""
-
-    @Expose
-    @BooleanParameter("Display Range 1")
-    var displayRangeOne = DataModel(false)
-
-    @Expose
-    @RangeSliderParameter("IR Hue Range 0", 0.0, 1.0, 0.01, snap = true)
-    var hueRangeZero = DataModel(NumberRange(0.0, 1.0))
-
-    @Expose
-    @RangeSliderParameter("IR Hue Range 1", 0.0, 1.0, 0.01, snap = true)
-    var hueRangeOne = DataModel(NumberRange(0.0, 1.0))
-
     @LabelParameter("Detection")
     val detectionLabel = ""
 
     @Expose
-    @SliderParameter("Threshold", 0.0, 255.0, 1.0)
-    var threshold = DataModel(150.0)
+    @SliderParameter("Threshold", 0.0, 100.0, 0.1)
+    var threshold = DataModel(50.0)
 
     @Expose
     @BooleanParameter("Use OTSU")
@@ -103,6 +88,10 @@ class PipelineConfig {
     @Expose
     @BooleanParameter("Detect Orientation")
     var detectOrientation = DataModel(true)
+
+    @Expose
+    @SliderParameter("Min Area Size (px)", 0.0, 100.0, 1.0, snap = true)
+    var minAreaSize = DataModel(5.0)
 
     @LabelParameter("Tracking")
     val trackingLabel = ""
@@ -134,4 +123,19 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
     var thresholdMarginFactor = DataModel(1.0)
+
+    @LabelParameter("IR Color Detection")
+    private val irColorLabel = ""
+
+    @Expose
+    @BooleanParameter("Display Range 1")
+    var displayRangeOne = DataModel(false)
+
+    @Expose
+    @RangeSliderParameter("IR Hue Range 0", 0.0, 1.0, 0.01, snap = true)
+    var hueRangeZero = DataModel(NumberRange(0.0, 1.0))
+
+    @Expose
+    @RangeSliderParameter("IR Hue Range 1", 0.0, 1.0, 0.01, snap = true)
+    var hueRangeOne = DataModel(NumberRange(0.0, 1.0))
 }

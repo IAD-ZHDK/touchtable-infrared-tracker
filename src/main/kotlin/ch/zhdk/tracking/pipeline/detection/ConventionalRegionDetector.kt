@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.pipeline.detection
 
+import ch.bildspur.util.format
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.analysis.ConnectedComponent
@@ -39,13 +40,16 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         val nativeComponents = frame.connectedComponentsWithStats()
         val components = nativeComponents.getConnectedComponents().filter { it.label != 0 }
 
-        // create active regions
-        val regions = components.map { ActiveRegion(it.centroid, it.position, it.size, it.area.toDouble(), timestamp) }
+        // create active regions (filter by size)
+        val regions = components
+            .filter {  it.size.area() >= config.minAreaSize.value.toInt() }
+            .map { ActiveRegion(it.centroid, it.position, it.size, it.area.toDouble(), timestamp) }
 
         // find orientation
+        // todo: remove orientation detection here
         if (config.detectOrientation.value) {
-            components.forEachIndexed { i, component ->
-                detectRotation(frame, regions[i], component)
+            regions.forEachIndexed { i, region ->
+                detectRotation(frame, region, components[i])
             }
         }
 
