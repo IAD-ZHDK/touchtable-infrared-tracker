@@ -1,10 +1,10 @@
 package ch.zhdk.tracking.io
 
 import ch.bildspur.util.TimeKeeper
+import ch.zhdk.tracking.config.InputConfig
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.RealSense2FrameGrabber
-import org.bytedeco.librealsense2.global.realsense2.RS2_FORMAT_BGR8
-import org.bytedeco.librealsense2.global.realsense2.RS2_STREAM_INFRARED
+import org.bytedeco.librealsense2.global.realsense2.*
 import org.bytedeco.opencv.global.opencv_core.IPL_DEPTH_8U
 import org.bytedeco.opencv.opencv_core.Size
 
@@ -15,7 +15,8 @@ class RealSense2InputProvider(
     val frameRate: Int = 30,
     val enableRGBIR: Boolean = false,
     val enableDualIR: Boolean = false,
-    var displaySecondChannel: Boolean = false
+    var displaySecondChannel: Boolean = false,
+    var config: InputConfig
 ) : InputProvider(width, height) {
 
     private lateinit var rs2: RealSense2FrameGrabber
@@ -43,7 +44,23 @@ class RealSense2InputProvider(
             rs2.enableIRStream(width, height, frameRate, 2)
         }
 
-        rs2.disableIREmitter()
+        // open device
+        rs2.open()
+
+        // set settings
+        rs2.setSensorOption(RealSense2FrameGrabber.Rs2SensorType.StereoModule, RS2_OPTION_ENABLE_AUTO_EXPOSURE, config.enableAutoExposure.value)
+
+        if(!config.enableAutoExposure.value)
+            rs2.setSensorOption(RealSense2FrameGrabber.Rs2SensorType.StereoModule, RS2_OPTION_EXPOSURE, config.autoExposure.value)
+
+        rs2.setSensorOption(
+            RealSense2FrameGrabber.Rs2SensorType.StereoModule,
+            RS2_OPTION_ENABLE_AUTO_WHITE_BALANCE,
+            config.enableAutoWhiteBalance.value
+        )
+
+        rs2.setSensorOption(RealSense2FrameGrabber.Rs2SensorType.StereoModule, RS2_OPTION_EMITTER_ENABLED, config.enableIREmitter.value)
+
         rs2.start()
         super.open()
     }

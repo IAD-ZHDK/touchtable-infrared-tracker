@@ -55,7 +55,7 @@ class InputConfig {
 
     @Expose
     @BooleanParameter("Enable RGB IR Stream")
-    var enableRGBIRStream = DataModel(true)
+    var enableRGBIRStream = DataModel(false)
 
     @Expose
     @BooleanParameter("Enable Dual-IR Stream")
@@ -64,4 +64,20 @@ class InputConfig {
     @Expose
     @BooleanParameter("Display Second IR Stream")
     var displaySecondIRStream = DataModel(false)
+
+    @Expose
+    @BooleanParameter("Enable Auto White Balance")
+    var enableAutoWhiteBalance = DataModel(true)
+
+    @Expose
+    @BooleanParameter("Enable Auto Exposure")
+    var enableAutoExposure = DataModel(true)
+
+    @Expose
+    @SliderParameter("Exposure", 0.0, 50000.0, 500.0, snap = true)
+    var autoExposure = DataModel(33000f)
+
+    @Expose
+    @BooleanParameter("Enable IR Emitter")
+    var enableIREmitter = DataModel(false)
 }

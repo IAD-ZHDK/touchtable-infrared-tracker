@@ -12,7 +12,7 @@ class PipelineConfig {
 
     @Expose
     @EnumParameter("Pipeline")
-    var pipelineType = DataModel(PipelineType.RGBIR)
+    var pipelineType = DataModel(PipelineType.Simple)
 
     @BooleanParameter("Processing Enabled")
     var enabled = DataModel(true)

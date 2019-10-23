@@ -273,7 +273,8 @@ object TrackingApplication {
                 config.input.realSenseFrameRate.value,
                 config.input.enableRGBIRStream.value,
                 config.input.enableDualIR.value,
-                config.input.displaySecondIRStream.value
+                config.input.displaySecondIRStream.value,
+                config = config.input
             )
             InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_1512.png"))
         }

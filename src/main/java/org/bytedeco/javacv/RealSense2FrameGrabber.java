@@ -148,8 +148,7 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         this.disableIREmitter = true;
     }
 
-    @Override
-    public void start() throws FrameGrabber.Exception {
+    public void open() throws Exception {
         // check if device is available
         if (getDeviceCount() <= 0) {
             throw new FrameGrabber.Exception("No realsense2 device is connected.");
@@ -159,9 +158,16 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         rs2_device_list devices = createDeviceList();
         this.device = createDevice(devices, this.deviceNumber);
         rs2_delete_device_list(devices);
+    }
+
+    @Override
+    public void start() throws FrameGrabber.Exception {
+        if(this.device == null) {
+            open();
+        }
 
         // ir emitter
-        if(disableIREmitter) {
+        if (disableIREmitter) {
             setIREmitter(false);
         }
 
@@ -356,9 +362,38 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     }
 
     @Override
-    public void release() throws FrameGrabber.Exception {
+    public void release() {
         rs2_delete_device(this.device);
         rs2_delete_context(this.context);
+    }
+
+    public void setSensorOption(Rs2SensorType sensorType, int optionIndex, boolean value) throws Exception {
+        setSensorOption(sensorType, optionIndex, value ? 1f : 0f);
+    }
+
+    public void setSensorOption(Rs2SensorType sensorType, int optionIndex, float value) throws Exception {
+        rs2_sensor_list sensorList = rs2_query_sensors(this.device, error);
+        checkError(error);
+
+        int sensorCount = rs2_get_sensors_count(sensorList, error);
+        checkError(error);
+
+        for (int i = 0; i < sensorCount; i++) {
+            rs2_sensor sensor = rs2_create_sensor(sensorList, i, error);
+            checkError(error);
+
+            // check if name matches
+            String name = getSensorInfo(sensor, RS2_CAMERA_INFO_NAME);
+            if (sensorType.getName().equals(name)) {
+                rs2_options options = new rs2_options(sensor);
+                setRs2Option(options, optionIndex, value);
+            }
+
+            // cleanup
+            rs2_delete_sensor(sensor);
+        }
+
+        rs2_delete_sensor_list(sensorList);
     }
 
     private rs2_context createContext() throws FrameGrabber.Exception {
@@ -422,6 +457,22 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         return infoText;
     }
 
+    private String getSensorInfo(rs2_sensor sensor, int info) throws Exception {
+        // check if info is supported
+        rs2_error error = new rs2_error();
+        boolean isSupported = toBoolean(rs2_supports_sensor_info(sensor, info, error));
+        checkError(error);
+
+        if (!isSupported)
+            return null;
+
+        // read sensor info
+        String infoText = rs2_get_sensor_info(sensor, info, error).getString();
+        checkError(error);
+
+        return infoText;
+    }
+
     private Pointer getFrameData(rs2_frame frame) throws Exception {
         Pointer frameData = rs2_get_frame_data(frame, error);
         checkError(error);
@@ -456,6 +507,24 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         checkError(error);
 
         return profileData;
+    }
+
+    private boolean isSensorExtendableTo(rs2_sensor sensor, int extension) throws Exception {
+        boolean isExtandable = toBoolean(rs2_is_sensor_extendable_to(sensor, extension, error));
+        checkError(error);
+        return isExtandable;
+    }
+
+    private void setRs2Option(rs2_options options, int optionIndex, float value) throws Exception {
+        boolean isSupported = toBoolean(rs2_supports_option(options, optionIndex, error));
+        checkError(error);
+
+        if (!isSupported) {
+            throw new Exception("Option " + optionIndex + " is not supported!");
+        }
+
+        rs2_set_option(options, optionIndex, value, error);
+        checkError(error);
     }
 
     private static void checkError(rs2_error e) throws FrameGrabber.Exception {
@@ -563,6 +632,21 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         }
     }
 
+    public enum Rs2SensorType {
+        StereoModule("Stereo Module"),
+        RGBCamera("RGB Camera");
+
+        private String name;
+
+        Rs2SensorType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
     // experiential
     private void setIREmitter(boolean enabled) throws Exception {
         rs2_sensor_list sensorList = rs2_query_sensors(this.device, error);
@@ -583,7 +667,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
             if (isEmitting) {
                 rs2_set_option(options, RS2_OPTION_EMITTER_ENABLED, enabled ? 1f : 0f, error);
                 checkError(error);
-                System.out.println("IR emitter set to " + enabled);
             }
 
             rs2_delete_sensor(sensor);
