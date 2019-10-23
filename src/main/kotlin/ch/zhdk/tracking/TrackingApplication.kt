@@ -276,7 +276,7 @@ object TrackingApplication {
                 config.input.displaySecondIRStream.value,
                 config = config.input
             )
-            InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_1512.png"))
+            InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_pipeline.png"))
         }
     }
 

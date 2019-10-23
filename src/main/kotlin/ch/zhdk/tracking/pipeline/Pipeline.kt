@@ -242,7 +242,7 @@ abstract class Pipeline(
         // annotate active regions
         regions.forEach {
             // mark region
-            mat.drawCircle(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
+            mat.drawCross(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
             // draw timestamp
             mat.drawText(
@@ -270,7 +270,7 @@ abstract class Pipeline(
                 TactileObjectState.Dead -> AbstractScalar.YELLOW
             }
 
-            mat.drawCross(it.position.toPoint(), 22, color, thickness = 1)
+            mat.drawCircle(it.position.toPoint(), 22, color, thickness = 1)
             mat.drawText(
                 "N:${it.uniqueId} #${it.identifier} [${it.timeSinceLastStateChange.formatSeconds()}]",
                 it.position.toPoint().transform(20, -20),
