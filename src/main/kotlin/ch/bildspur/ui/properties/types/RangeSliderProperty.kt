@@ -42,14 +42,14 @@ class RangeSliderProperty(field: Field, obj: Any, val annotation: RangeSliderPar
 
         slider.lowValueProperty().addListener { _, _, _ ->
             run {
-                model.value = NumberRange(slider.lowValue, slider.highValue)
+                model.value = NumberRange(slider.lowValue, model.value.highValue)
                 propertyChanged(this)
             }
         }
 
         slider.highValueProperty().addListener { _, _, _ ->
             run {
-                model.value = NumberRange(slider.lowValue, slider.highValue)
+                model.value = NumberRange(model.value.lowValue, slider.highValue)
                 propertyChanged(this)
             }
         }
