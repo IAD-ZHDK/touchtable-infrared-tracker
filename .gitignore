@@ -6,3 +6,5 @@ out
 data/IRDetectionExample.mov
 examples/MovieGenerator/ffmpeg.txt
 examples/MovieGenerator/nr88.mp4
+*.s#*
+*.b#*
