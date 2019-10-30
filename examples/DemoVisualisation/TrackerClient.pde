@@ -49,6 +49,7 @@ class TrackerClient {
     tactileObjects.put(uniqueId, tactileObject);
 
     // add user defined
+    tactileObject.creationTime = millis();
     tactileObject.position = new PVector(tactileObject.x, tactileObject.y);
     tactileObject.smoothRotation = tactileObject.rotation;
   }
@@ -85,6 +86,8 @@ class TrackerClient {
     tactileObject.rotation = msg.get(4).floatValue();
     tactileObject.intensity = msg.get(5).floatValue();
 
+    tactileObject.updateTime = millis();
+
     return tactileObject;
   }
 
@@ -113,6 +116,9 @@ class TactileObject {
   float rotation;
   float intensity;
   boolean dead;
+
+  long creationTime;
+  long updateTime;
 
   // user specific
   PVector position = new PVector();
