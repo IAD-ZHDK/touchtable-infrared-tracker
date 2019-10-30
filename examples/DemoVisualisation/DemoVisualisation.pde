@@ -1,6 +1,6 @@
 TrackerClient tracker;
 
-float toSize = 75;
+float toSize = 120;
 
 void setup() {
   size(1080, 720, FX2D);
@@ -19,13 +19,13 @@ void draw() {
 }
 
 void drawTactileObject(TactileObject to) {
-  // fix mirror
-  float x = width - (to.position.x * width);
-  float y = height - (to.position.y * height);
+  // fix mirror (maybe flip with width - term)
+  float x = (to.position.x * width);
+  float y = (to.position.y * height);
 
   println(to.smoothRotation);
 
-  float r = radians(map(to.smoothRotation, 0f, 180f, 0f, PI));
+  float r = radians(to.smoothRotation);
 
   // check out of bounds
   if (x < 0 || x >= width || y < 0 || y >= height) {
