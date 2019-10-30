@@ -1,7 +1,9 @@
 TrackerClient tracker;
 
 float toSize = 150;
-boolean hideCursor = true;
+float oSize = 20;
+
+boolean hideCursor = false;
 
 void setup() {
   //size(1080, 720, FX2D);
@@ -42,7 +44,7 @@ void drawTactileObject(TactileObject to) {
   ellipseMode(CENTER);
   noFill();
   stroke(255);
-  strokeWeight(5);
+  strokeWeight(8);
   circle(x, y, toSize);
 
   // draw rotation
@@ -56,30 +58,34 @@ void drawTactileObject(TactileObject to) {
 }
 
 void drawOutOfBounds(float x, float y, int uniqueId) { 
-  float rx = x;
-  float ry = y;
+  push();
+  float rx = constrain(x, 0, width - 1);
+  float ry = constrain(y, 0, height - 1);
 
-  if (x < 0) {
-    rx = 0;
-  }
+  translate(rx, ry);
 
-  if (x > width) {
-    rx = width - 1;
-  }
+  if (x < 0)
+    rotate(radians(90));
 
-  if (y < 0) {
-    ry = 0;
-  }
+  if (x > width)
+    rotate(radians(-90));
 
-  if (y > height) {
-    ry = height - 1;
-  }
+  if (y < 0)
+    rotate(radians(-180));
+
+  float hs = oSize * 0.5;
 
   rectMode(CENTER);
   noFill();
   stroke(255);
-  strokeWeight(2);
-  rect(rx, ry, 20, 20);
+  strokeWeight(3);
+  triangle(-hs, -hs, hs, -hs, 0, 0);
+
+  // text
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text(uniqueId, 0, -oSize * 1.2);
+  pop();
 }
 
 // basic easing method
@@ -96,4 +102,8 @@ void mouseClicked() {
     noCursor();
 
   hideCursor = !hideCursor;
+}
+
+void stop() {
+  cursor();
 }
