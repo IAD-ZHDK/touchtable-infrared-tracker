@@ -1,12 +1,16 @@
 TrackerClient tracker;
 
-float toSize = 120;
+float toSize = 150;
+boolean hideCursor = true;
 
 void setup() {
-  size(1080, 720, FX2D);
-  //fullScreen(FX2D);
+  //size(1080, 720, FX2D);
+  fullScreen(FX2D);
 
   tracker = new TrackerClient(8002);
+
+  if (hideCursor)
+    noCursor();
 }
 
 void draw() {
@@ -82,4 +86,14 @@ void drawOutOfBounds(float x, float y, int uniqueId) {
 float ease(float target, float value, float alpha) {
   float d = target - value;
   return value + (d * alpha);
+}
+
+void mouseClicked() {
+  // show and hide cursor if necessary
+  if (hideCursor)
+    cursor();
+  else
+    noCursor();
+
+  hideCursor = !hideCursor;
 }
