@@ -22,16 +22,16 @@ void drawTactileObject(TactileObject to) {
   // fix mirror
   float x = width - (to.position.x * width);
   float y = height - (to.position.y * height);
-  
+
   println(to.smoothRotation);
-  
+
   float r = radians(map(to.smoothRotation, 0f, 180f, 0f, PI));
 
   // check out of bounds
   if (x < 0 || x >= width || y < 0 || y >= height) {
     drawOutOfBounds(x, y, to.uniqueId);
   }
-  
+
   // render object
   float hto = toSize * 0.6;
 
@@ -40,7 +40,7 @@ void drawTactileObject(TactileObject to) {
   stroke(255);
   strokeWeight(5);
   circle(x, y, toSize);
-  
+
   // draw rotation
   stroke(255, 0, 0);
   arc(x, y, toSize, toSize, 0, r);
@@ -52,11 +52,29 @@ void drawTactileObject(TactileObject to) {
 }
 
 void drawOutOfBounds(float x, float y, int uniqueId) { 
-  float rx = constrain(0, width, x);
-  float ry = constrain (0, height, y);
+  float rx = x;
+  float ry = y;
+
+  if (x < 0) {
+    rx = 0;
+  }
+
+  if (x > width) {
+    rx = width - 1;
+  }
+
+  if (y < 0) {
+    ry = 0;
+  }
+
+  if (y > height) {
+    ry = height - 1;
+  }
 
   rectMode(CENTER);
-  fill(255);
+  noFill();
+  stroke(255);
+  strokeWeight(2);
   rect(rx, ry, 20, 20);
 }
 
