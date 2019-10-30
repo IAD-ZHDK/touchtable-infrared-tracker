@@ -1,14 +1,12 @@
 TrackerClient tracker;
 
-float toSize = 150;
+float toSize = 120;
 
 void setup() {
-  //size(1080, 720, FX2D);
-  fullScreen(FX2D);
+  size(1080, 720, FX2D);
+  //fullScreen(FX2D);
 
   tracker = new TrackerClient(8002);
-  
-  noCursor();
 }
 
 void draw() {
@@ -35,7 +33,7 @@ void drawTactileObject(TactileObject to) {
   }
 
   // render object
-  float hto = toSize * 0.5;
+  float hto = toSize * 0.6;
 
   ellipseMode(CENTER);
   noFill();
@@ -48,9 +46,8 @@ void drawTactileObject(TactileObject to) {
   arc(x, y, toSize, toSize, 0, r);
 
   // text
-  textSize(20);
   fill(255);
-  textAlign(LEFT, CENTER);
+  textAlign(CENTER, CENTER);
   text(to.uniqueId, x + hto, y + hto);
 }
 
