@@ -14,8 +14,5 @@ data class ActiveRegion(
     var rotation: Double = 0.0,
 
     // match related
-    var matched: Boolean = false,
-
-    // orientation detection (will be removed)
-    var polygon: Mat = Mat()
+    var matched: Boolean = false
 )
