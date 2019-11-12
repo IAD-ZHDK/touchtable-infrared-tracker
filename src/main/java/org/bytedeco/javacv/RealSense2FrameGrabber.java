@@ -46,8 +46,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     private int deviceNumber;
     private List<RealSenseStream> streams = new ArrayList<>();
 
-    private boolean disableIREmitter = false;
-
     private FrameConverter converter = new OpenCVFrameConverter.ToIplImage();
 
     public RealSense2FrameGrabber() throws Exception {
@@ -144,10 +142,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         enableIRStream(width, height, frameRate, 1);
     }
 
-    public void disableIREmitter() {
-        this.disableIREmitter = true;
-    }
-
     public void open() throws Exception {
         // check if device is available
         if (getDeviceCount() <= 0) {
@@ -164,11 +158,6 @@ public class RealSense2FrameGrabber extends FrameGrabber {
     public void start() throws FrameGrabber.Exception {
         if(this.device == null) {
             open();
-        }
-
-        // ir emitter
-        if (disableIREmitter) {
-            setIREmitter(false);
         }
 
         // create pipeline
@@ -645,32 +634,5 @@ public class RealSense2FrameGrabber extends FrameGrabber {
         public String getName() {
             return name;
         }
-    }
-
-    // experiential
-    private void setIREmitter(boolean enabled) throws Exception {
-        rs2_sensor_list sensorList = rs2_query_sensors(this.device, error);
-        checkError(error);
-
-        int sensorCount = rs2_get_sensors_count(sensorList, error);
-        checkError(error);
-
-        for (int i = 0; i < sensorCount; i++) {
-            rs2_sensor sensor = rs2_create_sensor(sensorList, i, error);
-            checkError(error);
-
-            rs2_options options = new rs2_options(sensor);
-
-            boolean isEmitting = toBoolean(rs2_supports_option(options, RS2_OPTION_EMITTER_ENABLED, error));
-            checkError(error);
-
-            if (isEmitting) {
-                rs2_set_option(options, RS2_OPTION_EMITTER_ENABLED, enabled ? 1f : 0f, error);
-                checkError(error);
-            }
-
-            rs2_delete_sensor(sensor);
-        }
-        rs2_delete_sensor_list(sensorList);
     }
 }

@@ -83,10 +83,8 @@ class TrackerClient {
     tactileObject.identifier = msg.get(1).intValue();
     tactileObject.x = msg.get(2).floatValue();
     tactileObject.y = msg.get(3).floatValue();
+    tactileObject.rotation = msg.get(4).floatValue();
     tactileObject.intensity = msg.get(5).floatValue();
-
-    // special rotation update for 0-360 degrees 
-    tactileObject.rotation = calculate2PIRotation(tactileObject.rotation, msg.get(4).floatValue());
 
     tactileObject.updateTime = millis();
 
@@ -99,25 +97,6 @@ class TrackerClient {
 
   private String createAddress(String command) {
     return namespace + "/" + command;
-  }
-
-  private float calculate2PIRotation(float currentValue, float newValue) {
-    float delta = newValue - currentValue;
-    float sign = delta / delta;
-
-    if (isBetween(abs(delta), 150f, 300f)) {
-      newValue += 180f * sign;
-
-      if (newValue > 360) {
-        newValue -= 360;
-      }
-    }
-
-    return newValue;
-  }
-
-  private boolean isBetween(float value, float low, float high) {
-    return (value >= low && value < high);
   }
 
   public synchronized List<TactileObject> getTactileObjects() {
@@ -147,7 +126,6 @@ class TactileObject {
 
   // update position easing and so on
   public void update() {
-    // circular easing
     smoothRotation = ease(rotation, smoothRotation, 0.1);
 
     // todo: use vector methods
@@ -156,19 +134,8 @@ class TactileObject {
   }
 
   // basic easing method
-  private float ease(float target, float value, float alpha) {
+  float ease(float target, float value, float alpha) {
     float d = target - value;
     return value + (d * alpha);
-  }
-
-  private float circularEase(float target, float value, float maxValue, float alpha) {
-    float delta = target - value;
-    float altDelta = maxValue - abs(delta);
-
-    if (abs(altDelta) < abs(delta)) {
-      delta = altDelta * (delta < 0 ? 1 : -1);
-    }
-
-    return value + (delta * alpha);
   }
 }
