@@ -78,7 +78,7 @@ class PipelineConfig {
 
     @Expose
     @BooleanParameter("Morphology Filter")
-    var morphologyFilterEnabled = DataModel(true)
+    var morphologyFilterEnabled = DataModel(false)
 
     @Expose
     @SliderParameter("Erode Size", 1.0, 10.0, 1.0, snap = true)

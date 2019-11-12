@@ -84,6 +84,7 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
         regions.forEachIndexed { i, region ->
             val minDelta = distances[i].min() ?: Double.MAX_VALUE
 
+            // todo: take min value and compare with threshold
             if (minDelta <= maxDelta) {
                 // existing object found
                 val regionIndex = distances[i].indexOf(minDelta)
