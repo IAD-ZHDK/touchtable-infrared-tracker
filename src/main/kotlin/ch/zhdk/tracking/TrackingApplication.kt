@@ -68,7 +68,7 @@ object TrackingApplication {
             // pipeline init
             pipeline = createPipeline()
             initPipelineHandlers(pipeline)
-            config.pipeline.uniqueId.value = 0
+            config.pipeline.uniqueMarkerId.value = 0
 
             // try to start pipeline
             pipeline = try {

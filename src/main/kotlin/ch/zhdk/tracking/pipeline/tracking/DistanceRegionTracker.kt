@@ -4,7 +4,7 @@ import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.distance
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
-import ch.zhdk.tracking.model.state.MarkerState
+import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.toMarker
 
@@ -22,34 +22,34 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
             val lastSwitchTime = it.timeSinceLastStateChange
 
             when(it.state) {
-                MarkerState.Detected -> {
+                TrackingEntityState.Detected -> {
                     // was detected for long enough
                     if(it.matchedWithRegion && lastSwitchTime > config.minDetectedTime.value) {
-                        it.updateState(MarkerState.Alive)
+                        it.updateState(TrackingEntityState.Alive)
                         pipeline.onObjectDetected(it)
                     }
 
                     // if missing in start directly dead
                     if(!it.matchedWithRegion) {
-                        it.updateState(MarkerState.Dead)
+                        it.updateState(TrackingEntityState.Dead)
                     }
                 }
 
-                MarkerState.Alive -> {
+                TrackingEntityState.Alive -> {
                     // switch to missing if not matched
                     if(!it.matchedWithRegion)
-                        it.updateState(MarkerState.Missing)
+                        it.updateState(TrackingEntityState.Missing)
                 }
 
-                MarkerState.Missing -> {
+                TrackingEntityState.Missing -> {
                     // switch back to alive
                     if(it.matchedWithRegion) {
-                        it.updateState(MarkerState.Alive)
+                        it.updateState(TrackingEntityState.Alive)
                     }
 
                     // switch to dead if time is up
                     if(lastSwitchTime > config.maxMissingTime.value) {
-                        it.updateState(MarkerState.Dead)
+                        it.updateState(TrackingEntityState.Dead)
                         pipeline.onObjectRemoved(it)
                     }
                 }
@@ -57,13 +57,13 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
         }
 
         // remove dead objects
-        objects.removeAll { it.state == MarkerState.Dead }
+        objects.removeAll { it.state == TrackingEntityState.Dead }
 
         // create new regions
         objects.addAll(regions.filter { !it.matched }.map {
-            val uniqueId = config.uniqueId.value + 1
-            config.uniqueId.setSilent(uniqueId)
-            it.toMarker(uniqueId)
+            val uniqueMarkerId = config.uniqueMarkerId.value + 1
+            config.uniqueMarkerId.setSilent(uniqueMarkerId)
+            it.toMarker(uniqueMarkerId)
         })
     }
 

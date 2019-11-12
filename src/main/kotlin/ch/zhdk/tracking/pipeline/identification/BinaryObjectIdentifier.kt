@@ -4,7 +4,7 @@ import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.model.identification.Identification
 import ch.zhdk.tracking.model.identification.IntensitySample
 import ch.zhdk.tracking.model.Marker
-import ch.zhdk.tracking.model.state.MarkerState
+import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.model.identification.Flank
 import ch.zhdk.tracking.model.identification.FlankType
 import kotlin.math.roundToLong
@@ -15,7 +15,7 @@ import kotlin.math.max
 class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
 
     override fun recognizeObjectId(objects: List<Marker>) {
-        objects.filter { it.state == MarkerState.Alive
+        objects.filter { it.state == TrackingEntityState.Alive
                 && it.timeSinceLastStateChange > config.minDetectedTime.value }
             .forEach {
             when (it.identification.identifierPhase) {

@@ -34,8 +34,11 @@ class PipelineConfig {
     @StringParameter("Input Height", isEditable = false)
     var inputHeight = DataModel(1)
 
-    @StringParameter("Total Detected Objects", isEditable = false)
-    var uniqueId = DataModel(0)
+    @StringParameter("Unique Marker Id", isEditable = false)
+    var uniqueMarkerId = DataModel(0)
+
+    @StringParameter("Unique Tactile Object Id", isEditable = false)
+    var uniqueTactileObjectId = DataModel(0)
 
     @StringParameter("Detected Objects", isEditable = false)
     var actualObjectCount = DataModel(0)
@@ -48,7 +51,7 @@ class PipelineConfig {
 
     @ActionParameter("Unique Id", "Reset")
     private var resetUniqueId = {
-        uniqueId.value = 0
+        uniqueMarkerId.value = 0
     }
 
     @LabelParameter("Pre-Processing")

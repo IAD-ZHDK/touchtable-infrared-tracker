@@ -12,7 +12,7 @@ import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
-import ch.zhdk.tracking.model.state.MarkerState
+import ch.zhdk.tracking.model.state.TrackingEntityState
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_core.CV_8UC3
 import org.bytedeco.opencv.global.opencv_imgproc.*
@@ -115,7 +115,7 @@ abstract class Pipeline(
                         config.actualObjectCount.value = markers.count()
                         config.inputWidth.fire()
                         config.inputHeight.fire()
-                        config.uniqueId.fire()
+                        config.uniqueMarkerId.fire()
                     }
 
                     onFrameProcessed.invoke(this)
@@ -261,10 +261,10 @@ abstract class Pipeline(
         // annotate tactile objects
         markers.forEach {
             val color = when (it.state) {
-                MarkerState.Detected -> AbstractScalar.CYAN
-                MarkerState.Alive -> AbstractScalar.GREEN
-                MarkerState.Missing -> AbstractScalar.BLUE
-                MarkerState.Dead -> AbstractScalar.YELLOW
+                TrackingEntityState.Detected -> AbstractScalar.CYAN
+                TrackingEntityState.Alive -> AbstractScalar.GREEN
+                TrackingEntityState.Missing -> AbstractScalar.BLUE
+                TrackingEntityState.Dead -> AbstractScalar.YELLOW
             }
 
             // todo: check for NAN
