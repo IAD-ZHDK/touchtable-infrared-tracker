@@ -227,7 +227,7 @@ object TrackingApplication {
     private fun initPipelineHandlers(pipeline: Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
-                osc.sendUpdate(pipeline.tactileObjects.filter { it.isActive })
+                osc.sendUpdate(pipeline.markers.filter { it.isActive })
             }
         }
 

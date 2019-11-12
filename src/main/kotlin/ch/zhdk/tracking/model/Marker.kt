@@ -2,9 +2,10 @@ package ch.zhdk.tracking.model
 
 import ch.bildspur.util.TimeKeeper
 import ch.zhdk.tracking.model.identification.Identification
+import ch.zhdk.tracking.model.state.MarkerState
 import org.bytedeco.opencv.opencv_core.Point2d
 
-class TactileObject(val uniqueId: Int) {
+class Marker(val uniqueId: Int) {
     var identifier = -1
     var position = Point2d()
     var rotation = 0.0
@@ -14,7 +15,7 @@ class TactileObject(val uniqueId: Int) {
     var normalizedIntensity: Double = 0.0
     var calibratedPosition = Point2d()
 
-    var state = TactileObjectState.Detected
+    var state = MarkerState.Detected
     var stateChangeTimeStamp = TimeKeeper.millis()
         private set
 
@@ -28,10 +29,11 @@ class TactileObject(val uniqueId: Int) {
     var intensity = 0.0
 
     // identification
+    // todo: move this property into tactile object
     val identification = Identification()
 
     // methods
-    fun updateState(state: TactileObjectState) {
+    fun updateState(state: MarkerState) {
         if (this.state == state)
             return
 
@@ -46,5 +48,5 @@ class TactileObject(val uniqueId: Int) {
         get() = TimeKeeper.millis() - detectionUpdatedTimeStamp
 
     val isActive: Boolean
-        get() = state == TactileObjectState.Alive || state == TactileObjectState.Missing
+        get() = state == MarkerState.Alive || state == MarkerState.Missing
 }

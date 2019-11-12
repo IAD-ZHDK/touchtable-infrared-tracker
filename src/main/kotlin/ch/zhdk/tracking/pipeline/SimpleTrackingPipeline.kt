@@ -4,7 +4,7 @@ import ch.bildspur.util.map
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.model.ActiveRegion
-import ch.zhdk.tracking.model.TactileObject
+import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
 import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
@@ -23,17 +23,17 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         return regionDetector.detectRegions(frame, timestamp)
     }
 
-    override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
+    override fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>) {
         regionTracker.mapRegionToObjects(objects, regions)
         normalizeObjects(objects)
     }
 
-    override fun recognizeObjectId(objects: List<TactileObject>) {
+    override fun recognizeObjectId(objects: List<Marker>) {
         if (config.identificationEnabled.value)
             objectIdentifier.recognizeObjectId(objects)
     }
 
-    private fun normalizeObjects(objects: MutableList<TactileObject>) {
+    private fun normalizeObjects(objects: MutableList<Marker>) {
         val tl = config.calibration.topLeft.value
         val br = config.calibration.bottomRight.value
 

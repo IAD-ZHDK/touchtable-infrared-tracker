@@ -11,8 +11,8 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
-import ch.zhdk.tracking.model.TactileObject
-import ch.zhdk.tracking.model.TactileObjectState
+import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.state.MarkerState
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_core.CV_8UC3
 import org.bytedeco.opencv.global.opencv_imgproc.*
@@ -72,11 +72,11 @@ abstract class Pipeline(
     var isZeroFrame = true
         private set
 
-    val tactileObjects = mutableListOf<TactileObject>()
+    val markers = mutableListOf<Marker>()
 
     val onFrameProcessed = Event<Pipeline>()
-    val onObjectDetected = Event<TactileObject>()
-    val onObjectRemoved = Event<TactileObject>()
+    val onObjectDetected = Event<Marker>()
+    val onObjectRemoved = Event<Marker>()
 
     fun waitForNewFrameAvailable() {
         newFrameAvailableSemaphore.acquire()
@@ -112,7 +112,7 @@ abstract class Pipeline(
                     if (updateTimer.elapsed()) {
                         config.frameTime.value = "${frameWatch.elapsed()} ms"
                         config.processingTime.value = "${processWatch.elapsed()} ms"
-                        config.actualObjectCount.value = tactileObjects.count()
+                        config.actualObjectCount.value = markers.count()
                         config.inputWidth.fire()
                         config.inputHeight.fire()
                         config.uniqueId.fire()
@@ -183,8 +183,8 @@ abstract class Pipeline(
 
         // process
         val regions = detectRegions(processedMat, input.timestamp)
-        mapRegionToObjects(tactileObjects, regions)
-        recognizeObjectId(tactileObjects)
+        mapRegionToObjects(markers, regions)
+        recognizeObjectId(markers)
 
         // if no output should be shown (production)
         if (!config.displayOutput.value) {
@@ -212,8 +212,8 @@ abstract class Pipeline(
     }
 
     abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
-    abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
-    abstract fun recognizeObjectId(objects: List<TactileObject>)
+    abstract fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>)
+    abstract fun recognizeObjectId(objects: List<Marker>)
 
     private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
         if (mat.type() == CV_8UC1)
@@ -230,7 +230,7 @@ abstract class Pipeline(
 
         // annotate pipeline output
         annotateActiveRegions(mat, regions)
-        annotateTactileObjects(mat)
+        annotateMarkers(mat)
 
         // annotate screen calibration
         if (config.calibration.displayAnnotation.value) {
@@ -257,14 +257,14 @@ abstract class Pipeline(
         }
     }
 
-    private fun annotateTactileObjects(mat: Mat) {
+    private fun annotateMarkers(mat: Mat) {
         // annotate tactile objects
-        tactileObjects.forEach {
+        markers.forEach {
             val color = when (it.state) {
-                TactileObjectState.Detected -> AbstractScalar.CYAN
-                TactileObjectState.Alive -> AbstractScalar.GREEN
-                TactileObjectState.Missing -> AbstractScalar.BLUE
-                TactileObjectState.Dead -> AbstractScalar.YELLOW
+                MarkerState.Detected -> AbstractScalar.CYAN
+                MarkerState.Alive -> AbstractScalar.GREEN
+                MarkerState.Missing -> AbstractScalar.BLUE
+                MarkerState.Dead -> AbstractScalar.YELLOW
             }
 
             // todo: check for NAN

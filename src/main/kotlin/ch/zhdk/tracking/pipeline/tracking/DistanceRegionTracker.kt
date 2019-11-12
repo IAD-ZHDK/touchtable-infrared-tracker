@@ -3,14 +3,14 @@ package ch.zhdk.tracking.pipeline.tracking
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.distance
 import ch.zhdk.tracking.model.ActiveRegion
-import ch.zhdk.tracking.model.TactileObject
-import ch.zhdk.tracking.model.TactileObjectState
+import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.state.MarkerState
 import ch.zhdk.tracking.pipeline.Pipeline
-import ch.zhdk.tracking.pipeline.toTactileObject
+import ch.zhdk.tracking.pipeline.toMarker
 
 class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = PipelineConfig()) :
     RegionTracker(pipeline, config) {
-    override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
+    override fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>) {
         // reset all regions
         objects.forEach { it.matchedWithRegion = false }
 
@@ -22,34 +22,34 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
             val lastSwitchTime = it.timeSinceLastStateChange
 
             when(it.state) {
-                TactileObjectState.Detected -> {
+                MarkerState.Detected -> {
                     // was detected for long enough
                     if(it.matchedWithRegion && lastSwitchTime > config.minDetectedTime.value) {
-                        it.updateState(TactileObjectState.Alive)
+                        it.updateState(MarkerState.Alive)
                         pipeline.onObjectDetected(it)
                     }
 
                     // if missing in start directly dead
                     if(!it.matchedWithRegion) {
-                        it.updateState(TactileObjectState.Dead)
+                        it.updateState(MarkerState.Dead)
                     }
                 }
 
-                TactileObjectState.Alive -> {
+                MarkerState.Alive -> {
                     // switch to missing if not matched
                     if(!it.matchedWithRegion)
-                        it.updateState(TactileObjectState.Missing)
+                        it.updateState(MarkerState.Missing)
                 }
 
-                TactileObjectState.Missing -> {
+                MarkerState.Missing -> {
                     // switch back to alive
                     if(it.matchedWithRegion) {
-                        it.updateState(TactileObjectState.Alive)
+                        it.updateState(MarkerState.Alive)
                     }
 
                     // switch to dead if time is up
                     if(lastSwitchTime > config.maxMissingTime.value) {
-                        it.updateState(TactileObjectState.Dead)
+                        it.updateState(MarkerState.Dead)
                         pipeline.onObjectRemoved(it)
                     }
                 }
@@ -57,17 +57,17 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
         }
 
         // remove dead objects
-        objects.removeAll { it.state == TactileObjectState.Dead }
+        objects.removeAll { it.state == MarkerState.Dead }
 
         // create new regions
         objects.addAll(regions.filter { !it.matched }.map {
             val uniqueId = config.uniqueId.value + 1
             config.uniqueId.setSilent(uniqueId)
-            it.toTactileObject(uniqueId)
+            it.toMarker(uniqueId)
         })
     }
 
-    private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta: Double) {
+    private fun matchNearest(objects: MutableList<Marker>, regions: List<ActiveRegion>, maxDelta: Double) {
         // create matrix (point to region)
         val distances = Array(regions.size) { DoubleArray(objects.size) }
 
@@ -85,7 +85,7 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
             if (minDelta <= maxDelta) {
                 // existing object found
                 val regionIndex = distances[i].indexOf(minDelta)
-                region.toTactileObject(objects[regionIndex])
+                region.toMarker(objects[regionIndex])
                 objects[regionIndex].matchedWithRegion = true
 
                 region.matched = true
