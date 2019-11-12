@@ -5,9 +5,12 @@ float oSize = 20;
 
 boolean hideCursor = false;
 
+boolean useSmoothRotation = true;
+boolean useSmoothPosition = true;
+
 void setup() {
-  //size(1080, 720, FX2D);
-  fullScreen(FX2D);
+  size(1080, 720, FX2D);
+  //fullScreen(FX2D);
 
   tracker = new TrackerClient(8002);
 
@@ -26,12 +29,13 @@ void draw() {
 
 void drawTactileObject(TactileObject to) {
   // fix mirror (maybe flip with width - term)
-  float x = (to.position.x * width);
-  float y = (to.position.y * height);
+  float tox = useSmoothPosition ? to.position.x : to.x;
+  float toy = useSmoothPosition ? to.position.y : to.y;
 
-  println(to.smoothRotation);
-
-  float r = radians(to.smoothRotation);
+  float x = (tox * width);
+  float y = (toy * height);
+  
+  float r = radians(useSmoothRotation ? to.smoothRotation : to.rotation);
 
   // check out of bounds
   if (x < 0 || x >= width || y < 0 || y >= height) {
@@ -54,7 +58,7 @@ void drawTactileObject(TactileObject to) {
   // text
   fill(255);
   textAlign(CENTER, CENTER);
-  text(to.uniqueId, x + hto, y + hto);
+  text(to.uniqueId + " - R: " + round(to.rotation), x + hto, y + hto);
 }
 
 void drawOutOfBounds(float x, float y, int uniqueId) { 
@@ -88,12 +92,6 @@ void drawOutOfBounds(float x, float y, int uniqueId) {
   pop();
 }
 
-// basic easing method
-float ease(float target, float value, float alpha) {
-  float d = target - value;
-  return value + (d * alpha);
-}
-
 void mouseClicked() {
   // show and hide cursor if necessary
   if (hideCursor)
@@ -102,6 +100,18 @@ void mouseClicked() {
     noCursor();
 
   hideCursor = !hideCursor;
+}
+
+void keyPressed() {
+  if (key == 'R') {
+    useSmoothRotation = !useSmoothRotation;
+    println("Smooth Rotation: " + useSmoothRotation);
+  }
+
+  if (key == 'P') {
+    useSmoothPosition = !useSmoothPosition;
+    println("Smooth Position: " + useSmoothPosition);
+  }
 }
 
 void stop() {
