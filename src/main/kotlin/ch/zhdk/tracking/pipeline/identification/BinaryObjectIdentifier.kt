@@ -3,7 +3,7 @@ package ch.zhdk.tracking.pipeline.identification
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.model.identification.Identification
 import ch.zhdk.tracking.model.identification.IntensitySample
-import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.model.identification.Flank
 import ch.zhdk.tracking.model.identification.FlankType
@@ -14,8 +14,8 @@ import kotlin.math.max
 
 class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
 
-    override fun recognizeObjectId(objects: List<Marker>) {
-        objects.filter { it.state == TrackingEntityState.Alive
+    override fun recognizeObjectId(devices: List<TactileDevice>) {
+        devices.filter { it.state == TrackingEntityState.Alive
                 && it.timeSinceLastStateChange > config.minDetectedTime.value }
             .forEach {
             when (it.identification.identifierPhase) {
@@ -28,46 +28,46 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         }
     }
 
-    private fun start(marker: Marker) {
+    private fun start(device: TactileDevice) {
         // clear detection and add start timestamp
-        marker.identification.samples.clear()
-        marker.identification.startFrame = marker.detectionUpdatedTimeStamp
+        device.identification.samples.clear()
+        device.identification.startFrame = device.detectionUpdatedTimeStamp
 
-        marker.identification.identifierPhase = BinaryIdentifierPhase.Sampling
+        device.identification.identifierPhase = BinaryIdentifierPhase.Sampling
 
         println("----")
     }
 
-    private fun sampling(marker: Marker) {
-        marker.identification.samples.add(
+    private fun sampling(device: TactileDevice) {
+        device.identification.samples.add(
             IntensitySample(
-                marker.intensity,
-                marker.detectionUpdatedTimeStamp
+                device.intensity,
+                device.detectionUpdatedTimeStamp
             )
         )
 
-        if (marker.detectionUpdatedTimeStamp - marker.identification.startFrame >= config.sampleCount.value) {
+        if (device.detectionUpdatedTimeStamp - device.identification.startFrame >= config.sampleCount.value) {
             // if sampling time is over
-            marker.identification.identifierPhase = BinaryIdentifierPhase.Identifying
+            device.identification.identifierPhase = BinaryIdentifierPhase.Identifying
         }
     }
 
-    private fun identify(marker: Marker) {
-        if (!detectNaturalThreshold(marker.identification)) {
+    private fun identify(device: TactileDevice) {
+        if (!detectNaturalThreshold(device.identification)) {
             // something went wrong -> restart process
-            marker.identification.identifierPhase = BinaryIdentifierPhase.Requested
+            device.identification.identifierPhase = BinaryIdentifierPhase.Requested
             return
         }
 
         // detect flanks
-        val flanks = detectFlanks(marker.identification)
+        val flanks = detectFlanks(device.identification)
         println("Found ${flanks.size} Flanks!")
         println("Pattern : ${flanks.joinToString { it.type.toString().first().toString() }}")
 
         // check if two stop bits are detected
         if (flanks.filter { it.type == FlankType.Stop }.size < 2) {
             println("=> too few stop bits found for detection")
-            marker.identification.identifierPhase = BinaryIdentifierPhase.Requested
+            device.identification.identifierPhase = BinaryIdentifierPhase.Requested
             return
         }
 
@@ -80,7 +80,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // if to few indices were detected
         if (interpolatedFlanks.size < 7) {
             println("too few bits read")
-            marker.identification.identifierPhase = BinaryIdentifierPhase.Requested
+            device.identification.identifierPhase = BinaryIdentifierPhase.Requested
             return
         }
 
@@ -91,13 +91,13 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
                 id = id or (1 shl index)
         }
         println("Id: $id")
-        marker.identifier = id
+        device.identifier = id
 
         // cleanup
-        marker.identification.samples.clear()
+        device.identification.samples.clear()
 
         // mark as detected
-        marker.identification.identifierPhase = BinaryIdentifierPhase.Requested // todo: change back to detected
+        device.identification.identifierPhase = BinaryIdentifierPhase.Requested // todo: change back to detected
     }
 
     private fun detectNaturalThreshold(identification: Identification): Boolean {

@@ -5,6 +5,7 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.javacpp.IntPointer
 import org.bytedeco.opencv.global.opencv_core.*
@@ -91,11 +92,11 @@ class RGBIRPipeline(config: PipelineConfig, inputProvider: InputProvider, pipeli
         return regions
     }
 
-    override fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>) {
+    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
 
     }
 
-    override fun recognizeObjectId(objects: List<Marker>) {
+    override fun recognizeObjectId(devices: List<TactileDevice>) {
 
     }
 }

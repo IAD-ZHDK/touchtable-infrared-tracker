@@ -1,15 +1,14 @@
 package ch.zhdk.tracking.pipeline
 
-import ch.bildspur.util.map
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
 import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
 import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.Point2d
 
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
@@ -23,22 +22,23 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         return regionDetector.detectRegions(frame, timestamp)
     }
 
-    override fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>) {
-        regionTracker.mapRegionToObjects(objects, regions)
-        normalizeObjects(objects)
+    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
+        regionTracker.mapRegionToObjects(markers, regions)
     }
 
-    override fun recognizeObjectId(objects: List<Marker>) {
+    override fun recognizeObjectId(devices: List<TactileDevice>) {
         if (config.identificationEnabled.value)
-            objectIdentifier.recognizeObjectId(objects)
+            objectIdentifier.recognizeObjectId(devices)
     }
 
-    private fun normalizeObjects(objects: MutableList<Marker>) {
+    private fun normalizeObjects(devices: MutableList<TactileDevice>) {
         val tl = config.calibration.topLeft.value
         val br = config.calibration.bottomRight.value
 
         // add normalized values
-        objects.forEach {
+        devices.forEach {
+            // todo: normalized devices
+            /*
             it.normalizedPosition = Point2d(
                 it.position.x() / config.inputWidth.value,
                 it.position.y() / config.inputHeight.value
@@ -49,6 +49,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
                 it.normalizedPosition.x().map(tl.x.toDouble(), br.x.toDouble(), 0.0, 1.0),
                 it.normalizedPosition.y().map(tl.y.toDouble(), br.y.toDouble(), 0.0, 1.0)
             )
+             */
         }
     }
 }

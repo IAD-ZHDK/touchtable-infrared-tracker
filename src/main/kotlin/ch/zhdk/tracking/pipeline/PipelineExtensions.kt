@@ -17,7 +17,6 @@ fun ActiveRegion.toMarker(marker : Marker)
     marker.position = this.center
     marker.intensity = this.area
     marker.detectionUpdatedTimeStamp = this.timestamp
-    marker.rotation = this.rotation
 }
 
 fun Float2.toPoint() : Point {

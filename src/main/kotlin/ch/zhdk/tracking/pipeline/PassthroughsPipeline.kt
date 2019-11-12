@@ -4,6 +4,7 @@ import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
 import org.bytedeco.opencv.opencv_core.Mat
 
 class PassthroughPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
@@ -13,11 +14,11 @@ class PassthroughPipeline(config: PipelineConfig, inputProvider: InputProvider, 
         return emptyList()
     }
 
-    override fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>) {
+    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
 
     }
 
-    override fun recognizeObjectId(objects: List<Marker>) {
+    override fun recognizeObjectId(devices: List<TactileDevice>) {
 
     }
 

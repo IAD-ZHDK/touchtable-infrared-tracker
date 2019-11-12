@@ -227,16 +227,16 @@ object TrackingApplication {
     private fun initPipelineHandlers(pipeline: Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
-                osc.sendUpdate(pipeline.markers.filter { it.isActive })
+                osc.sendUpdate(pipeline.devices.filter { it.isActive })
             }
         }
 
-        pipeline.onObjectDetected += {
+        pipeline.onDeviceDetected += {
             println("+ adding object: ${it.uniqueId}")
             osc.newObject(it)
         }
 
-        pipeline.onObjectRemoved += {
+        pipeline.onDeviceRemoved += {
             println("- removing object: ${it.uniqueId}")
             osc.removeObject(it)
         }

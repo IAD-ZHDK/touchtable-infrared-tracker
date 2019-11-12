@@ -1,7 +1,7 @@
 package ch.zhdk.tracking.osc
 
 import ch.zhdk.tracking.config.OscConfig
-import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
 import com.illposed.osc.OSCBundle
 import com.illposed.osc.OSCMessage
 import com.illposed.osc.OSCPacket
@@ -23,13 +23,13 @@ class OscPublisher(val config: OscConfig) {
         println("starting OSC on  ${target.address}:${target.port}")
     }
 
-    fun sendUpdate(markers: List<Marker>) {
+    fun sendUpdate(devices: List<TactileDevice>) {
         if(config.useOSCBundles.value) {
-            sendBundledUpdate(markers)
+            sendBundledUpdate(devices)
             return
         }
 
-        markers.forEach {
+        devices.forEach {
             if (config.debugOSC.value) {
                 println("UPD [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
             }
@@ -38,29 +38,29 @@ class OscPublisher(val config: OscConfig) {
         }
     }
 
-    private fun sendBundledUpdate(markers: List<Marker>) {
+    private fun sendBundledUpdate(devices: List<TactileDevice>) {
         val bundle = OSCBundle()
 
-        markers.forEach {
+        devices.forEach {
             bundle.addPacket(createMessage("update", it.createArgsList()))
         }
         sendMessage(bundle)
     }
 
-    fun newObject(marker: Marker) {
+    fun newObject(device: TactileDevice) {
         if (config.debugOSC.value) {
-            println("ADD [${marker.uniqueId}]: x: ${marker.calibratedPosition.x().toFloat()} y: ${marker.calibratedPosition.y().toFloat()}")
+            println("ADD [${device.uniqueId}]: x: ${device.calibratedPosition.x().toFloat()} y: ${device.calibratedPosition.y().toFloat()}")
         }
 
-        sendMessage(createMessage("add", marker.createArgsList()))
+        sendMessage(createMessage("add", device.createArgsList()))
     }
 
-    fun removeObject(marker: Marker) {
+    fun removeObject(device: TactileDevice) {
         if (config.debugOSC.value) {
-            println("REM [${marker.uniqueId}]: x: ${marker.calibratedPosition.x().toFloat()} y: ${marker.calibratedPosition.y().toFloat()}")
+            println("REM [${device.uniqueId}]: x: ${device.calibratedPosition.x().toFloat()} y: ${device.calibratedPosition.y().toFloat()}")
         }
 
-        sendMessage(createMessage("remove", listOf(marker.uniqueId)))
+        sendMessage(createMessage("remove", listOf(device.uniqueId)))
     }
 
     private fun createMessage(command : String, args : List<Any>) : OSCMessage {
@@ -75,7 +75,7 @@ class OscPublisher(val config: OscConfig) {
         }
     }
 
-    private fun Marker.createArgsList() : List<Any> {
+    private fun TactileDevice.createArgsList() : List<Any> {
         return listOf(
             this.uniqueId,
             this.identifier,

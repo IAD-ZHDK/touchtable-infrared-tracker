@@ -12,6 +12,7 @@ import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.model.state.TrackingEntityState
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_core.CV_8UC3
@@ -73,10 +74,11 @@ abstract class Pipeline(
         private set
 
     val markers = mutableListOf<Marker>()
+    val devices = mutableListOf<TactileDevice>()
 
     val onFrameProcessed = Event<Pipeline>()
-    val onObjectDetected = Event<Marker>()
-    val onObjectRemoved = Event<Marker>()
+    val onDeviceDetected = Event<TactileDevice>()
+    val onDeviceRemoved = Event<TactileDevice>()
 
     fun waitForNewFrameAvailable() {
         newFrameAvailableSemaphore.acquire()
@@ -184,7 +186,7 @@ abstract class Pipeline(
         // process
         val regions = detectRegions(processedMat, input.timestamp)
         mapRegionToObjects(markers, regions)
-        recognizeObjectId(markers)
+        recognizeObjectId(devices)
 
         // if no output should be shown (production)
         if (!config.displayOutput.value) {
@@ -212,8 +214,8 @@ abstract class Pipeline(
     }
 
     abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
-    abstract fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>)
-    abstract fun recognizeObjectId(objects: List<Marker>)
+    abstract fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>)
+    abstract fun recognizeObjectId(devices: List<TactileDevice>)
 
     private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
         if (mat.type() == CV_8UC1)
@@ -249,7 +251,7 @@ abstract class Pipeline(
 
             // draw timestamp
             mat.drawText(
-                "A: ${it.area} R: ${it.rotation.format(2)}",
+                "A: ${it.area}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4
@@ -270,7 +272,7 @@ abstract class Pipeline(
             // todo: check for NAN
             mat.drawCircle(it.position.toPoint(), 22, color, thickness = 1)
             mat.drawText(
-                "N:${it.uniqueId} #${it.identifier} [${it.timeSinceLastStateChange.formatSeconds()}]",
+                "N:${it.uniqueId} [${it.timeSinceLastStateChange.formatSeconds()}]",
                 it.position.toPoint().transform(20, -20),
                 color,
                 scale = 0.4

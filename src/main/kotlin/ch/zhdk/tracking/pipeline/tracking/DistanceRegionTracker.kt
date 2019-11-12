@@ -26,7 +26,8 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
                     // was detected for long enough
                     if(it.matchedWithRegion && lastSwitchTime > config.minDetectedTime.value) {
                         it.updateState(TrackingEntityState.Alive)
-                        pipeline.onObjectDetected(it)
+                        // todo: detect tactile device
+                        //pipeline.onDeviceDetected(it)
                     }
 
                     // if missing in start directly dead
@@ -50,7 +51,8 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
                     // switch to dead if time is up
                     if(lastSwitchTime > config.maxMissingTime.value) {
                         it.updateState(TrackingEntityState.Dead)
-                        pipeline.onObjectRemoved(it)
+                        // todo: remove device
+                        //pipeline.onDeviceRemoved(it)
                     }
                 }
             }
