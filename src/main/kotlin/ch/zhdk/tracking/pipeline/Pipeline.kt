@@ -244,6 +244,9 @@ abstract class Pipeline(
             // mark region
             mat.drawCross(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
+            // show max distance
+            mat.drawCircle(it.center.toPoint(), config.maxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
+
             // draw timestamp
             mat.drawText(
                 "A: ${it.area} R: ${it.rotation.format(2)}",
@@ -251,12 +254,6 @@ abstract class Pipeline(
                 AbstractScalar.RED,
                 scale = 0.4
             )
-
-            // display shape
-            if (it.polygon.rows() > 0) {
-                val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
-                drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
-            }
         }
     }
 
@@ -270,6 +267,7 @@ abstract class Pipeline(
                 TactileObjectState.Dead -> AbstractScalar.YELLOW
             }
 
+            // todo: check for NAN
             mat.drawCircle(it.position.toPoint(), 22, color, thickness = 1)
             mat.drawText(
                 "N:${it.uniqueId} #${it.identifier} [${it.timeSinceLastStateChange.formatSeconds()}]",
@@ -299,9 +297,6 @@ abstract class Pipeline(
         // draw screen
         val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
         mat.drawRect(rect, AbstractScalar.GRAY)
-
-        // todo: show polygon
-        //mat.drawPolygon(listOf(tl.toPoint(), tr.toPoint(), br.toPoint(), bl.toPoint()), true, AbstractScalar.YELLOW)
     }
 
     fun stop() {
