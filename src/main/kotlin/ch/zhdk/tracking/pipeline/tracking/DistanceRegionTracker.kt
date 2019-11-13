@@ -10,15 +10,15 @@ import ch.zhdk.tracking.pipeline.toMarker
 
 class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = PipelineConfig()) :
     RegionTracker(pipeline, config) {
-    override fun mapRegionToObjects(objects: MutableList<Marker>, regions: List<ActiveRegion>) {
+    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
         // reset all regions
-        objects.forEach { it.matchedWithRegion = false }
+        markers.forEach { it.matchedWithRegion = false }
 
         // create matrix
-        matchNearest(objects, regions, config.maxDelta.value)
+        matchNearest(markers, regions, config.maxDelta.value)
 
         // set object state
-        objects.forEach {
+        markers.forEach {
             val lastSwitchTime = it.timeSinceLastStateChange
 
             when(it.state) {
@@ -58,39 +58,43 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
             }
         }
 
-        // remove dead objects
-        objects.removeAll { it.state == TrackingEntityState.Dead }
+        // remove dead markers
+        markers.removeAll { it.state == TrackingEntityState.Dead }
 
         // create new regions
-        objects.addAll(regions.filter { !it.matched }.map {
+        markers.addAll(regions.filter { !it.matched }.map {
             val uniqueMarkerId = config.uniqueMarkerId.value + 1
             config.uniqueMarkerId.setSilent(uniqueMarkerId)
             it.toMarker(uniqueMarkerId)
         })
     }
 
-    private fun matchNearest(objects: MutableList<Marker>, regions: List<ActiveRegion>, maxDelta: Double) {
+    private data class Distance(val index : Int, val distance : Double)
+
+    private fun matchNearest(markers: MutableList<Marker>, regions: List<ActiveRegion>, maxDelta: Double) {
         // create matrix (point to region)
-        val distances = Array(regions.size) { DoubleArray(objects.size) }
+        val distances = Array(regions.size) { DoubleArray(markers.size) }
 
         // fill matrix O((m*n)^2)
         regions.forEachIndexed { i, region ->
-            objects.forEachIndexed { j, obj ->
-                distances[i][j] = obj.position.distance(region.center)
+            markers.forEachIndexed { j, marker ->
+                distances[i][j] = marker.position.distance(region.center)
             }
         }
 
-        // match best region to point
+        // match best region to marker
         regions.forEachIndexed { i, region ->
-            val minDelta = distances[i].min() ?: Double.MAX_VALUE
+            val minDelta = distances[i]
+                .mapIndexed { index, distance -> Distance(index, distance) }
+                .filter { !markers[it.index].matchedWithRegion }
+                .minBy { it.distance } ?: Distance(-1, Double.MAX_VALUE)
 
-            // todo: take min value and compare with threshold
-            if (minDelta <= maxDelta) {
+            if (minDelta.distance <= maxDelta) {
                 // existing object found
-                val regionIndex = distances[i].indexOf(minDelta)
-                region.toMarker(objects[regionIndex])
-                objects[regionIndex].matchedWithRegion = true
+                val marker = markers[minDelta.index]
+                marker.matchedWithRegion = true
 
+                region.toMarker(marker)
                 region.matched = true
             }
         }
