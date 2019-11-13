@@ -92,7 +92,11 @@ class RGBIRPipeline(config: PipelineConfig, inputProvider: InputProvider, pipeli
         return regions
     }
 
-    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
+    override fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
+
+    }
+
+    override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>) {
 
     }
 

@@ -5,6 +5,8 @@ import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
+import ch.zhdk.tracking.pipeline.clustering.DistanceClusterer
+import ch.zhdk.tracking.pipeline.clustering.MarkerClusterer
 import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
 import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
@@ -16,14 +18,19 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
 
     private val regionDetector = ConventionalRegionDetector(config)
     private val regionTracker = DistanceRegionTracker(this, config)
+    private val markerClusterer = DistanceClusterer(this, config)
     private val objectIdentifier = BinaryObjectIdentifier(config)
 
     override fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion> {
         return regionDetector.detectRegions(frame, timestamp)
     }
 
-    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
-        regionTracker.mapRegionToObjects(markers, regions)
+    override fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
+        regionTracker.mapRegionsToMarkers(markers, regions)
+    }
+
+    override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>) {
+        markerClusterer.clusterMarkersToDevices(markers, devices)
     }
 
     override fun recognizeObjectId(devices: List<TactileDevice>) {

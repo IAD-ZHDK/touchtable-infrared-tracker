@@ -14,7 +14,7 @@ class PassthroughPipeline(config: PipelineConfig, inputProvider: InputProvider, 
         return emptyList()
     }
 
-    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
+    override fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
 
     }
 
@@ -22,4 +22,7 @@ class PassthroughPipeline(config: PipelineConfig, inputProvider: InputProvider, 
 
     }
 
+    override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>) {
+
+    }
 }

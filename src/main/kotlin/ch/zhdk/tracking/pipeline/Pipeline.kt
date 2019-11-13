@@ -4,7 +4,6 @@ import ch.bildspur.event.Event
 import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
-import ch.bildspur.util.format
 import ch.bildspur.util.formatSeconds
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
@@ -185,7 +184,8 @@ abstract class Pipeline(
 
         // process
         val regions = detectRegions(processedMat, input.timestamp)
-        mapRegionToObjects(markers, regions)
+        mapRegionsToMarkers(markers, regions)
+        clusterMarkersToDevices(markers, devices)
         recognizeObjectId(devices)
 
         // if no output should be shown (production)
@@ -214,7 +214,8 @@ abstract class Pipeline(
     }
 
     abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
-    abstract fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>)
+    abstract fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>)
+    abstract fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>)
     abstract fun recognizeObjectId(devices: List<TactileDevice>)
 
     private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
@@ -233,6 +234,7 @@ abstract class Pipeline(
         // annotate pipeline output
         annotateActiveRegions(mat, regions)
         annotateMarkers(mat)
+        annotateTactileDevices(mat)
 
         // annotate screen calibration
         if (config.calibration.displayAnnotation.value) {
@@ -250,12 +252,14 @@ abstract class Pipeline(
             mat.drawCircle(it.center.toPoint(), config.maxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
 
             // draw timestamp
+            /*
             mat.drawText(
                 "A: ${it.area}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4
             )
+            */
         }
     }
 
@@ -270,13 +274,25 @@ abstract class Pipeline(
             }
 
             // todo: check for NAN
-            mat.drawCircle(it.position.toPoint(), 22, color, thickness = 1)
+            mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
+
+            /*
             mat.drawText(
                 "N:${it.uniqueId} [${it.timeSinceLastStateChange.formatSeconds()}]",
                 it.position.toPoint().transform(20, -20),
                 color,
                 scale = 0.4
             )
+            */
+        }
+    }
+
+    private fun annotateTactileDevices(mat: Mat) {
+        devices.forEach {
+            val color = AbstractScalar.MAGENTA
+
+            // todo: implement annoation
+            //mat.drawCircle(it.normalizedPosition.toPoint(), 10, color, thickness = 1)
         }
     }
 

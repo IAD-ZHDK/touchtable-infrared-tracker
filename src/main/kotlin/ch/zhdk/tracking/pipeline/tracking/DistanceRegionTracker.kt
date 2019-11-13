@@ -10,7 +10,7 @@ import ch.zhdk.tracking.pipeline.toMarker
 
 class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = PipelineConfig()) :
     RegionTracker(pipeline, config) {
-    override fun mapRegionToObjects(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
+    override fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
         // reset all regions
         markers.forEach { it.matchedWithRegion = false }
 
