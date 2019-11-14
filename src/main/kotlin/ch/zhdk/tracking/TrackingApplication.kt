@@ -284,7 +284,6 @@ object TrackingApplication {
         return when (config.pipeline.pipelineType.value) {
             PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
-            PipelineType.RGBIR -> RGBIRPipeline(config.pipeline, createInputProvider(), pipelineLock)
         }
     }
 }
