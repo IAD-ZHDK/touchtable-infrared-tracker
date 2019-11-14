@@ -69,7 +69,7 @@ class PipelineConfig {
     val detectionLabel = ""
 
     @Expose
-    @SliderParameter("Threshold", 0.0, 100.0, 0.1)
+    @SliderParameter("Threshold", 1.0, 100.0, 0.05, snap = true)
     var threshold = DataModel(50.0)
 
     @Expose
@@ -111,6 +111,13 @@ class PipelineConfig {
     @NumberParameter("Max Missing Time", "ms")
     var maxMissingTime = DataModel(250)
 
+    @LabelParameter("Clustering")
+    val clusteringLabel = ""
+
+    @Expose
+    @SliderParameter("Max Radius", 0.0, 200.0, 1.0)
+    var maximumRadius = DataModel(15.0)
+
     @LabelParameter("Identification")
     private val identificationLabel = ""
 
@@ -126,19 +133,4 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
     var thresholdMarginFactor = DataModel(1.0)
-
-    @LabelParameter("IR Color Detection")
-    private val irColorLabel = ""
-
-    @Expose
-    @BooleanParameter("Display Range 1")
-    var displayRangeOne = DataModel(false)
-
-    @Expose
-    @RangeSliderParameter("IR Hue Range 0", 0.0, 1.0, 0.01, snap = true)
-    var hueRangeZero = DataModel(NumberRange(0.0, 1.0))
-
-    @Expose
-    @RangeSliderParameter("IR Hue Range 1", 0.0, 1.0, 0.01, snap = true)
-    var hueRangeOne = DataModel(NumberRange(0.0, 1.0))
 }
