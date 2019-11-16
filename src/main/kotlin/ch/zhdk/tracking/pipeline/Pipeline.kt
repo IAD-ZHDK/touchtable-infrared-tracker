@@ -293,6 +293,13 @@ abstract class Pipeline(
 
             mat.drawCross(it.position.toPoint(), 20, color, thickness = 2)
             //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
+
+            mat.drawText(
+                "${it.position.x().roundToInt()} / ${it.position.y().roundToInt()}",
+                it.position.toPoint().transform(20, 20),
+                color,
+                scale = 0.8
+            )
         }
     }
 
