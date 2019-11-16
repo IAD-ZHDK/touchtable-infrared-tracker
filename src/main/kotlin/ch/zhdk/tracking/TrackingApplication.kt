@@ -249,6 +249,7 @@ object TrackingApplication {
     }
 
     fun requestMousePressed(): Float2 {
+        mousePressedLedge = Semaphore(0)
         mousePressedLedge.acquire()
         return Float2(
             mousePressedPosition.x / canvasFrame.canvasSize.width,
