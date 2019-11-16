@@ -22,7 +22,7 @@ class PassthroughPipeline(config: PipelineConfig, inputProvider: InputProvider, 
 
     }
 
-    override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>) {
+    override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: MutableList<TactileDevice>) {
 
     }
 }

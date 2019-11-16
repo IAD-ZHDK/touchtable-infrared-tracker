@@ -8,5 +8,5 @@ import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineStep
 
 abstract class MarkerClusterer(val pipeline : Pipeline, config : PipelineConfig = PipelineConfig()) : PipelineStep(config) {
-    abstract fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>)
+    abstract fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: MutableList<TactileDevice>)
 }

@@ -215,7 +215,7 @@ abstract class Pipeline(
 
     abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
     abstract fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>)
-    abstract fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: List<TactileDevice>)
+    abstract fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: MutableList<TactileDevice>)
     abstract fun recognizeObjectId(devices: List<TactileDevice>)
 
     private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
