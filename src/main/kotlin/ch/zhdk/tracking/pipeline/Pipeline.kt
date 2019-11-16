@@ -295,10 +295,10 @@ abstract class Pipeline(
             //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
 
             mat.drawText(
-                "${it.position.x().roundToInt()} / ${it.position.y().roundToInt()}",
+                "${it.uniqueId}",
                 it.position.toPoint().transform(20, 20),
                 color,
-                scale = 0.8
+                scale = 0.6
             )
         }
     }

@@ -91,7 +91,9 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
             val uniqueDeviceId = config.uniqueTactileObjectId.value + 1
             config.uniqueTactileObjectId.setSilent(uniqueDeviceId)
             // create new device
-            TactileDevice(uniqueDeviceId)
+            val device = TactileDevice(uniqueDeviceId)
+            device.markers.addAll(it.centroid.points)
+            device
         })
     }
 }
