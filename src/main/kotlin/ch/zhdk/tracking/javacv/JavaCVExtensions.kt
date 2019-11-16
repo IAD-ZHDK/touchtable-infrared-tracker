@@ -40,3 +40,18 @@ fun Size2d.normalize(width : Double, height : Double) {
     this.width(this.width() / width)
     this.height(this.height() / height)
 }
+
+fun Collection<Point2d>.center() : Point2d {
+    var x = 0.0
+    var y = 0.0
+
+    this.forEach {
+        x += it.x()
+        y += it.y()
+    }
+
+    x /= this.size
+    y /= this.size
+
+    return Point2d(x, y)
+}

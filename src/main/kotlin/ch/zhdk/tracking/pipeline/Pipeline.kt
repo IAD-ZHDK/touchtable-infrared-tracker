@@ -4,7 +4,6 @@ import ch.bildspur.event.Event
 import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
-import ch.bildspur.util.formatSeconds
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
@@ -250,7 +249,7 @@ abstract class Pipeline(
             mat.drawCross(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
             // show max distance
-            mat.drawCircle(it.center.toPoint(), config.maxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
+            mat.drawCircle(it.center.toPoint(), config.markerMaxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
 
             // draw timestamp
             /*
@@ -290,7 +289,7 @@ abstract class Pipeline(
 
     private fun annotateTactileDevices(mat: Mat) {
         devices.forEach {
-            val color = AbstractScalar.MAGENTA
+            val color = AbstractScalar.YELLOW
 
             mat.drawCross(it.position.toPoint(), 20, color, thickness = 2)
             //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)

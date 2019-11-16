@@ -17,7 +17,7 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
 
         // create matrix
         regions.matchNearest(markers,
-            config.maxDelta.value,
+            config.markerMaxDelta.value,
             distance = { s, d -> d.position.distance(s.center) },
             matched = { it.matchedWithRegion },
             onMatch = { s, d ->

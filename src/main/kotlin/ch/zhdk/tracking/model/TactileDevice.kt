@@ -1,6 +1,7 @@
 package ch.zhdk.tracking.model
 
 import averageBy
+import ch.zhdk.tracking.javacv.center
 import ch.zhdk.tracking.model.identification.Identification
 import org.bytedeco.opencv.opencv_core.Point2d
 
@@ -32,19 +33,7 @@ class TactileDevice(uniqueId : Int) : TrackingEntity(uniqueId) {
     }
 
     private fun updatePosition() {
-        var x = 0.0
-        var y = 0.0
-
-        markers.forEach {
-            x += it.position.x()
-            y += it.position.y()
-        }
-
-        x /= markers.size
-        y /= markers.size
-
-        position.x(x)
-        position.y(y)
+        position = markers.map { it.position }.center()
     }
 
     private fun updateRotation() {

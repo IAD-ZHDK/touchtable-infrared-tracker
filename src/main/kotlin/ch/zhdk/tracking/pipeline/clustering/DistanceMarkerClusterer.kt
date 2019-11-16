@@ -1,6 +1,7 @@
 package ch.zhdk.tracking.pipeline.clustering
 
 import ch.zhdk.tracking.config.PipelineConfig
+import ch.zhdk.tracking.javacv.center
 import ch.zhdk.tracking.javacv.distance
 import ch.zhdk.tracking.javacv.tracking.matchNearest
 import ch.zhdk.tracking.model.Marker
@@ -14,9 +15,8 @@ import org.nield.kotlinstatistics.dbScanCluster
 class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = PipelineConfig()) :
     MarkerClusterer(pipeline, config) {
 
-    data class MatchCentroid<T>(val centroid: Centroid<T>, var matched: Boolean = false) {
-        val center: Point2d
-            get() = Point2d(centroid.center.x, centroid.center.y)
+    data class MatchCentroid(val centroid: Centroid<Marker>, var matched: Boolean = false) {
+        val center = centroid.points.map { it.position }.center()
     }
 
     override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: MutableList<TactileDevice>) {
@@ -34,7 +34,7 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
 
         // map centroids to devices
         centroids.matchNearest(devices,
-            config.maxDelta.value,
+            config.deviceMaxDelta.value,
             distance = { s, d -> d.position.distance(s.center) },
             matched = { it.matchedWithCentroid },
             onMatch = { s, d ->

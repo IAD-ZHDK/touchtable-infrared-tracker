@@ -101,7 +101,7 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Max Delta", 0.0, 200.0, 1.0)
-    var maxDelta = DataModel(40.0)
+    var markerMaxDelta = DataModel(40.0)
 
     @Expose
     @NumberParameter("Min Detected Time", "ms")
@@ -117,6 +117,10 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Max Radius", 0.0, 200.0, 1.0)
     var maximumRadius = DataModel(15.0)
+
+    @Expose
+    @SliderParameter("Devices Max Delta", 0.0, 200.0, 1.0)
+    var deviceMaxDelta = DataModel(80.0)
 
     @LabelParameter("Identification")
     private val identificationLabel = ""
