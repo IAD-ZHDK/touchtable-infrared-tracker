@@ -117,6 +117,7 @@ abstract class Pipeline(
                         config.inputWidth.fire()
                         config.inputHeight.fire()
                         config.uniqueMarkerId.fire()
+                        config.uniqueTactileObjectId.fire()
                     }
 
                     onFrameProcessed.invoke(this)
