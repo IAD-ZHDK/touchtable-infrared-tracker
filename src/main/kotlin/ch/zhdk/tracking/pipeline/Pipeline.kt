@@ -113,7 +113,7 @@ abstract class Pipeline(
                     if (updateTimer.elapsed()) {
                         config.frameTime.value = "${frameWatch.elapsed()} ms"
                         config.processingTime.value = "${processWatch.elapsed()} ms"
-                        config.actualObjectCount.value = markers.count()
+                        config.actualObjectCount.value = devices.count()
                         config.inputWidth.fire()
                         config.inputHeight.fire()
                         config.uniqueMarkerId.fire()
@@ -291,8 +291,8 @@ abstract class Pipeline(
         devices.forEach {
             val color = AbstractScalar.MAGENTA
 
-            // todo: implement annoation
-            //mat.drawCircle(it.normalizedPosition.toPoint(), 10, color, thickness = 1)
+            mat.drawCross(it.position.toPoint(), 20, color, thickness = 2)
+            //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
         }
     }
 

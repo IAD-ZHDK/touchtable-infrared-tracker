@@ -43,7 +43,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
     private fun updateDevices(devices: MutableList<TactileDevice>) {
         val tl = config.calibration.topLeft.value
         val br = config.calibration.bottomRight.value
-        
+
         devices.forEach {
             // update devices
             it.update()

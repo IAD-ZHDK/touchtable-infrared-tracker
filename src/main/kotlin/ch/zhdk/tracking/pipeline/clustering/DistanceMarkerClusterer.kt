@@ -44,6 +44,7 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
             })
 
         // set object state
+        // todo: use different timings for min detect and dead
         devices.forEach {
             val lastSwitchTime = it.timeSinceLastStateChange
 

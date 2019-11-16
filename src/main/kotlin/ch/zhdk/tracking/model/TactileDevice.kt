@@ -24,21 +24,30 @@ class TactileDevice(uniqueId : Int) : TrackingEntity(uniqueId) {
     var matchedWithCentroid = false
 
     fun update() {
-        if(markers.isEmpty())
-            return
-        updateRotation()
-
         if(markers.size < 3)
             return
+
         updatePosition()
-
+        updateRotation()
     }
 
-    fun updatePosition() {
+    private fun updatePosition() {
+        var x = 0.0
+        var y = 0.0
 
+        markers.forEach {
+            x += it.position.x()
+            y += it.position.y()
+        }
+
+        x /= markers.size
+        y /= markers.size
+
+        position.x(x)
+        position.y(y)
     }
 
-    fun updateRotation() {
+    private fun updateRotation() {
 
     }
 }
