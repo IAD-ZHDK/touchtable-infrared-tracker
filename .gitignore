@@ -9,3 +9,7 @@ examples/MovieGenerator/nr88.mp4
 *.s#*
 *.b#*
 data/rotationtest.mov
+data/markertracking.mov
+data/markertracking120.mov
+data/markertracking240.mov
+data/markertracking450.mov
