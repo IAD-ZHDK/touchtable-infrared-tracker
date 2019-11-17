@@ -2,94 +2,79 @@ package ch.zhdk.tracking.pipeline.tracking
 
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.distance
+import ch.zhdk.tracking.javacv.tracking.matchNearest
 import ch.zhdk.tracking.model.ActiveRegion
-import ch.zhdk.tracking.model.TactileObject
-import ch.zhdk.tracking.model.TactileObjectState
+import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.pipeline.Pipeline
-import ch.zhdk.tracking.pipeline.toTactileObject
+import ch.zhdk.tracking.pipeline.toMarker
 
 class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = PipelineConfig()) :
     RegionTracker(pipeline, config) {
-    override fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>) {
+    override fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>) {
         // reset all regions
-        objects.forEach { it.matchedWithRegion = false }
+        markers.forEach { it.matchedWithRegion = false }
 
         // create matrix
-        matchNearest(objects, regions, config.maxDelta.value)
+        regions.matchNearest(markers,
+            config.markerMaxDelta.value,
+            distance = { s, d -> d.position.distance(s.center) },
+            matched = { it.matchedWithRegion },
+            onMatch = { s, d ->
+                s.toMarker(d)
+                d.matchedWithRegion = true
+                s.matched = true
+            })
 
         // set object state
-        objects.forEach {
+        markers.forEach {
             val lastSwitchTime = it.timeSinceLastStateChange
 
-            when(it.state) {
-                TactileObjectState.Detected -> {
+            when (it.state) {
+                TrackingEntityState.Detected -> {
                     // was detected for long enough
-                    if(it.matchedWithRegion && lastSwitchTime > config.minDetectedTime.value) {
-                        it.updateState(TactileObjectState.Alive)
-                        pipeline.onObjectDetected(it)
+                    if (it.matchedWithRegion && lastSwitchTime > config.minDetectedTime.value) {
+                        it.updateState(TrackingEntityState.Alive)
+                        // todo: detect tactile device
+                        //pipeline.onDeviceDetected(it)
                     }
 
                     // if missing in start directly dead
-                    if(!it.matchedWithRegion) {
-                        it.updateState(TactileObjectState.Dead)
+                    if (!it.matchedWithRegion) {
+                        it.updateState(TrackingEntityState.Dead)
                     }
                 }
 
-                TactileObjectState.Alive -> {
+                TrackingEntityState.Alive -> {
                     // switch to missing if not matched
-                    if(!it.matchedWithRegion)
-                        it.updateState(TactileObjectState.Missing)
+                    if (!it.matchedWithRegion)
+                        it.updateState(TrackingEntityState.Missing)
                 }
 
-                TactileObjectState.Missing -> {
+                TrackingEntityState.Missing -> {
                     // switch back to alive
-                    if(it.matchedWithRegion) {
-                        it.updateState(TactileObjectState.Alive)
+                    if (it.matchedWithRegion) {
+                        it.updateState(TrackingEntityState.Alive)
                     }
 
                     // switch to dead if time is up
-                    if(lastSwitchTime > config.maxMissingTime.value) {
-                        it.updateState(TactileObjectState.Dead)
-                        pipeline.onObjectRemoved(it)
+                    if (lastSwitchTime > config.maxMissingTime.value) {
+                        it.updateState(TrackingEntityState.Dead)
+                        // todo: remove device
+                        //pipeline.onDeviceRemoved(it)
                     }
                 }
             }
         }
 
-        // remove dead objects
-        objects.removeAll { it.state == TactileObjectState.Dead }
+        // remove dead markers
+        markers.removeAll { it.state == TrackingEntityState.Dead }
 
         // create new regions
-        objects.addAll(regions.filter { !it.matched }.map {
-            val uniqueId = config.uniqueId.value + 1
-            config.uniqueId.setSilent(uniqueId)
-            it.toTactileObject(uniqueId)
+        markers.addAll(regions.filter { !it.matched }.map {
+            val uniqueMarkerId = config.uniqueMarkerId.value + 1
+            config.uniqueMarkerId.setSilent(uniqueMarkerId)
+            it.toMarker(uniqueMarkerId)
         })
-    }
-
-    private fun matchNearest(objects: MutableList<TactileObject>, regions: List<ActiveRegion>, maxDelta: Double) {
-        // create matrix (point to region)
-        val distances = Array(regions.size) { DoubleArray(objects.size) }
-
-        // fill matrix O((m*n)^2)
-        regions.forEachIndexed { i, region ->
-            objects.forEachIndexed { j, obj ->
-                distances[i][j] = obj.position.distance(region.center)
-            }
-        }
-
-        // match best region to point
-        regions.forEachIndexed { i, region ->
-            val minDelta = distances[i].min() ?: Double.MAX_VALUE
-
-            if (minDelta <= maxDelta) {
-                // existing object found
-                val regionIndex = distances[i].indexOf(minDelta)
-                region.toTactileObject(objects[regionIndex])
-                objects[regionIndex].matchedWithRegion = true
-
-                region.matched = true
-            }
-        }
     }
 }

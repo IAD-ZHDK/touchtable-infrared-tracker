@@ -11,11 +11,7 @@ data class ActiveRegion(
     val size: Size,
     val area: Double,
     val timestamp: Long,
-    var rotation: Double = 0.0,
 
     // match related
-    var matched: Boolean = false,
-
-    // orientation detection (will be removed)
-    var polygon: Mat = Mat()
+    var matched: Boolean = false
 )

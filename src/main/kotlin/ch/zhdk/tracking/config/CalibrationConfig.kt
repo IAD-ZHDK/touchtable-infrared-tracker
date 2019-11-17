@@ -26,13 +26,13 @@ class CalibrationConfig {
         topLeft.value = TrackingApplication.requestMousePressed()
 
         // todo: re-enable this
-        instruction.value = "Press top right..."
+        //instruction.value = "Press top right..."
         //topRight.value = CVPreview.requestMousePressed()
 
         instruction.value = "Press bottom right..."
         bottomRight.value = TrackingApplication.requestMousePressed()
 
-        instruction.value = "Press bottom left..."
+        //instruction.value = "Press bottom left..."
         //bottomLeft.value = CVPreview.requestMousePressed()
 
         instruction.value = "Calibration finished"
