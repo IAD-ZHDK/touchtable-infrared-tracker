@@ -4,6 +4,7 @@ import ch.bildspur.event.Event
 import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
+import ch.bildspur.util.format
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
@@ -295,7 +296,7 @@ abstract class Pipeline(
             //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
 
             mat.drawText(
-                "${it.uniqueId}",
+                "${it.uniqueId} (r: ${it.rotation.format(1)})",
                 it.position.toPoint().transform(20, 20),
                 color,
                 scale = 0.6
