@@ -21,7 +21,7 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
 
     override fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: MutableList<TactileDevice>) {
         // get clusters
-        val centroids = markers.dbScanCluster(config.maximumRadius.value, 2,
+        val centroids = markers.dbScanCluster(config.maximumRadius.value, 1,
             xSelector = { it.position.x() },
             ySelector = { it.position.y() })
             .map { MatchCentroid(it) }
@@ -93,6 +93,7 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
             // create new device
             val device = TactileDevice(uniqueDeviceId)
             device.markers.addAll(it.centroid.points)
+            device.matchedWithCentroid = true
             device
         })
     }
