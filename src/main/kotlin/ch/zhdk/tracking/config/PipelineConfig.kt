@@ -89,8 +89,8 @@ class PipelineConfig {
     var dilateSize = DataModel(4)
 
     @Expose
-    @BooleanParameter("Detect Orientation")
-    var detectOrientation = DataModel(true)
+    @BooleanParameter("Detect Simple Orientation")
+    var detectSimpleOrientation = DataModel(false)
 
     @Expose
     @SliderParameter("Min Area Size (px)", 0.0, 100.0, 1.0, snap = true)

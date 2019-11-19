@@ -58,7 +58,7 @@ void drawTactileObject(TactileObject to) {
   // text
   fill(255);
   textAlign(CENTER, CENTER);
-  text(to.uniqueId + " - R: " + round(to.rotation), x + hto, y + hto);
+  text(to.uniqueId + " - R: " + round(to.smoothRotation), x + hto, y + hto);
 }
 
 void drawOutOfBounds(float x, float y, int uniqueId) { 

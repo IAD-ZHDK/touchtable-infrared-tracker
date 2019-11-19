@@ -3,6 +3,7 @@ package ch.zhdk.tracking.pipeline
 import ch.bildspur.util.map
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
+import ch.zhdk.tracking.javacv.angleOfInDeg
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
@@ -12,6 +13,7 @@ import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.Point2d
+import java.lang.Exception
 
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
@@ -47,6 +49,12 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         devices.forEach {
             // update devices
             it.update()
+
+            // detect basic rotation (2 way)
+            if(config.detectSimpleOrientation.value && it.markers.size == 2) {
+                it.rotation = it.markers.first().position.angleOfInDeg(it.markers.last().position)
+            }
+
 
             // add normalized values
             it.normalizedPosition = Point2d(
