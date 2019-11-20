@@ -47,6 +47,11 @@ class TrackerClient {
 
     TactileObject marker = messageToTactileObject(msg);
     markers.put(uniqueId, marker);
+
+    // add user defined
+    marker.creationTime = millis();
+    marker.position = new PVector(marker.x, marker.y);
+    marker.smoothRotation = marker.rotation;
   }
 
   private void updateTactileObject(OscMessage msg) {
@@ -81,6 +86,8 @@ class TrackerClient {
     marker.rotation = msg.get(4).floatValue();
     marker.intensity = msg.get(5).floatValue();
 
+    marker.updateTime = millis();
+
     return marker;
   }
 
@@ -90,6 +97,25 @@ class TrackerClient {
 
   private String createAddress(String command) {
     return namespace + "/" + command;
+  }
+
+  private float calculate2PIRotation(float currentValue, float newValue) {
+    float delta = newValue - currentValue;
+    float sign = delta / delta;
+
+    if (isBetween(abs(delta), 150f, 300f)) {
+      newValue += 180f * sign;
+
+      if (newValue > 360) {
+        newValue -= 360;
+      }
+    }
+
+    return newValue;
+  }
+
+  private boolean isBetween(float value, float low, float high) {
+    return (value >= low && value < high);
   }
 
   public synchronized List<TactileObject> getTactileObjects() {
@@ -109,4 +135,38 @@ class TactileObject {
   float rotation;
   float intensity;
   boolean dead;
+
+  long creationTime;
+  long updateTime;
+
+  // user specific
+  PVector position = new PVector();
+  float smoothRotation = 0;
+
+  // update position easing and so on
+  public void update() {
+    // circular easing
+    smoothRotation = ease(rotation, smoothRotation, 0.1);
+
+    // todo: use vector methods
+    position.x = ease(x, position.x, 0.1);
+    position.y = ease(y, position.y, 0.1);
+  }
+
+  // basic easing method
+  private float ease(float target, float value, float alpha) {
+    float d = target - value;
+    return value + (d * alpha);
+  }
+
+  private float circularEase(float target, float value, float maxValue, float alpha) {
+    float delta = target - value;
+    float altDelta = maxValue - abs(delta);
+
+    if (abs(altDelta) < abs(delta)) {
+      delta = altDelta * (delta < 0 ? 1 : -1);
+    }
+
+    return value + (delta * alpha);
+  }
 }

@@ -34,8 +34,11 @@ class PipelineConfig {
     @StringParameter("Input Height", isEditable = false)
     var inputHeight = DataModel(1)
 
-    @StringParameter("Total Detected Objects", isEditable = false)
-    var uniqueId = DataModel(0)
+    @StringParameter("Unique Marker Id", isEditable = false)
+    var uniqueMarkerId = DataModel(0)
+
+    @StringParameter("Unique Tactile Object Id", isEditable = false)
+    var uniqueTactileObjectId = DataModel(0)
 
     @StringParameter("Detected Objects", isEditable = false)
     var actualObjectCount = DataModel(0)
@@ -48,7 +51,7 @@ class PipelineConfig {
 
     @ActionParameter("Unique Id", "Reset")
     private var resetUniqueId = {
-        uniqueId.value = 0
+        uniqueMarkerId.value = 0
     }
 
     @LabelParameter("Pre-Processing")
@@ -66,7 +69,7 @@ class PipelineConfig {
     val detectionLabel = ""
 
     @Expose
-    @SliderParameter("Threshold", 0.0, 100.0, 0.1)
+    @SliderParameter("Threshold", 1.0, 100.0, 0.05, snap = true)
     var threshold = DataModel(50.0)
 
     @Expose
@@ -75,7 +78,7 @@ class PipelineConfig {
 
     @Expose
     @BooleanParameter("Morphology Filter")
-    var morphologyFilterEnabled = DataModel(true)
+    var morphologyFilterEnabled = DataModel(false)
 
     @Expose
     @SliderParameter("Erode Size", 1.0, 10.0, 1.0, snap = true)
@@ -86,8 +89,8 @@ class PipelineConfig {
     var dilateSize = DataModel(4)
 
     @Expose
-    @BooleanParameter("Detect Orientation")
-    var detectOrientation = DataModel(true)
+    @BooleanParameter("Detect Simple Orientation")
+    var detectSimpleOrientation = DataModel(false)
 
     @Expose
     @SliderParameter("Min Area Size (px)", 0.0, 100.0, 1.0, snap = true)
@@ -98,7 +101,7 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Max Delta", 0.0, 200.0, 1.0)
-    var maxDelta = DataModel(40.0)
+    var markerMaxDelta = DataModel(40.0)
 
     @Expose
     @NumberParameter("Min Detected Time", "ms")
@@ -107,6 +110,17 @@ class PipelineConfig {
     @Expose
     @NumberParameter("Max Missing Time", "ms")
     var maxMissingTime = DataModel(250)
+
+    @LabelParameter("Clustering")
+    val clusteringLabel = ""
+
+    @Expose
+    @SliderParameter("Max Radius", 0.0, 200.0, 1.0)
+    var maximumRadius = DataModel(15.0)
+
+    @Expose
+    @SliderParameter("Devices Max Delta", 0.0, 200.0, 1.0)
+    var deviceMaxDelta = DataModel(80.0)
 
     @LabelParameter("Identification")
     private val identificationLabel = ""
@@ -123,19 +137,4 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Threshold Margin", 0.0, 1.0, 0.05, snap = true)
     var thresholdMarginFactor = DataModel(1.0)
-
-    @LabelParameter("IR Color Detection")
-    private val irColorLabel = ""
-
-    @Expose
-    @BooleanParameter("Display Range 1")
-    var displayRangeOne = DataModel(false)
-
-    @Expose
-    @RangeSliderParameter("IR Hue Range 0", 0.0, 1.0, 0.01, snap = true)
-    var hueRangeZero = DataModel(NumberRange(0.0, 1.0))
-
-    @Expose
-    @RangeSliderParameter("IR Hue Range 1", 0.0, 1.0, 0.01, snap = true)
-    var hueRangeOne = DataModel(NumberRange(0.0, 1.0))
 }

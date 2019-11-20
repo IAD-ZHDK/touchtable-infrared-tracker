@@ -68,7 +68,7 @@ object TrackingApplication {
             // pipeline init
             pipeline = createPipeline()
             initPipelineHandlers(pipeline)
-            config.pipeline.uniqueId.value = 0
+            config.pipeline.uniqueMarkerId.value = 0
 
             // try to start pipeline
             pipeline = try {
@@ -227,16 +227,16 @@ object TrackingApplication {
     private fun initPipelineHandlers(pipeline: Pipeline) {
         pipeline.onFrameProcessed += {
             if (oscTimer.elapsed()) {
-                osc.sendUpdate(pipeline.tactileObjects.filter { it.isActive })
+                osc.sendUpdate(pipeline.devices.filter { it.isActive })
             }
         }
 
-        pipeline.onObjectDetected += {
+        pipeline.onDeviceDetected += {
             println("+ adding object: ${it.uniqueId}")
             osc.newObject(it)
         }
 
-        pipeline.onObjectRemoved += {
+        pipeline.onDeviceRemoved += {
             println("- removing object: ${it.uniqueId}")
             osc.removeObject(it)
         }
@@ -249,6 +249,7 @@ object TrackingApplication {
     }
 
     fun requestMousePressed(): Float2 {
+        mousePressedLedge = Semaphore(0)
         mousePressedLedge.acquire()
         return Float2(
             mousePressedPosition.x / canvasFrame.canvasSize.width,
@@ -265,7 +266,7 @@ object TrackingApplication {
                 config.input.webCamWidth.value,
                 config.input.webCamHeight.value
             )
-            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/irMovieSample.mov"))
+            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/markertracking.mov"))
             InputProviderType.RealSense2 -> RealSense2InputProvider(
                 config.input.realSenseDeviceIndex.value,
                 config.input.realSenseWidth.value,
@@ -276,7 +277,7 @@ object TrackingApplication {
                 config.input.displaySecondIRStream.value,
                 config = config.input
             )
-            InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_pipeline.png"))
+            InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_pipeline_3.png"))
         }
     }
 
@@ -284,7 +285,6 @@ object TrackingApplication {
         return when (config.pipeline.pipelineType.value) {
             PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
-            PipelineType.RGBIR -> RGBIRPipeline(config.pipeline, createInputProvider(), pipelineLock)
         }
     }
 }

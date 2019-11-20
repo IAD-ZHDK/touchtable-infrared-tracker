@@ -47,6 +47,11 @@ class TrackerClient {
 
     TactileObject marker = messageToTactileObject(msg);
     markers.put(uniqueId, marker);
+
+    // add user defined
+    marker.creationTime = millis();
+    marker.position = new PVector(marker.x, marker.y);
+    marker.smoothRotation = marker.rotation;
   }
 
   private void updateTactileObject(OscMessage msg) {
@@ -81,6 +86,8 @@ class TrackerClient {
     marker.rotation = msg.get(4).floatValue();
     marker.intensity = msg.get(5).floatValue();
 
+    marker.updateTime = millis();
+
     return marker;
   }
 
@@ -109,4 +116,26 @@ class TactileObject {
   float rotation;
   float intensity;
   boolean dead;
+
+  long creationTime;
+  long updateTime;
+
+  // user specific
+  PVector position = new PVector();
+  float smoothRotation = 0;
+
+  // update position easing and so on
+  public void update() {
+    smoothRotation = ease(rotation, smoothRotation, 0.1);
+
+    // todo: use vector methods
+    position.x = ease(x, position.x, 0.1);
+    position.y = ease(y, position.y, 0.1);
+  }
+
+  // basic easing method
+  float ease(float target, float value, float alpha) {
+    float d = target - value;
+    return value + (d * alpha);
+  }
 }
