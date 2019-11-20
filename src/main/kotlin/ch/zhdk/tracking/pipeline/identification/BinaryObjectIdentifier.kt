@@ -15,17 +15,19 @@ import kotlin.math.max
 class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
 
     override fun recognizeObjectId(devices: List<TactileDevice>) {
-        devices.filter { it.state == TrackingEntityState.Alive
-                && it.timeSinceLastStateChange > config.minDetectedTime.value }
+        devices.filter {
+            it.state == TrackingEntityState.Alive
+                    && it.timeSinceLastStateChange > config.minDetectedTime.value
+        }
             .forEach {
-            when (it.identification.identifierPhase) {
-                BinaryIdentifierPhase.Requested -> start(it)
-                BinaryIdentifierPhase.Sampling -> sampling(it)
-                BinaryIdentifierPhase.Identifying -> identify(it)
-                BinaryIdentifierPhase.Detected -> {
+                when (it.identification.identifierPhase) {
+                    BinaryIdentifierPhase.Requested -> start(it)
+                    BinaryIdentifierPhase.Sampling -> sampling(it)
+                    BinaryIdentifierPhase.Identifying -> identify(it)
+                    BinaryIdentifierPhase.Detected -> {
+                    }
                 }
             }
-        }
     }
 
     private fun start(device: TactileDevice) {
