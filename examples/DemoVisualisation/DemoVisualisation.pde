@@ -9,8 +9,8 @@ boolean useSmoothRotation = true;
 boolean useSmoothPosition = true;
 
 void setup() {
-  size(1080, 720, FX2D);
-  //fullScreen(FX2D);
+  //size(1080, 720, FX2D);
+  fullScreen(FX2D);
 
   tracker = new TrackerClient(8002);
 
@@ -54,11 +54,20 @@ void drawTactileObject(TactileObject to) {
   // draw rotation
   stroke(255, 0, 0);
   arc(x, y, toSize, toSize, 0, r);
+  
+  push();
+  
+  translate(x, y);
+  rotate(r);
+  translate(hto, hto);
+  rotate(radians(45));
 
   // text
   fill(255);
   textAlign(CENTER, CENTER);
-  text(to.uniqueId + " - R: " + round(to.rotation), x + hto, y + hto);
+  text(to.uniqueId + " - R: " + round(to.rotation), 0, 0);
+  
+  pop();
 }
 
 void drawOutOfBounds(float x, float y, int uniqueId) { 

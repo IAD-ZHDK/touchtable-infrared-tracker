@@ -9,3 +9,5 @@ examples/MovieGenerator/nr88.mp4
 *.s#*
 *.b#*
 data/rotationtest.mov
+screenshots
+.DS_Store
