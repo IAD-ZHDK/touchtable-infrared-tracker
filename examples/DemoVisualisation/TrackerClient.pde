@@ -5,7 +5,7 @@ import java.util.List;
 
 class TrackerClient {
   private OscP5 osc;
-  private Map<Integer, TactileObject> tactileObjects = new ConcurrentHashMap<Integer, TactileObject>();
+  private Map<Integer, TactileObject> markers = new ConcurrentHashMap<Integer, TactileObject>();
   private String namespace;
 
   private String addPattern;
@@ -45,20 +45,20 @@ class TrackerClient {
   private void addTactileObject(OscMessage msg) {
     int uniqueId = getUniqueId(msg);
 
-    TactileObject tactileObject = messageToTactileObject(msg);
-    tactileObjects.put(uniqueId, tactileObject);
+    TactileObject marker = messageToTactileObject(msg);
+    markers.put(uniqueId, marker);
 
     // add user defined
-    tactileObject.creationTime = millis();
-    tactileObject.position = new PVector(tactileObject.x, tactileObject.y);
-    tactileObject.smoothRotation = tactileObject.rotation;
+    marker.creationTime = millis();
+    marker.position = new PVector(marker.x, marker.y);
+    marker.smoothRotation = marker.rotation;
   }
 
   private void updateTactileObject(OscMessage msg) {
     int uniqueId = getUniqueId(msg);
 
-    if (tactileObjects.containsKey(uniqueId)) {
-      messageToTactileObject(msg, tactileObjects.get(uniqueId));
+    if (markers.containsKey(uniqueId)) {
+      messageToTactileObject(msg, markers.get(uniqueId));
     } else {
       addTactileObject(msg);
     }
@@ -67,10 +67,10 @@ class TrackerClient {
   private void removeTactileObject(OscMessage msg) {
     int uniqueId = getUniqueId(msg);
 
-    if (tactileObjects.containsKey(uniqueId)) {
-      TactileObject tactileObject = tactileObjects.get(uniqueId);
-      tactileObject.dead = true;
-      tactileObjects.remove(uniqueId);
+    if (markers.containsKey(uniqueId)) {
+      TactileObject marker = markers.get(uniqueId);
+      marker.dead = true;
+      markers.remove(uniqueId);
     }
   }
 
@@ -78,19 +78,17 @@ class TrackerClient {
     return messageToTactileObject(msg, new TactileObject());
   }
 
-  private TactileObject messageToTactileObject(OscMessage msg, TactileObject tactileObject) {
-    tactileObject.uniqueId = getUniqueId(msg);
-    tactileObject.identifier = msg.get(1).intValue();
-    tactileObject.x = msg.get(2).floatValue();
-    tactileObject.y = msg.get(3).floatValue();
-    tactileObject.intensity = msg.get(5).floatValue();
+  private TactileObject messageToTactileObject(OscMessage msg, TactileObject marker) {
+    marker.uniqueId = getUniqueId(msg);
+    marker.identifier = msg.get(1).intValue();
+    marker.x = msg.get(2).floatValue();
+    marker.y = msg.get(3).floatValue();
+    marker.rotation = msg.get(4).floatValue();
+    marker.intensity = msg.get(5).floatValue();
 
-    // special rotation update for 0-360 degrees 
-    tactileObject.rotation = calculate2PIRotation(tactileObject.rotation, msg.get(4).floatValue());
+    marker.updateTime = millis();
 
-    tactileObject.updateTime = millis();
-
-    return tactileObject;
+    return marker;
   }
 
   private int getUniqueId(OscMessage msg) {
@@ -121,11 +119,11 @@ class TrackerClient {
   }
 
   public synchronized List<TactileObject> getTactileObjects() {
-    return new ArrayList<TactileObject>(tactileObjects.values());
+    return new ArrayList<TactileObject>(markers.values());
   }
 
   public int count() {
-    return tactileObjects.size();
+    return markers.size();
   }
 }
 

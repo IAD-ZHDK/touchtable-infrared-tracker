@@ -34,7 +34,7 @@ void drawTactileObject(TactileObject to) {
 
   float x = (tox * width);
   float y = (toy * height);
-  
+
   float r = radians(useSmoothRotation ? to.smoothRotation : to.rotation);
 
   // check out of bounds
@@ -54,9 +54,9 @@ void drawTactileObject(TactileObject to) {
   // draw rotation
   stroke(255, 0, 0);
   arc(x, y, toSize, toSize, 0, r);
-  
+
   push();
-  
+
   translate(x, y);
   rotate(r);
   translate(hto, hto);
@@ -66,11 +66,11 @@ void drawTactileObject(TactileObject to) {
   fill(255);
   textAlign(CENTER, CENTER);
   text(to.uniqueId + " - R: " + round(to.rotation), 0, 0);
-  
+
   pop();
 }
 
-void drawOutOfBounds(float x, float y, int uniqueId) { 
+void drawOutOfBounds(float x, float y, int uniqueId) {
   push();
   float rx = constrain(x, 0, width - 1);
   float ry = constrain(y, 0, height - 1);

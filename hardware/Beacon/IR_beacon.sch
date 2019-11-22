@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.2.2">
+<eagle version="9.4.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -1437,6 +1437,10 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <part name="GND2" library="SparkFun-PowerSymbols" deviceset="GND" device=""/>
 <part name="J2" library="IAD-Library" deviceset="QWIIC_CONNECTOR" device="JS-1MM"/>
 <part name="H2" library="IAD-Library" deviceset="STANDOFF_ELECTRICAL" device=""/>
+<part name="D5" library="SparkFun-LED" deviceset="LED" device="-FKIT-1206"/>
+<part name="D6" library="SparkFun-LED" deviceset="LED" device="-FKIT-1206"/>
+<part name="D7" library="SparkFun-LED" deviceset="LED" device="-FKIT-1206"/>
+<part name="D8" library="SparkFun-LED" deviceset="LED" device="-FKIT-1206"/>
 </parts>
 <sheets>
 <sheet>
@@ -1510,6 +1514,22 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <attribute name="NAME" x="149.86" y="76.454" size="1.27" layer="95" font="vector" align="bottom-center"/>
 <attribute name="VALUE" x="149.86" y="65.786" size="1.27" layer="96" font="vector" rot="R180" align="bottom-center"/>
 </instance>
+<instance part="D5" gate="G$1" x="173.482" y="57.912" smashed="yes">
+<attribute name="NAME" x="170.053" y="53.34" size="1.778" layer="95" font="vector" rot="R90"/>
+<attribute name="VALUE" x="175.387" y="53.34" size="1.778" layer="96" font="vector" rot="R90" align="top-left"/>
+</instance>
+<instance part="D6" gate="G$1" x="186.182" y="57.658" smashed="yes">
+<attribute name="NAME" x="182.753" y="53.086" size="1.778" layer="95" font="vector" rot="R90"/>
+<attribute name="VALUE" x="188.087" y="53.086" size="1.778" layer="96" font="vector" rot="R90" align="top-left"/>
+</instance>
+<instance part="D7" gate="G$1" x="196.342" y="57.658" smashed="yes">
+<attribute name="NAME" x="192.913" y="53.086" size="1.778" layer="95" font="vector" rot="R90"/>
+<attribute name="VALUE" x="198.247" y="53.086" size="1.778" layer="96" font="vector" rot="R90" align="top-left"/>
+</instance>
+<instance part="D8" gate="G$1" x="206.502" y="57.658" smashed="yes">
+<attribute name="NAME" x="203.073" y="53.086" size="1.778" layer="95" font="vector" rot="R90"/>
+<attribute name="VALUE" x="208.407" y="53.086" size="1.778" layer="96" font="vector" rot="R90" align="top-left"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -1519,6 +1539,9 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <pinref part="R3" gate="R" pin="1"/>
 <wire x1="178.562" y1="62.738" x2="178.562" y2="60.452" width="0.1524" layer="91"/>
 <pinref part="D1" gate="G$1" pin="A"/>
+<pinref part="D5" gate="G$1" pin="A"/>
+<wire x1="178.562" y1="60.452" x2="173.482" y2="60.452" width="0.1524" layer="91"/>
+<junction x="178.562" y="60.452"/>
 </segment>
 </net>
 <net name="3.3V" class="1">
@@ -1543,6 +1566,9 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <pinref part="R1" gate="R" pin="1"/>
 <wire x1="191.262" y1="62.738" x2="191.262" y2="60.198" width="0.1524" layer="91"/>
 <pinref part="D2" gate="G$1" pin="A"/>
+<pinref part="D6" gate="G$1" pin="A"/>
+<wire x1="191.262" y1="60.198" x2="186.182" y2="60.198" width="0.1524" layer="91"/>
+<junction x="191.262" y="60.198"/>
 </segment>
 </net>
 <net name="N$3" class="0">
@@ -1550,6 +1576,9 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <pinref part="R2" gate="R" pin="1"/>
 <wire x1="201.422" y1="62.738" x2="201.422" y2="60.198" width="0.1524" layer="91"/>
 <pinref part="D3" gate="G$1" pin="A"/>
+<pinref part="D7" gate="G$1" pin="A"/>
+<wire x1="201.422" y1="60.198" x2="196.342" y2="60.198" width="0.1524" layer="91"/>
+<junction x="201.422" y="60.198"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -1557,6 +1586,9 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <pinref part="R4" gate="R" pin="1"/>
 <wire x1="211.582" y1="62.738" x2="211.582" y2="60.198" width="0.1524" layer="91"/>
 <pinref part="D4" gate="G$1" pin="A"/>
+<pinref part="D8" gate="G$1" pin="A"/>
+<wire x1="206.502" y1="60.198" x2="211.582" y2="60.198" width="0.1524" layer="91"/>
+<junction x="211.582" y="60.198"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -1569,21 +1601,33 @@ Sparkfun has &lt;a href=”https://www.sparkfun.com/products/14204”&gt;200mm&l
 <pinref part="GND5" gate="1" pin="GND"/>
 <wire x1="178.562" y1="52.832" x2="178.562" y2="44.704" width="0.1524" layer="91"/>
 <pinref part="D1" gate="G$1" pin="C"/>
+<pinref part="D5" gate="G$1" pin="C"/>
+<wire x1="178.562" y1="52.832" x2="173.482" y2="52.832" width="0.1524" layer="91"/>
+<junction x="178.562" y="52.832"/>
 </segment>
 <segment>
 <pinref part="GND3" gate="1" pin="GND"/>
 <wire x1="191.262" y1="52.578" x2="191.262" y2="44.704" width="0.1524" layer="91"/>
 <pinref part="D2" gate="G$1" pin="C"/>
+<pinref part="D6" gate="G$1" pin="C"/>
+<wire x1="186.182" y1="52.578" x2="191.262" y2="52.578" width="0.1524" layer="91"/>
+<junction x="191.262" y="52.578"/>
 </segment>
 <segment>
 <pinref part="GND4" gate="1" pin="GND"/>
 <wire x1="201.422" y1="52.578" x2="201.422" y2="44.704" width="0.1524" layer="91"/>
 <pinref part="D3" gate="G$1" pin="C"/>
+<pinref part="D7" gate="G$1" pin="C"/>
+<wire x1="196.342" y1="52.578" x2="201.422" y2="52.578" width="0.1524" layer="91"/>
+<junction x="201.422" y="52.578"/>
 </segment>
 <segment>
 <pinref part="GND6" gate="1" pin="GND"/>
 <wire x1="211.582" y1="52.578" x2="211.582" y2="44.704" width="0.1524" layer="91"/>
 <pinref part="D4" gate="G$1" pin="C"/>
+<pinref part="D8" gate="G$1" pin="C"/>
+<wire x1="211.582" y1="52.578" x2="206.502" y2="52.578" width="0.1524" layer="91"/>
+<junction x="211.582" y="52.578"/>
 </segment>
 <segment>
 <pinref part="GND2" gate="1" pin="GND"/>

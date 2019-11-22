@@ -5,14 +5,14 @@ import ch.bildspur.model.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
 import ch.bildspur.util.format
-import ch.bildspur.util.formatSeconds
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.javacv.image.GammaCorrection
 import ch.zhdk.tracking.model.ActiveRegion
-import ch.zhdk.tracking.model.TactileObject
-import ch.zhdk.tracking.model.TactileObjectState
+import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
+import ch.zhdk.tracking.model.state.TrackingEntityState
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
 import org.bytedeco.opencv.global.opencv_core.CV_8UC3
 import org.bytedeco.opencv.global.opencv_imgproc.*
@@ -72,11 +72,12 @@ abstract class Pipeline(
     var isZeroFrame = true
         private set
 
-    val tactileObjects = mutableListOf<TactileObject>()
+    val markers = mutableListOf<Marker>()
+    val devices = mutableListOf<TactileDevice>()
 
     val onFrameProcessed = Event<Pipeline>()
-    val onObjectDetected = Event<TactileObject>()
-    val onObjectRemoved = Event<TactileObject>()
+    val onDeviceDetected = Event<TactileDevice>()
+    val onDeviceRemoved = Event<TactileDevice>()
 
     fun waitForNewFrameAvailable() {
         newFrameAvailableSemaphore.acquire()
@@ -112,10 +113,11 @@ abstract class Pipeline(
                     if (updateTimer.elapsed()) {
                         config.frameTime.value = "${frameWatch.elapsed()} ms"
                         config.processingTime.value = "${processWatch.elapsed()} ms"
-                        config.actualObjectCount.value = tactileObjects.count()
+                        config.actualObjectCount.value = devices.count()
                         config.inputWidth.fire()
                         config.inputHeight.fire()
-                        config.uniqueId.fire()
+                        config.uniqueMarkerId.fire()
+                        config.uniqueTactileObjectId.fire()
                     }
 
                     onFrameProcessed.invoke(this)
@@ -183,8 +185,9 @@ abstract class Pipeline(
 
         // process
         val regions = detectRegions(processedMat, input.timestamp)
-        mapRegionToObjects(tactileObjects, regions)
-        recognizeObjectId(tactileObjects)
+        mapRegionsToMarkers(markers, regions)
+        clusterMarkersToDevices(markers, devices)
+        recognizeObjectId(devices)
 
         // if no output should be shown (production)
         if (!config.displayOutput.value) {
@@ -212,8 +215,9 @@ abstract class Pipeline(
     }
 
     abstract fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion>
-    abstract fun mapRegionToObjects(objects: MutableList<TactileObject>, regions: List<ActiveRegion>)
-    abstract fun recognizeObjectId(objects: List<TactileObject>)
+    abstract fun mapRegionsToMarkers(markers: MutableList<Marker>, regions: List<ActiveRegion>)
+    abstract fun clusterMarkersToDevices(markers: MutableList<Marker>, devices: MutableList<TactileDevice>)
+    abstract fun recognizeObjectId(devices: List<TactileDevice>)
 
     private fun createBufferedImage(mat: Mat, image: BufferedImage): BufferedImage {
         if (mat.type() == CV_8UC1)
@@ -230,7 +234,8 @@ abstract class Pipeline(
 
         // annotate pipeline output
         annotateActiveRegions(mat, regions)
-        annotateTactileObjects(mat)
+        annotateMarkers(mat)
+        annotateTactileDevices(mat)
 
         // annotate screen calibration
         if (config.calibration.displayAnnotation.value) {
@@ -244,38 +249,57 @@ abstract class Pipeline(
             // mark region
             mat.drawCross(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
 
+            // show max distance
+            mat.drawCircle(it.center.toPoint(), config.markerMaxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
+
             // draw timestamp
+            /*
             mat.drawText(
-                "A: ${it.area} R: ${it.rotation.format(2)}",
+                "A: ${it.area}",
                 it.center.toPoint().transform(20, 20),
                 AbstractScalar.RED,
                 scale = 0.4
             )
-
-            // display shape
-            if (it.polygon.rows() > 0) {
-                val rect = Rect(it.position.x(), it.position.y(), it.size.width(), it.size.height())
-                drawContours(mat.checkedROI(rect), MatVector(it.polygon), 0, AbstractScalar.CYAN)
-            }
+            */
         }
     }
 
-    private fun annotateTactileObjects(mat: Mat) {
+    private fun annotateMarkers(mat: Mat) {
         // annotate tactile objects
-        tactileObjects.forEach {
+        markers.forEach {
             val color = when (it.state) {
-                TactileObjectState.Detected -> AbstractScalar.CYAN
-                TactileObjectState.Alive -> AbstractScalar.GREEN
-                TactileObjectState.Missing -> AbstractScalar.BLUE
-                TactileObjectState.Dead -> AbstractScalar.YELLOW
+                TrackingEntityState.Detected -> AbstractScalar.CYAN
+                TrackingEntityState.Alive -> AbstractScalar.GREEN
+                TrackingEntityState.Missing -> AbstractScalar.BLUE
+                TrackingEntityState.Dead -> AbstractScalar.YELLOW
             }
 
-            mat.drawCircle(it.position.toPoint(), 22, color, thickness = 1)
+            // todo: check for NAN
+            mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
+
+            /*
             mat.drawText(
-                "N:${it.uniqueId} #${it.identifier} [${it.timeSinceLastStateChange.formatSeconds()}]",
+                "N:${it.uniqueId} [${it.timeSinceLastStateChange.formatSeconds()}]",
                 it.position.toPoint().transform(20, -20),
                 color,
                 scale = 0.4
+            )
+            */
+        }
+    }
+
+    private fun annotateTactileDevices(mat: Mat) {
+        devices.forEach {
+            val color = AbstractScalar.YELLOW
+
+            mat.drawCross(it.position.toPoint(), 20, color, thickness = 2)
+            //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
+
+            mat.drawText(
+                "${it.uniqueId} (r: ${it.rotation.format(1)})",
+                it.position.toPoint().transform(20, 20),
+                color,
+                scale = 0.6
             )
         }
     }
@@ -299,9 +323,6 @@ abstract class Pipeline(
         // draw screen
         val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
         mat.drawRect(rect, AbstractScalar.GRAY)
-
-        // todo: show polygon
-        //mat.drawPolygon(listOf(tl.toPoint(), tr.toPoint(), br.toPoint(), bl.toPoint()), true, AbstractScalar.YELLOW)
     }
 
     fun stop() {
