@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.63.1/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.63.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link href="/iad.css" rel="stylesheet">
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script>
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxYzRiMThlMi1hOTZjLTQ3OWYtYjEzYS0zZTY2NzE1YzlmMjAiLCJpZCI6MTkyMTksInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NzUyMzk5MjF9.eza05z_xNykL_dOH_uS9mzTtWHef1vylFOzLjv8megE';
+
+    var viewer = new Cesium.Viewer('cesiumContainer', {
+      //  imageryProvider : new Cesium.TileMapServiceImageryProvider({
+        //    url : Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')    }),
+       imageryProvider: new Cesium.IonImageryProvider({ assetId: 3845 }),
+        baseLayerPicker : false,
+        geocoder : false,
+        animation : false,
+        baseLayerPicker : false,
+        homeButton : false,
+        infoBox : false,
+        sceneModePicker : true,
+        geocoder: false,
+        vrButton : false,
+        navigationHelpButton : false,
+        timeline : false
+    });
+
+
+    var credit = new Cesium.Credit('Title', '../images/facility.gif', 'http://www.cesiumjs.org');
+
+    viewer.scene.frameState.creditDisplay.destroy()
+  // viewer.scene.globe.enableLighting = true;
+    viewer.resize()
+
+
+    var dataSource = new Cesium.GeoJsonDataSource();
+//var roads = dataSource1.load('new.geojson');
+//var roads = dataSource1.load('Apps/SampleData/ne_10m_us_states.topojson');
+
+var promise = Cesium.GeoJsonDataSource.load('new.geojson');
+  promise.then(function(dataSource) {
+      viewer.dataSources.add(dataSource);
+    //Get the array of entities
+    var entities = dataSource.entities.values;
+    var colorHash = {};
+    for (var i = 0; i < entities.length; i++) {
+        //For each entity, create a random color based on the state name.
+        //Some states have multiple entities, so we store the color in a
+        //hash so that we use the same color for the entire state.
+        var entity = entities[i];
+        //  entity.polygon.extrudedHeight = entity.properties.height;
+        var color = Cesium.Color.fromRandom({
+                    alpha : 1.0
+                });
+            //Set the polygon material to our random color.
+            entity.polygon.material = color;
+            //Remove the outlines.
+            entity.polygon.outline = false;
+           entity.polygon.extrudedHeight = entity.properties.height;
+          }
+  //  viewer.zoomTo(dataSource);
+}).otherwise(function(error){
+    //Display any errrors encountered while loading.
+    window.alert(error);
+});
+
+  </script>
+</body>
+</html>
