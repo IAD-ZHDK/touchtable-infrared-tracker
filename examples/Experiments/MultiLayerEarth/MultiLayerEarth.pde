@@ -1,3 +1,6 @@
+import ch.bildspur.postfx.builder.*;
+import ch.bildspur.postfx.pass.*;
+import ch.bildspur.postfx.*;
 import peasy.PeasyCam;
 
 PeasyCam cam;
@@ -5,10 +8,12 @@ PGraphics canvas;
 
 Planet earth;
 
+PostFX fx;
+
 void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
-  pixelDensity(2);
+  //pixelDensity(2);
 
   // setup camera
   cam = new PeasyCam(this, 450);
@@ -23,6 +28,9 @@ void setup() {
 
   // setup objects
   earth = new Planet("earth");
+
+  // setup fx
+  fx = new PostFX(this);
 }
 
 void draw() {
@@ -32,7 +40,7 @@ void draw() {
   canvas.ambient(255);
   earth.render(canvas);
   canvas.endDraw();
-  
+
   // rotate
   cam.rotateY(0.001);
 
@@ -42,6 +50,11 @@ void draw() {
   // draw canvas onto onscreen
   cam.beginHUD();
   image(canvas, 0, 0);
+
+  // post fx
+  fx.render()
+    .bloom(0.8, 20, 30)
+    .compose();
 
   // show info
   fill(255);
