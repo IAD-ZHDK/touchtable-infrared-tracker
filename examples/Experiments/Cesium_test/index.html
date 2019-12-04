@@ -46,7 +46,7 @@ var promise = Cesium.GeoJsonDataSource.load('new.geojson');
     //Get the array of entities
     var entities = dataSource.entities.values;
     var colorHash = {};
-    for (var i = 0; i < entities.length; i++) {
+    for (var i = 0; i < entities.length && i < 30; i++) {
         //For each entity, create a random color based on the state name.
         //Some states have multiple entities, so we store the color in a
         //hash so that we use the same color for the entire state.
