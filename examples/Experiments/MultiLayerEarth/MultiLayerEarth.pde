@@ -7,18 +7,19 @@ Planet earth;
 
 void setup() {
   size(1280, 800, P3D);
+  //fullScreen(P3D);
   pixelDensity(2);
 
   // setup camera
   cam = new PeasyCam(this, 450);
-  cam.setMinimumDistance(400);
+  cam.setMinimumDistance(280);
   cam.setMaximumDistance(800);
 
   // setup canvas
   canvas = createGraphics(width, height, P3D);
 
   // remove clipping
-  //perspective((PI / 3.0f), (float)width / height, 0.1f, 100000f);
+  canvas.perspective((PI / 3.0f), (float)width / height, 0.001f, 100000f);
 
   // setup objects
   earth = new Planet("earth");
@@ -28,6 +29,7 @@ void draw() {
   // render canvas
   canvas.beginDraw();
   canvas.background(0);
+  canvas.ambient(255);
   earth.render(canvas);
   canvas.endDraw();
   

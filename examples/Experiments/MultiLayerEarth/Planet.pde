@@ -22,7 +22,7 @@ class Planet {
 
     shader = loadShader("fragment.glsl", "vertex.glsl");
 
-    colorMap = loadImage(name + "color.jpg");
+    colorMap = loadImage(name + "color8k.jpg");
     bumpMap = loadImage(name + "bump.jpg");
   }
 
