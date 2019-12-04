@@ -21,15 +21,19 @@ uniform float bumpIntensity;
 void main() {
 	vec3 ecPosition = vec3(modelview * position);
 
+	// define light
 	ecNormal = normalize(normalMatrix * normal);
 	lightDir = normalize(lightPosition.xyz - ecPosition);
 	vertColor = color;
 
 	vertTexCoord = texMatrix * vec4(texCoord, 1.0, 1.0);
 
+	// calculate bump
 	vec4 pos = transform * position;
-	vec4 bump = texture2D(bumpMap, vertTexCoord.st);
-	pos.x -= bump.r * bumpIntensity;
-	pos.y -= bump.r * bumpIntensity;
+	float bump = texture2D(bumpMap, vertTexCoord.st).r * bumpIntensity;
+
+	// apply bump
+	pos.xyz += (normalize(pos.xyz) * bump);
+
 	gl_Position = pos;
 }

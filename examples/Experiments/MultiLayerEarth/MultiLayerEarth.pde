@@ -32,7 +32,7 @@ void draw() {
   canvas.endDraw();
   
   // rotate
-  cam.rotateY(0.005);
+  cam.rotateY(0.001);
 
   // apply view matrix of peasy to canvas
   cam.getState().apply(canvas);

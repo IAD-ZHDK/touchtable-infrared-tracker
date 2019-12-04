@@ -7,9 +7,9 @@ class Planet {
   PImage colorMap;
   PImage bumpMap;
 
-  int detail = 120;
+  int detail = 300;
   int size = 200;
-  float bumpIntensity = 100.0f;
+  float bumpIntensity = 20.0f;
 
   public Planet(String name) {
     this.name = name;
@@ -18,7 +18,7 @@ class Planet {
     mesh = createShape(SPHERE, size);
     
     mesh.setFill(color(255));
-    mesh.setStroke(color(0, 255, 0));
+    mesh.setStroke(color(0, 0));
 
     shader = loadShader("fragment.glsl", "vertex.glsl");
 
