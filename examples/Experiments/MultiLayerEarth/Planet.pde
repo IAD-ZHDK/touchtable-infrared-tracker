@@ -9,7 +9,7 @@ class Planet {
 
   int detail = 120;
   int size = 200;
-  float bumpIntensity = 10.0f;
+  float bumpIntensity = 100.0f;
 
   public Planet(String name) {
     this.name = name;
