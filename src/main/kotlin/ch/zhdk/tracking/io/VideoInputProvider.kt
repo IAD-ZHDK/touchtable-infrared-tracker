@@ -10,6 +10,8 @@ import kotlin.math.roundToLong
 class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider() {
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
 
+    var frameCount = 0L
+
     override fun open() {
         videoGrabber.start()
 
@@ -40,7 +42,7 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
             Thread.sleep(100)
         }
 
-        frame.timestamp = TimeKeeper.millis()
+        frame.timestamp = (frameCount++ * 1000.0 / videoGrabber.frameRate).roundToLong()
         return frame
     }
 

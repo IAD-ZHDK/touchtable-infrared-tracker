@@ -27,6 +27,7 @@ class TactileDevice(uniqueId: Int) : TrackingEntity(uniqueId) {
     var leftOriginMarker : Marker? = null
     var rightOriginMarker : Marker? = null
     var communicationMarker : Marker? = null
+    var stopBitMarker : Marker? = null
 
     var matchedWithCentroid = false
 
@@ -64,7 +65,8 @@ class TactileDevice(uniqueId: Int) : TrackingEntity(uniqueId) {
         }.flatten()
 
         // get largest tuple for origin points
-        val largest = distances.maxBy { it.distance }!!
+        val sortedDistances = distances.sortedByDescending { it.distance }
+        val largest = sortedDistances.first()
         leftOriginMarker = largest.m1
         rightOriginMarker = largest.m2
 
