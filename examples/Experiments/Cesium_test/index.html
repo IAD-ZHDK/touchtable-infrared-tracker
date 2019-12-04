@@ -52,9 +52,8 @@ var promise = Cesium.GeoJsonDataSource.load('new.geojson');
         //hash so that we use the same color for the entire state.
         var entity = entities[i];
         //  entity.polygon.extrudedHeight = entity.properties.height;
-        var color = Cesium.Color.fromRandom({
-                    alpha : 1.0
-                });
+        var color = Cesium.Color.Green;
+
             //Set the polygon material to our random color.
             entity.polygon.material = color;
             //Remove the outlines.

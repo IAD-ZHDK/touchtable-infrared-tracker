@@ -2,7 +2,7 @@ void json() {
   JSONObject json;
 
   JSONArray features = new JSONArray();
-  for (int i = 0; i < visObjects.size(); i++) {
+  for (int i = 0; i < 30; i++) {
     JSONObject geometry = new JSONObject();
     geometry.setString("type", "Feature");
 
@@ -10,10 +10,11 @@ void json() {
     polygon.setString("type", "Polygon");
     JSONArray cord2D = new JSONArray();
     JSONArray cord3D = new JSONArray();
-    PVector basCord = visObjects.get(i);
+  //  PVector basCord = visObjects.get(i);
+  PVector basCord = new PVector(random(-180,180),random(-90,90));
     for (int j = 0; j < 3; j++) {
-      float posY =  sin((TWO_PI/3)*j)*.1;
-      float posX =  cos((TWO_PI/3)*j)*.1;
+      float posY =  sin((TWO_PI/3)*j)*.2;
+      float posX =  cos((TWO_PI/3)*j)*.2;
       JSONArray cord = new JSONArray();
       cord.setFloat(0, basCord.x+posX);
       cord.setFloat(1, basCord.y+posY);
@@ -26,7 +27,7 @@ void json() {
     features.setJSONObject(i, geometry);
 
     JSONObject properties = new JSONObject();
-    properties.setFloat("height", random(100000,2000000));
+    properties.setFloat("height", random(100000, 2000000));
     geometry.setJSONObject("properties", properties);
   }
   json = new JSONObject();
