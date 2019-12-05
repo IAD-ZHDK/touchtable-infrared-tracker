@@ -27,7 +27,7 @@ class Planet {
 
     colorMap = loadImage(name + "color8k.jpg");
     nightMap = loadImage(name + "night8k.jpg");
-    bumpMap = loadImage(name + "bump.jpg");
+    bumpMap = loadImage(name + "bump8k.jpg");
   }
 
   private void prepareShader() {

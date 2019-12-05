@@ -54,8 +54,8 @@ void draw() {
   // post fx
   fx.render()
     //.pixelate(100)
-    .sobel()
-    .bloom(0.5, 20, 50)
+    //.sobel()
+    //.bloom(0.5, 20, 50)
     .compose();
 
   // show info
