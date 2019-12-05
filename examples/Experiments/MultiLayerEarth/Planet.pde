@@ -5,7 +5,10 @@ class Planet {
   PShader shader;
 
   PImage colorMap;
+  PImage nightMap;
   PImage bumpMap;
+  
+  float dayNightMix = 0.0;
 
   int detail = 300;
   int size = 200;
@@ -23,11 +26,14 @@ class Planet {
     shader = loadShader("fragment.glsl", "vertex.glsl");
 
     colorMap = loadImage(name + "color8k.jpg");
+    nightMap = loadImage(name + "night8k.jpg");
     bumpMap = loadImage(name + "bump.jpg");
   }
 
   private void prepareShader() {
     shader.set("colorMap", colorMap);
+    shader.set("nightMap", nightMap);
+    shader.set("dayNightMix", dayNightMix);
 
     shader.set("bumpMap", bumpMap);
     shader.set("bumpIntensity", bumpIntensity);

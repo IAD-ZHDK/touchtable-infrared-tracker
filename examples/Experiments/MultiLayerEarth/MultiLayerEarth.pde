@@ -53,7 +53,9 @@ void draw() {
 
   // post fx
   fx.render()
-    .bloom(0.8, 20, 30)
+    //.pixelate(100)
+    .sobel()
+    .bloom(0.5, 20, 50)
     .compose();
 
   // show info
