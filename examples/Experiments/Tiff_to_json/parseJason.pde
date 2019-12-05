@@ -5,7 +5,6 @@ void json() {
   for (int i = 0; i < 30; i++) {
     JSONObject geometry = new JSONObject();
     geometry.setString("type", "Feature");
-
     JSONObject polygon = new JSONObject();
     polygon.setString("type", "Polygon");
     JSONArray cord2D = new JSONArray();

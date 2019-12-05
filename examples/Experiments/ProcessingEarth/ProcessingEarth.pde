@@ -1,7 +1,3 @@
-// Planets, by Andres Colubri
-//
-// Sun and mercury textures from http://planetpixelemporium.com
-// Star field picture from http://www.galacticimages.com/
 //import peasy.PeasyCam;
 
 PShape planet1;
@@ -21,7 +17,7 @@ void setup() {
   // cam = new PeasyCam(this, 400);
   surftex1 = loadImage("planet.jpg");  
   surftex1.resize(surftex1.width, surftex1.height);
-  sphereDetail(20);
+  sphereDetail(40);
   noStroke();
   planet1 = createShape(SPHERE, height/2.8);
   planet1.setTexture(surftex1);
