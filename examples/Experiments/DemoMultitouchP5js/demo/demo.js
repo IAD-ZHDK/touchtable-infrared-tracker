@@ -12,7 +12,7 @@ var R = new tritra.Recognizer(vertexAngles, {
           18 / 2 = 9 degrees of tolerance to each side. You can go lower than
           that if your application doesn't require markers to be moved quickly.
         */
-        maxAngleTolerance: 4,
+        maxAngleTolerance: 1,
         /*
           The maximum distance for two points to still be considered as part of
           the same triangle. You should adjust these according to your screen
