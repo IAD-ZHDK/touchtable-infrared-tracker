@@ -337,14 +337,16 @@ public class RealSense2FrameGrabber extends FrameGrabber {
             StreamProfileData streamProfileData = getStreamProfileData(streamProfile);
 
             // compare stream type
-            if (streamType == streamProfileData.nativeStreamIndex.get() && searchIndex == index) {
-                result = frame;
-                break;
+            if(streamType == streamProfileData.nativeStreamIndex.get()) {
+                if (searchIndex == index) {
+                    result = frame;
+                    break;
+                }
+                searchIndex++;
             }
 
             rs2_release_frame(frame);
             i++;
-            searchIndex++;
         }
 
         return result;
