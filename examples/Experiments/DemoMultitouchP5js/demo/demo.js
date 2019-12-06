@@ -24,7 +24,7 @@ var R = new tritra.Recognizer(vertexAngles, {
         maxPointDistance: 170
       });
 
-let mousePoints = [];;
+//let mousePoints = [];;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -49,10 +49,10 @@ function draw() {
     points.push(new tritra.Vector2d(touches[i].x, touches[i].y));
   }
 
-  for (let i = 0; i < mousePoints.length; i++) {
-    circle(mousePoints[i].x,  mousePoints[i].y, 10);
-    points.push(mousePoints[i]);
-  }
+  //for (let i = 0; i < mousePoints.length; i++) {
+  //  circle(mousePoints[i].x,  mousePoints[i].y, 10);
+  //  points.push(mousePoints[i]);
+  //}
 
 
 
@@ -91,7 +91,7 @@ function draw() {
 
 function mousePressed() {
     let fs = fullscreen();
-    mousePoints.push(new tritra.Vector2d(mouseX, mouseY));
+  //  mousePoints.push(new tritra.Vector2d(mouseX, mouseY));
     fullscreen();
 }
 
