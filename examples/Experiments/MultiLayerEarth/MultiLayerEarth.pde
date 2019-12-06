@@ -34,6 +34,8 @@ void setup() {
 }
 
 void draw() {
+  earth.dayNightMix = (float)mouseX / width;
+  
   // render canvas
   canvas.beginDraw();
   canvas.background(0);
@@ -55,7 +57,7 @@ void draw() {
   fx.render()
     //.pixelate(100)
     //.sobel()
-    //.bloom(0.5, 20, 50)
+    .bloom(0.5, 20, 50)
     .compose();
 
   // show info

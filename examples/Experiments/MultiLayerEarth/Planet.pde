@@ -8,7 +8,7 @@ class Planet {
   PImage nightMap;
   PImage bumpMap;
   
-  float dayNightMix = 0.0;
+  float dayNightMix = 1.0;
 
   int detail = 300;
   int size = 200;
