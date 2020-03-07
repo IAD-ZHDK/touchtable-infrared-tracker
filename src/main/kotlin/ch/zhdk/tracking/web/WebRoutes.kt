@@ -30,17 +30,11 @@ fun Route.webRoutes(channels: CopyOnWriteArrayList<SendChannel<Frame>>) {
             while (true) {
                 val message = (incoming.receive() as Frame.Text).readText()
                 println("[MSG]: $message")
-
-                // send message to all the others (broadcast)
-                /*
-                channels.filter { it != outgoing }.forEach {
-                    it.send(Frame.Text(message))
-                }
-                 */
             }
         } catch (e: ClosedReceiveChannelException) {
             // Do nothing!
         } catch (e: Throwable) {
+            println("Error in websocket publisher:")
             e.printStackTrace()
         } finally {
             channels.remove(outgoing)
