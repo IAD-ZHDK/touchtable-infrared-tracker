@@ -55,7 +55,6 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
                 it.rotation = it.markers.first().position.angleOfInDeg(it.markers.last().position)
             }
 
-
             // add normalized values
             it.normalizedPosition = Point2d(
                 it.position.x() / config.inputWidth.value,

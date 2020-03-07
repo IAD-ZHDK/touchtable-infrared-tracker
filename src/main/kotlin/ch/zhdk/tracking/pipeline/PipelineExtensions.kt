@@ -1,6 +1,6 @@
 package ch.zhdk.tracking.pipeline
 
-import ch.bildspur.model.math.Float2
+import ch.bildspur.math.Float2
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import org.bytedeco.opencv.opencv_core.Point

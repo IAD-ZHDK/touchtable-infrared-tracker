@@ -7,8 +7,6 @@ import org.bytedeco.opencv.global.opencv_core.*
 import org.bytedeco.opencv.opencv_core.IplImage
 import org.bytedeco.opencv.opencv_core.Mat
 import org.opencv.imgproc.Imgproc
-import processing.core.PConstants.ARGB
-import processing.core.PImage
 import java.awt.Transparency
 import java.awt.color.ColorSpace
 import java.awt.image.*
@@ -41,6 +39,7 @@ fun IplImage.toFrame(): Frame {
     return matConverter.convert(this)
 }
 
+/*
 fun BufferedImage.toPimage(img: PImage) {
     this.getRGB(0, 0, img.width, img.height, img.pixels, 0, img.width)
     img.updatePixels()
@@ -59,6 +58,7 @@ fun Frame.toPImage(): PImage {
 fun Frame.toPImage(img: PImage) {
     return this.toIplImage().toBufferedImage().toPimage(img)
 }
+*/
 
 fun Mat.toOpenCVMat(): org.opencv.core.Mat {
     return org.opencv.core.Mat(this.address())
@@ -122,6 +122,7 @@ fun org.opencv.core.Mat.toJavaCVMat(): Mat {
     return Mat(this.nativeObjAddr)
 }
 
+/*
 fun PImage.toMat(m: org.opencv.core.Mat) {
     val matPixels = ((this.native as BufferedImage).raster.dataBuffer as DataBufferInt).data
 
@@ -164,6 +165,7 @@ fun org.opencv.core.Mat.toARGBPixels(): IntArray {
     ByteBuffer.wrap(matPixels).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(intPixels)
     return intPixels
 }
+*/
 
 fun Mat.to8U() {
     this.convertTo(this, CV_8U)

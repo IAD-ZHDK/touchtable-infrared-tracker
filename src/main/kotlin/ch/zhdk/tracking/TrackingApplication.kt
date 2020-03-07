@@ -1,6 +1,6 @@
 package ch.zhdk.tracking
 
-import ch.bildspur.model.math.Float2
+import ch.bildspur.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.PipelineConfig

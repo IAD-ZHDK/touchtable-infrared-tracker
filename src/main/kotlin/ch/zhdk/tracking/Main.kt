@@ -18,7 +18,7 @@ class Main {
 
     fun startApplication(args: Array<String>) {
         val configuration = ConfigurationController("IR Tracking", "zhdk", "ir-tracking")
-        var appConfig = configuration.loadAppConfig()
+        var appConfig = configuration.loadAppConfig<AppConfig>()
 
         // initialize opencv (needed for realsense camera)
         Loader.load(opencv_core::class.java)

@@ -1,7 +1,7 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.model.math.Float2
+import ch.bildspur.math.Float2
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.TrackingApplication
 import com.google.gson.annotations.Expose
