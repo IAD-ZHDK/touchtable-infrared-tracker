@@ -16,14 +16,14 @@ class OscWebSocketChannel(private val webServer: WebServer, config : OscConfig) 
 
     override fun sendMessage(msg: OSCPacket) {
         GlobalScope.launch {
-            // todo: check for concurrency issues
-
-            // prepare message
+            // serialize message
+            oscOutputBuffer.rewind()
             oscSerializer.write(msg)
+            oscOutputBuffer.flip()
 
             // send message
             webServer.openChannels.forEach {
-                it.send(Frame.Binary(false, oscOutputBuffer))
+                it.send(Frame.Binary(true, oscOutputBuffer))
             }
         }
     }

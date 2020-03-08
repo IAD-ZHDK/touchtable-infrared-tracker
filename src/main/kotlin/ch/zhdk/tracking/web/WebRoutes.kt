@@ -23,7 +23,7 @@ fun Route.webRoutes(channels: CopyOnWriteArrayList<SendChannel<Frame>>) {
         call.respond("Clients Connected: ${channels.size}")
     }
 
-    webSocket("tracking") {
+    webSocket() {
         try {
             channels.add(outgoing)
 

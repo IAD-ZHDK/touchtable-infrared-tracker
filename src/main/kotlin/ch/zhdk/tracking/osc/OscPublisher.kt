@@ -17,7 +17,7 @@ class OscPublisher(val config: OscConfig) {
 
         devices.forEach {
             if (config.debugOSC.value) {
-                println("UPD [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
+                println("OSC [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
             }
 
             publishMessage(createMessage("update", it.createArgsList()))
