@@ -50,8 +50,15 @@ class RealSense2InputProvider(
         // set settings
         rs2.setSensorOption(RealSense2FrameGrabber.Rs2SensorType.StereoModule, RS2_OPTION_ENABLE_AUTO_EXPOSURE, config.enableAutoExposure.value)
 
+        /*
         if(!config.enableAutoExposure.value)
             rs2.setSensorOption(RealSense2FrameGrabber.Rs2SensorType.StereoModule, RS2_OPTION_EXPOSURE, config.autoExposure.value)
+         */
+
+        config.autoExposure.onChanged += {
+            if(!config.enableAutoExposure.value)
+                rs2.setOption(RS2_OPTION_EXPOSURE, it)
+        }
 
         rs2.setSensorOption(
             RealSense2FrameGrabber.Rs2SensorType.StereoModule,
