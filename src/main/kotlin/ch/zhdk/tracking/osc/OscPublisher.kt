@@ -5,23 +5,9 @@ import ch.zhdk.tracking.model.TactileDevice
 import com.illposed.osc.OSCBundle
 import com.illposed.osc.OSCMessage
 import com.illposed.osc.OSCPacket
-import com.illposed.osc.transport.udp.OSCPort
-import com.illposed.osc.transport.udp.OSCPortOut
-import java.net.InetAddress
-import java.net.InetSocketAddress
 
 class OscPublisher(val config: OscConfig) {
-    private lateinit var sender: OSCPortOut
-
-    fun init(address: InetAddress, port: Int = OSCPort.DEFAULT_SC_OSC_PORT) {
-        val target = InetSocketAddress(address, port)
-
-        if(this::sender.isInitialized && sender.isConnected)
-            sender.close()
-
-        sender = OSCPortOut(target)
-        println("starting OSC on  ${target.address}:${target.port}")
-    }
+    val channels = mutableListOf<OscChannel>()
 
     fun sendUpdate(devices: List<TactileDevice>) {
         if(config.useOSCBundles.value) {
@@ -31,10 +17,10 @@ class OscPublisher(val config: OscConfig) {
 
         devices.forEach {
             if (config.debugOSC.value) {
-                println("UPD [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
+                println("OSC [${it.uniqueId}]: x: ${it.calibratedPosition.x().toFloat()} y: ${it.calibratedPosition.y().toFloat()}")
             }
 
-            sendMessage(createMessage("update", it.createArgsList()))
+            publishMessage(createMessage("update", it.createArgsList()))
         }
     }
 
@@ -44,7 +30,7 @@ class OscPublisher(val config: OscConfig) {
         devices.forEach {
             bundle.addPacket(createMessage("update", it.createArgsList()))
         }
-        sendMessage(bundle)
+        publishMessage(bundle)
     }
 
     fun newObject(device: TactileDevice) {
@@ -52,7 +38,7 @@ class OscPublisher(val config: OscConfig) {
             println("ADD [${device.uniqueId}]: x: ${device.calibratedPosition.x().toFloat()} y: ${device.calibratedPosition.y().toFloat()}")
         }
 
-        sendMessage(createMessage("add", device.createArgsList()))
+        publishMessage(createMessage("add", device.createArgsList()))
     }
 
     fun removeObject(device: TactileDevice) {
@@ -60,18 +46,16 @@ class OscPublisher(val config: OscConfig) {
             println("REM [${device.uniqueId}]: x: ${device.calibratedPosition.x().toFloat()} y: ${device.calibratedPosition.y().toFloat()}")
         }
 
-        sendMessage(createMessage("remove", listOf(device.uniqueId)))
+        publishMessage(createMessage("remove", listOf(device.uniqueId)))
     }
 
     private fun createMessage(command : String, args : List<Any>) : OSCMessage {
         return OSCMessage("${config.nameSpace.value}/$command", args)
     }
 
-    private fun sendMessage(msg: OSCPacket) {
-        try {
-            sender.send(msg)
-        } catch (e: Exception) {
-            println("Couldn't send osc message: ${e.message}")
+    private fun publishMessage(msg: OSCPacket) {
+        channels.forEach {
+            it.sendMessage(msg)
         }
     }
 

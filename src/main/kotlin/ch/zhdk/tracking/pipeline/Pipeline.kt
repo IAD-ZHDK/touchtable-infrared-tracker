@@ -1,7 +1,7 @@
 package ch.zhdk.tracking.pipeline
 
 import ch.bildspur.event.Event
-import ch.bildspur.model.math.Float2
+import ch.bildspur.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
 import ch.bildspur.util.format

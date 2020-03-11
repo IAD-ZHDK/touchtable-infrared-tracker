@@ -10,7 +10,7 @@ This project aims to create an infrared tracking system for tactile tables.
 Everything is installed through the [gradle](https://gradle.org/) dependency manager. To run the application, OpenJDK 11 is needed and can be installed through your favourite package manager. On MacOS we recommend to use [brew](https://brew.sh/):
 
 ```bash
-brew cask install java11
+brew cask install java
 ```
 
 Now just run the following command and gradlew will download, build and run the project.
