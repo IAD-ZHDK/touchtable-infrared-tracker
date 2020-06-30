@@ -80,6 +80,7 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
                         pipeline.onDeviceRemoved(it)
                     }
                 }
+                else -> error("Dead centroid detected")
             }
         }
 

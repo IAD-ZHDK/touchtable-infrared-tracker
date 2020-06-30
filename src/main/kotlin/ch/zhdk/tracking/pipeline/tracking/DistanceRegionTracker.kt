@@ -60,6 +60,7 @@ class DistanceRegionTracker(pipeline: Pipeline, config: PipelineConfig = Pipelin
                         it.updateState(TrackingEntityState.Dead)
                     }
                 }
+                TrackingEntityState.Dead -> error("Dead marker detected!")
             }
         }
 
