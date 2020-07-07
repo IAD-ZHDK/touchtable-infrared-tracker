@@ -18,7 +18,7 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         // running binarization method
         when(config.binarizationMethod.value) {
             BinarizationMethod.Normal -> frame.threshold(config.threshold.value)
-            BinarizationMethod.Adaptive -> frame.adaptiveThreshold(config.threshold.value)
+            BinarizationMethod.Adaptive -> frame.adaptiveThreshold(config.threshold.value, constant = config.adaptiveness.value)
             BinarizationMethod.OTSU -> frame.threshold(config.threshold.value, type = CV_THRESH_BINARY or CV_THRESH_OTSU)
             BinarizationMethod.Radial -> println("not implemented yet")
         }

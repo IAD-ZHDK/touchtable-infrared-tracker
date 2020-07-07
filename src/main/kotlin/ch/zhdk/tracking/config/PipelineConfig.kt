@@ -70,11 +70,15 @@ class PipelineConfig {
 
     @Expose
     @EnumParameter("Binarization Method")
-    var binarizationMethod = DataModel(BinarizationMethod.Normal)
+    var binarizationMethod = DataModel(BinarizationMethod.Adaptive)
 
     @Expose
     @SliderParameter("Threshold", 1.0, 100.0, 0.05, snap = true)
     var threshold = DataModel(50.0)
+
+    @Expose
+    @SliderParameter("Adaptiveness", -20.0, 20.0, 0.01, snap = true)
+    var adaptiveness = DataModel(-2.0)
 
     @Expose
     @BooleanParameter("Morphology Filter")
