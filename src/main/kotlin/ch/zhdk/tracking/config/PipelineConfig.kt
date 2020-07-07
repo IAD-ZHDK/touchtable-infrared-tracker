@@ -78,7 +78,7 @@ class PipelineConfig {
 
     @Expose
     @SliderParameter("Adaptiveness", -20.0, 20.0, 0.01, snap = true)
-    var adaptiveness = DataModel(-2.0)
+    var adaptiveness = DataModel(-5.0)
 
     @Expose
     @BooleanParameter("Morphology Filter")
