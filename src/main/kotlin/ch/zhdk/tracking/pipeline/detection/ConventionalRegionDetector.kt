@@ -3,6 +3,7 @@ package ch.zhdk.tracking.pipeline.detection
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.*
 import ch.zhdk.tracking.model.ActiveRegion
+import kotlinx.coroutines.selects.select
 import org.bytedeco.opencv.global.opencv_core
 import org.bytedeco.opencv.global.opencv_imgproc.*
 import org.bytedeco.opencv.opencv_core.*
@@ -14,15 +15,12 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         if (frame.type() == opencv_core.CV_8UC3)
             frame.convertColor(COLOR_BGR2GRAY)
 
-        // running threshold
-        if (config.useOTSUThreshold.value)
-            frame.threshold(config.threshold.value, type = CV_THRESH_BINARY or CV_THRESH_OTSU)
-        else {
-            if(config.useAdaptiveThresholding.value) {
-                frame.adaptiveThreshold(config.threshold.value)
-            } else {
-                frame.threshold(config.threshold.value)
-            }
+        // running binarization method
+        when(config.binarizationMethod.value) {
+            BinarizationMethod.Normal -> frame.threshold(config.threshold.value)
+            BinarizationMethod.Adaptive -> frame.adaptiveThreshold(config.threshold.value)
+            BinarizationMethod.OTSU -> frame.threshold(config.threshold.value, type = CV_THRESH_BINARY or CV_THRESH_OTSU)
+            BinarizationMethod.Radial -> println("not implemented yet")
         }
 
         // filter small elements

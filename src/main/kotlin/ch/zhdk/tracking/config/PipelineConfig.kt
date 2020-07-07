@@ -1,9 +1,9 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.model.NumberRange
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.pipeline.PipelineType
+import ch.zhdk.tracking.pipeline.detection.BinarizationMethod
 import com.google.gson.annotations.Expose
 
 class PipelineConfig {
@@ -69,16 +69,12 @@ class PipelineConfig {
     val detectionLabel = ""
 
     @Expose
+    @EnumParameter("Binarization Method")
+    var binarizationMethod = DataModel(BinarizationMethod.Normal)
+
+    @Expose
     @SliderParameter("Threshold", 1.0, 100.0, 0.05, snap = true)
     var threshold = DataModel(50.0)
-
-    @Expose
-    @BooleanParameter("Use Adaptive Threshold")
-    var useAdaptiveThresholding = DataModel(false)
-
-    @Expose
-    @BooleanParameter("Use OTSU")
-    var useOTSUThreshold = DataModel(false)
 
     @Expose
     @BooleanParameter("Morphology Filter")
