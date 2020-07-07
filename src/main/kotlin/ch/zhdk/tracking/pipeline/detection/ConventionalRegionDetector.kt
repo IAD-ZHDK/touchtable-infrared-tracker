@@ -2,17 +2,9 @@ package ch.zhdk.tracking.pipeline.detection
 
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.*
-import ch.zhdk.tracking.javacv.analysis.ConnectedComponent
-import ch.zhdk.tracking.javacv.contour.Contour
 import ch.zhdk.tracking.model.ActiveRegion
 import org.bytedeco.opencv.global.opencv_core
-import org.bytedeco.opencv.global.opencv_imgproc
 import org.bytedeco.opencv.global.opencv_imgproc.*
-import org.bytedeco.opencv.global.opencv_imgproc.cvFitEllipse2
-import org.bytedeco.javacpp.FloatPointer
-import org.bytedeco.javacpp.indexer.IntRawIndexer
-import org.bytedeco.opencv.global.opencv_core.CV_32FC2
-import org.bytedeco.opencv.global.opencv_core.cvMat
 import org.bytedeco.opencv.opencv_core.*
 
 
@@ -25,8 +17,13 @@ class ConventionalRegionDetector(config: PipelineConfig = PipelineConfig()) : Re
         // running threshold
         if (config.useOTSUThreshold.value)
             frame.threshold(config.threshold.value, type = CV_THRESH_BINARY or CV_THRESH_OTSU)
-        else
-            frame.threshold(config.threshold.value)
+        else {
+            if(config.useAdaptiveThresholding.value) {
+                frame.adaptiveThreshold(config.threshold.value)
+            } else {
+                frame.threshold(config.threshold.value)
+            }
+        }
 
         // filter small elements
         if (config.morphologyFilterEnabled.value) {

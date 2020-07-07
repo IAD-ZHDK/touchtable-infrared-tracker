@@ -73,6 +73,10 @@ class PipelineConfig {
     var threshold = DataModel(50.0)
 
     @Expose
+    @BooleanParameter("Use Adaptive Threshold")
+    var useAdaptiveThresholding = DataModel(false)
+
+    @Expose
     @BooleanParameter("Use OTSU")
     var useOTSUThreshold = DataModel(false)
 

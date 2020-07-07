@@ -10,11 +10,11 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-fun Mat.width() : Int {
+fun Mat.width(): Int {
     return this.cols()
 }
 
-fun Mat.height() : Int {
+fun Mat.height(): Int {
     return this.rows()
 }
 
@@ -36,11 +36,11 @@ fun Mat.zeros(type: Int): Mat {
     return Mat.zeros(this.rows(), this.cols(), type).asMat()
 }
 
-fun Mat.convertColor(color : Int) {
+fun Mat.convertColor(color: Int) {
     this.convertColor(this, color)
 }
 
-fun Mat.convertColor(target : Mat, color : Int) {
+fun Mat.convertColor(target: Mat, color: Int) {
     cvtColor(this, target, color)
 }
 
@@ -48,12 +48,25 @@ fun Mat.threshold(thresh: Double, maxval: Double = 255.0, type: Int = THRESH_BIN
     threshold(this, this, thresh, maxval, type)
 }
 
+fun Mat.adaptiveThreshold(
+    thresh: Double,
+    maxval: Double = 255.0,
+    adaptiveMethod: Int = CV_ADAPTIVE_THRESH_MEAN_C,
+    type: Int = THRESH_BINARY,
+    blockSize: Int = 5,
+    constant: Double = 0.0
+) {
+    adaptiveThreshold(this, this, maxval, adaptiveMethod, type, blockSize, constant)
+}
+
 fun Mat.erode(erosionSize: Int) {
     if (erosionSize == 0)
         return
 
-    val element = getStructuringElement(MORPH_RECT,
-        Size((2.0 * erosionSize + 1.0).roundToInt(), (2.0 * erosionSize + 1.0).roundToInt()))
+    val element = getStructuringElement(
+        MORPH_RECT,
+        Size((2.0 * erosionSize + 1.0).roundToInt(), (2.0 * erosionSize + 1.0).roundToInt())
+    )
     erode(this, this, element)
     element.release()
 }
@@ -62,8 +75,10 @@ fun Mat.dilate(dilationSize: Int) {
     if (dilationSize == 0)
         return
 
-    val element = getStructuringElement(MORPH_RECT,
-        Size((2.0 * dilationSize + 1.0).roundToInt(), (2.0 * dilationSize + 1.0).roundToInt()))
+    val element = getStructuringElement(
+        MORPH_RECT,
+        Size((2.0 * dilationSize + 1.0).roundToInt(), (2.0 * dilationSize + 1.0).roundToInt())
+    )
     dilate(this, this, element)
     element.release()
 }
@@ -120,7 +135,7 @@ fun Mat.parentROI(): Rect {
     return Rect(location.x(), location.y(), this.cols(), this.rows())
 }
 
-fun Mat.approxPolyDP(epsilon: Double? = null, weight : Double = 0.01): Mat {
+fun Mat.approxPolyDP(epsilon: Double? = null, weight: Double = 0.01): Mat {
     this.to32FC2()
     val approxContour = Mat()
 
