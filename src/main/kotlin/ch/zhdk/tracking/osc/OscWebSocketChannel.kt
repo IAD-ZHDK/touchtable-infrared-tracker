@@ -8,6 +8,7 @@ import com.illposed.osc.transport.udp.OSCPortIn
 import io.ktor.http.cio.websocket.Frame
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.nio.ByteBuffer
 
 class OscWebSocketChannel(private val webServer: WebServer, config : OscConfig) : OscChannel(config) {
@@ -17,9 +18,15 @@ class OscWebSocketChannel(private val webServer: WebServer, config : OscConfig) 
     override fun sendMessage(msg: OSCPacket) {
         GlobalScope.launch {
             // serialize message
-            oscOutputBuffer.rewind()
-            oscSerializer.write(msg)
-            oscOutputBuffer.flip()
+            try {
+                oscSerializer.write(msg)
+            } catch (ex : Exception) {
+                println("Websocket Error: ${ex.message}")
+                return@launch
+            }
+
+            oscOutputBuffer.limit(oscOutputBuffer.position())
+            oscOutputBuffer.position(0)
 
             // send message
             webServer.openChannels.forEach {
