@@ -284,7 +284,7 @@ object TrackingApplication {
                 config.input.webCamWidth.value,
                 config.input.webCamHeight.value
             )
-            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/markertracking.mov"))
+            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/markertracking.mp4"))
             InputProviderType.RealSense2 -> RealSense2InputProvider(
                 config.input.realSenseDeviceIndex.value,
                 config.input.realSenseWidth.value,
