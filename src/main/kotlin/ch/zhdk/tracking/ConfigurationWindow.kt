@@ -63,8 +63,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
             "General" to config,
             "Input" to config.input,
             "Pipeline" to config.pipeline,
-            "Calibration" to config.pipeline.calibration,
-            "OSC" to config.osc
+            "Output" to config.output
             )
 
         settings.forEach { (name, cfg) ->

@@ -8,6 +8,7 @@ import com.google.gson.annotations.Expose
 
 class PipelineConfig {
     @Expose
+    @GroupParameter("Calibration", false)
     var calibration = CalibrationConfig()
 
     @Expose
