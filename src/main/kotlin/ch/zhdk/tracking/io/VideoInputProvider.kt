@@ -1,6 +1,8 @@
 package ch.zhdk.tracking.io
 
 import ch.bildspur.util.TimeKeeper
+import org.bytedeco.ffmpeg.global.avutil.AV_LOG_PANIC
+import org.bytedeco.ffmpeg.global.avutil.av_log_set_level
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.FrameGrabber
@@ -11,6 +13,7 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
 
     override fun open() {
+        av_log_set_level(AV_LOG_PANIC)
         videoGrabber.start()
 
         this.width = videoGrabber.imageWidth
@@ -30,7 +33,6 @@ class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN
         var frame = videoGrabber.grabFrame()
 
         if(frame == null) {
-            println("restarting video")
             videoGrabber.stop()
             videoGrabber.start()
         }
