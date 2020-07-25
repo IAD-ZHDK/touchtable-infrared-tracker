@@ -1,23 +1,27 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include "MPU9250.h"
-#include <Adafruit_NeoPixel.h>
+#include <MPU9250.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include <NeoPixelBus.h>
+
+#define pinIRLED1  0 // com IR LED
+// #define pinIRLED2  4 // com IR LED
+#define pinLED  16 // indicator LED
+
 
 // functions
 void ledBlink();
 void setNeoPixels(int r, int g, int b);
 void readIMU();
-// Which pin on the Arduino is connected to the NeoPixels?
-#define PIN  14 // On Trinket or Gemma, suggest changing this to 1
+void BLEroutine();
 
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS 16 
-
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
+// neopixel
+const uint16_t PixelCount = 16; 
+const uint8_t PixelPin = 14;  
+NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(PixelCount, PixelPin);
 
 // handy summary of BLE roles: https://embedded.fm/blog/ble-roles#:~:text=A%20client%20sends%20read%20and,using%20indicate%20and%20notify%20operations.
 // See the following for generating UUIDs:
@@ -26,40 +30,35 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
 BLEServer* pServer = NULL;
 BLECharacteristic* pCharacteristic1 = NULL;
 BLECharacteristic* pCharacteristic2 = NULL;
+BLECharacteristic* pCharacteristic3 = NULL;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint32_t value = 0;
 
 #define SERVICE_UUID        "846123f6-ccf1-11ea-87d0-0242ac130003"
-#define CHARACTERISTIC_UUID1 "98f09e34-73ab-4f2a-a5eb-a95e7e7ab733"
-#define CHARACTERISTIC_UUID2 "fc3affa6-5020-47ce-93db-2e9dc45c9b55"
+#define CHARACTERISTIC_UUID1 "98f09e34-73ab-4f2a-a5eb-a95e7e7ab733" // IMU
+#define CHARACTERISTIC_UUID2 "fc3affa6-5020-47ce-93db-2e9dc45c9b55" // NEOPIXEL
+#define CHARACTERISTIC_UUID3 "fc9a2e54-a7f2-4bad-aebc-9879e896f1b9" // IR LED
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
-      setNeoPixels(0, 100, 0);
     };
 
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
-      setNeoPixels(50, 0, 100);
     }
 };
 
-class MyCallbacks: public BLECharacteristicCallbacks {
+class MyCallbackNeoPixel: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string value = pCharacteristic->getValue();
-      if (value.length() > 0) {
-        Serial.println("*********");
-        Serial.print("New value: ");
-        for (int i = 0; i < value.length(); i++) {
-          uint32_t hexValue = value[i];
-          Serial.print(hexValue);
-          Serial.print("_");
-        }   
-        Serial.println();
-        Serial.println("*********");
-      }
+      // if (value.length() > 0) {
+      //for (int i = 0; i < value.length(); i++) {
+      //  uint32_t hexValue = value[i];
+      //   Serial.print(hexValue);
+      // }   
+      //}
       // set neopixelColors
       if (value.length()>=3) {
             setNeoPixels(value[0], value[1], value[2]);
@@ -67,25 +66,27 @@ class MyCallbacks: public BLECharacteristicCallbacks {
     }
 };
 
-
-
-#define pinIRLED1  0 // com IR LED
-// #define pinIRLED2  4 // com IR LED
-#define pinLED  16 // indicator LED
-
+class MyCallbackIRLED: public BLECharacteristicCallbacks {
+    void onWrite(BLECharacteristic *pCharacteristic) {
+      std::string value = pCharacteristic->getValue();
+      if (value.length() > 0) {
+          digitalWrite(pinIRLED1,value[0]);
+      }
+    }
+};
+// IMU
+float lastIMUSum = 0; 
+bool deviceMoved = false;
 MPU9250 IMU(Wire,0x68);
 // States
-enum DeviceStates{Stationary, Moving};
-byte DeviceStates = Stationary;
-
+enum State{Stationary, Moving};
+State DeviceStates = Stationary;
+State DeviceLastState = DeviceStates;
 
 void setup() {
-  // Wire.begin();
-  // put your setup code here, to run once:
   pinMode(16, OUTPUT);
   Serial.begin(115200);
    while(!Serial) {}
-
   // start communication with IMU 
   int status = IMU.begin();
   Serial.print("Setting up IMU");
@@ -105,9 +106,10 @@ void setup() {
   digitalWrite(pinLED, LOW);
   digitalWrite(pinIRLED1,HIGH);
 // NeoPixels
- pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+    // this resets all the neopixels to an off state
+  strip.Begin();
+  setNeoPixels(50, 0, 0);
 
-// BLE
   // Create the BLE Device
   BLEDevice::init("TREE_TABLE_01");
   // Create the BLE Server
@@ -118,6 +120,7 @@ void setup() {
   BLEService *pService = pServer->createService(SERVICE_UUID);
 
   // Create a BLE Characteristic
+  // charecterstic for movement from IMU
   pCharacteristic1 = pService->createCharacteristic(
                       CHARACTERISTIC_UUID1,
                       BLECharacteristic::PROPERTY_READ   |
@@ -131,13 +134,23 @@ void setup() {
                       BLECharacteristic::PROPERTY_WRITE  
                     );
 
+  pCharacteristic3 = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID3,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_WRITE  
+                    );
+
   // Create a BLE Descriptor
   pCharacteristic1->addDescriptor(new BLE2902());
   pCharacteristic2->addDescriptor(new BLE2902());
+  pCharacteristic3->addDescriptor(new BLE2902());
 
   // set Callbacks
-  pCharacteristic2->setCallbacks(new MyCallbacks());
-  pCharacteristic2->setValue("Hello World");
+  pCharacteristic2->setCallbacks(new MyCallbackNeoPixel());
+  pCharacteristic2->setValue("NEOPIXEL COLOR");
+
+  pCharacteristic3->setCallbacks(new MyCallbackIRLED());
+  pCharacteristic3->setValue("IR LED");
 
   // Start the service
   pService->start();
@@ -149,17 +162,22 @@ void setup() {
   pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
   BLEDevice::startAdvertising();
   Serial.println("Waiting a client connection to notify...");
-  setNeoPixels(50, 0, 0);
+
 }
 void loop() {
-  // readIMU();
+  readIMU();
   ledBlink();
+  BLEroutine();
+}
+uint32_t value2 = 0;
+void BLEroutine() {
     // notify changed value
-    if (deviceConnected) {
-        pCharacteristic1->setValue((uint8_t*)&value, 4);
+    if (deviceConnected && DeviceLastState != DeviceStates) {
+        pCharacteristic1->setValue((uint8_t*)&DeviceStates, 1);
         pCharacteristic1->notify();
-        value++;
-        delay(5); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+        value2++;
+        DeviceLastState = DeviceStates;
+        delay(15); // bluetooth stack will go into congestion, if too many packets are sent,
     }
     // disconnecting
     if (!deviceConnected && oldDeviceConnected) {
@@ -167,36 +185,48 @@ void loop() {
         pServer->startAdvertising(); // restart advertising
         Serial.println("start advertising");
         oldDeviceConnected = deviceConnected;
+        setNeoPixels(50, 0, 0);
     }
     // connecting
     if (deviceConnected && !oldDeviceConnected) {
         // do stuff here on connecting
         oldDeviceConnected = deviceConnected;
+        setNeoPixels(0, 100, 0);
     }
 }
+
 
 void readIMU() {
 // read the sensor
   IMU.readSensor();
   // display the data
-  
+  float sum = (IMU.getAccelX_mss()+IMU.getAccelY_mss()+IMU.getAccelZ_mss()+IMU.getGyroX_rads()+IMU.getGyroY_rads()+IMU.getGyroZ_rads())/6;
+  if (sum<lastIMUSum-0.05 || sum>lastIMUSum+0.05) {
+    DeviceStates = Moving;
+    float heading = (atan2(IMU.getMagY_uT(),IMU.getMagX_uT()) * 180) / PI;
+    Serial.println(heading);
+  } else {
+    DeviceStates = Stationary;
+  }
+  delay(1);
+  lastIMUSum = sum;
   // Serial.print("AccelX: ");
-  Serial.print(IMU.getAccelX_mss(),3);
-  Serial.print("\t");
+  // Serial.print(IMU.getAccelX_mss(),3);
+  // Serial.print("\t");
   // Serial.print("AccelY: ");
-  Serial.print(IMU.getAccelY_mss(),3);
-  Serial.print("\t");
+  // Serial.print(IMU.getAccelY_mss(),3);
+  // Serial.print("\t");
   // Serial.print("AccelZ: ");
-  Serial.print(IMU.getAccelZ_mss(),3);
-  Serial.print("\t");
+  // Serial.print(IMU.getAccelZ_mss(),3);
+  // Serial.print("\t");
   // Serial.print("GyroX: ");
-  Serial.print(IMU.getGyroX_rads(),3);
-  Serial.print("\t");
+  // Serial.print(IMU.getGyroX_rads(),3);
+  // Serial.print("\t");
   // Serial.print("GyroY: ");
-  Serial.print(IMU.getGyroY_rads(),3);
-  Serial.print("\t");
+  // Serial.print(IMU.getGyroY_rads(),3);
+  // Serial.print("\t");
   // Serial.print("GyroZ: ");
-  Serial.println(IMU.getGyroZ_rads(),3);
+  // Serial.println(IMU.getGyroZ_rads(),3);
   // Serial.print("MagX: ");
   // Serial.print(IMU.getMagX_uT(),3);
   // Serial.print("\t");
@@ -213,21 +243,28 @@ void readIMU() {
 }
 
 void setNeoPixels(int r, int g, int b) {
-   pixels.clear(); // Set all pixel colors to 'off'
-  for(int i=0; i<NUMPIXELS; i++) { // For each pixel...
-    pixels.setPixelColor(i, pixels.Color(r, g, b));
+   // pixels.clear(); // Set all pixel colors to 'off'
+   /*
+  for(int i=0; i<NUM_LEDS; i++) { // For each pixel...
+    leds[i] = CRGB(r,g,b);
   }
-  delay(1); // workaround https://github.com/adafruit/Adafruit_NeoPixel/issues/139
-  pixels.show();  
+  FastLED.show(); 
+  */
+  RgbColor color(r,g,b);
+    for(int i=0; i<PixelCount; i++) { 
+        strip.SetPixelColor(i, color);
+    }
+    strip.Show();
 }
 
-int interval = 250;
-long lastBlink = 0;
-int LEDState = LOW;
+
+long lastLedBlink = 0;
+uint8_t LEDState = LOW;
 void ledBlink() {
+  int interval = 250;
   long currentMillis =  millis();
-  if (currentMillis >= lastBlink + interval) {
-    lastBlink = currentMillis;
+  if (currentMillis >= lastLedBlink + interval) {
+    lastLedBlink = currentMillis;
     LEDState = !LEDState;
   }
     digitalWrite(pinLED, LEDState);
