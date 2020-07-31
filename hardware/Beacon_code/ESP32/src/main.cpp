@@ -6,14 +6,14 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <NeoPixelBus.h>
+#include "blink.h"
 
-#define pinIRLED1  0 // com IR LED
+#define pinIRLED1  4 // com IR LED
 // #define pinIRLED2  4 // com IR LED
 #define pinLED  16 // indicator LED
-
+#define IMUInterupt  18 // indicator LED
 
 // functions
-void ledBlink();
 void setNeoPixels(int r, int g, int b);
 void readIMU();
 void BLEroutine();
@@ -87,18 +87,24 @@ void setup() {
   pinMode(16, OUTPUT);
   Serial.begin(115200);
    while(!Serial) {}
-  // start communication with IMU 
+// IMU 
   int status = IMU.begin();
   Serial.print("Setting up IMU");
   if (status == 1) {
     Serial.println("IMU initialization successful");
   } else {
-     Serial.println("IMU initialization unsuccessful");
+    Serial.println("IMU initialization unsuccessful");
     Serial.println("Check IMU wiring or try cycling power");
     Serial.print("IMU initialization fail - Status:");
     Serial.println(status);
     while(status != 1) {}
   }
+  // setting DLPF bandwidth to 20 Hz
+  //IMU.setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_20HZ);
+  // setting SRD to 19 for a 50 Hz update rate
+  //IMU.setSrd(19);
+  //IMU.enableDataReadyInterrupt();
+  //attachInterrupt(IMUInterupt, readIMU, RISING);
 // LED
   pinMode(pinIRLED1, OUTPUT);
   pinMode(pinLED, OUTPUT);
@@ -108,7 +114,7 @@ void setup() {
 // NeoPixels
     // this resets all the neopixels to an off state
   strip.Begin();
-  setNeoPixels(50, 0, 0);
+  setNeoPixels(50, 50, 0);
 
   // Create the BLE Device
   BLEDevice::init("TREE_TABLE_01");
@@ -165,9 +171,9 @@ void setup() {
 
 }
 void loop() {
-  readIMU();
-  ledBlink();
+  ledBlink(pinLED);
   BLEroutine();
+  readIMU();
 }
 uint32_t value2 = 0;
 void BLEroutine() {
@@ -203,43 +209,51 @@ void readIMU() {
   float sum = (IMU.getAccelX_mss()+IMU.getAccelY_mss()+IMU.getAccelZ_mss()+IMU.getGyroX_rads()+IMU.getGyroY_rads()+IMU.getGyroZ_rads())/6;
   if (sum<lastIMUSum-0.05 || sum>lastIMUSum+0.05) {
     DeviceStates = Moving;
-    float heading = (atan2(IMU.getMagY_uT(),IMU.getMagX_uT()) * 180) / PI;
-    Serial.println(heading);
+    // float heading = (atan2(IMU.getMagY_uT(),IMU.getMagX_uT()) * 180) / PI;
+    // Serial.println(heading);
   } else {
     DeviceStates = Stationary;
   }
   delay(1);
   lastIMUSum = sum;
-  // Serial.print("AccelX: ");
-  // Serial.print(IMU.getAccelX_mss(),3);
-  // Serial.print("\t");
-  // Serial.print("AccelY: ");
-  // Serial.print(IMU.getAccelY_mss(),3);
-  // Serial.print("\t");
-  // Serial.print("AccelZ: ");
-  // Serial.print(IMU.getAccelZ_mss(),3);
-  // Serial.print("\t");
-  // Serial.print("GyroX: ");
-  // Serial.print(IMU.getGyroX_rads(),3);
-  // Serial.print("\t");
-  // Serial.print("GyroY: ");
-  // Serial.print(IMU.getGyroY_rads(),3);
-  // Serial.print("\t");
-  // Serial.print("GyroZ: ");
-  // Serial.println(IMU.getGyroZ_rads(),3);
-  // Serial.print("MagX: ");
-  // Serial.print(IMU.getMagX_uT(),3);
-  // Serial.print("\t");
-  // Serial.print("MagY: ");
-  // Serial.print(IMU.getMagY_uT(),3);
-  // Serial.print("\t");
-  // Serial.print("MagZ: ");
-  // Serial.print(IMU.getMagZ_uT(),3);
-  // Serial.print("\t");
-  // Serial.print("temp: ");
-  // Serial.println(IMU.getTemperature_C(),3);
-  // delay(100);
-  // https://create.arduino.cc/projecthub/30503/using-the-mpu9250-to-get-real-time-motion-data-08f011
+ 
+if (DeviceStates == Moving) {
+  float accelX = IMU.getAccelX_mss();
+  float accelY = IMU.getAccelY_mss();
+  float accelZ = IMU.getAccelZ_mss();
+  float gyroX = IMU.getGyroX_rads();
+  float gyroY = IMU.getGyroY_rads();
+  float gyroZ = IMU.getGyroZ_rads();
+  float magX = IMU.getMagX_uT();
+  float magY = IMU.getMagY_uT();
+  float magZ = IMU.getMagZ_uT();
+
+  Serial.println("Accel: " + String(accelX) + ", " + String(accelY) + ", " + String(accelZ) + " g");
+  Serial.println("Gyro: " + String(gyroX) + ", " + String(gyroY) + ", " + String(gyroZ) + " dps");
+  Serial.println("Mag: " + String(magX) + ", " + String(magY) + ", " + String(magZ) + " uT");
+
+//Euler angle from accel
+
+ 
+   float pitch = atan2 (accelY ,( sqrt ((accelX * accelX) + (accelZ * accelZ))));
+   float roll = atan2(-accelX ,( sqrt((accelY * accelY) + (accelZ * accelZ))));
+
+   // yaw from mag
+
+   float Yh = (magY * cos(roll)) - (magZ * sin(roll));
+   float Xh = (magX * cos(pitch))+(magY * sin(roll)*sin(pitch)) + (magZ * cos(roll) * sin(pitch));
+
+   float yaw =  atan2(Yh, Xh);
+
+
+  roll = roll*57.3;
+  pitch = pitch*57.3;
+  yaw = yaw*57.3;
+   
+  Serial.println("pitch"  + String( pitch));
+   Serial.println("roll" + String( roll));
+   Serial.println("yaw" + String( yaw ));
+   }
 }
 
 void setNeoPixels(int r, int g, int b) {
@@ -255,17 +269,4 @@ void setNeoPixels(int r, int g, int b) {
         strip.SetPixelColor(i, color);
     }
     strip.Show();
-}
-
-
-long lastLedBlink = 0;
-uint8_t LEDState = LOW;
-void ledBlink() {
-  int interval = 250;
-  long currentMillis =  millis();
-  if (currentMillis >= lastLedBlink + interval) {
-    lastLedBlink = currentMillis;
-    LEDState = !LEDState;
-  }
-    digitalWrite(pinLED, LEDState);
 }
