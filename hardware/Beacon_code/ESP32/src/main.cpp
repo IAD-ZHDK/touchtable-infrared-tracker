@@ -52,17 +52,14 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 class MyCallbackNeoPixel: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
-      std::string value = pCharacteristic->getValue();
-      // if (value.length() > 0) {
-      //for (int i = 0; i < value.length(); i++) {
-      //  uint32_t hexValue = value[i];
-      //   Serial.print(hexValue);
-      // }   
-      //}
-      // set neopixelColors
-      if (value.length()>=3) {
-            setNeoPixels(value[0], value[1], value[2]);
-      }     
+        auto data = pCharacteristic->getData();
+
+        //uint8_t a = data[3] & 0xFF;
+        uint8_t r = data[2] & 0xFF;
+        uint8_t g = data[1] & 0xFF;
+        uint8_t b = data[0] & 0xFF;
+
+        setNeoPixels(r, g, b);
     }
 };
 
