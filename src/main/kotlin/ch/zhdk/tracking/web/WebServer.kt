@@ -1,5 +1,6 @@
 package ch.zhdk.tracking.web
 
+import ch.zhdk.tracking.config.WebSocketConfig
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.ktor.application.install
@@ -25,9 +26,9 @@ class WebServer {
 
     val openChannels = CopyOnWriteArrayList<SendChannel<Frame>>()
 
-    fun start() {
+    fun start(config : WebSocketConfig) {
         // setup server
-        val server = embeddedServer(Netty, port = 7000) {
+        val server = embeddedServer(Netty, port = config.port.value) {
             install(DefaultHeaders)
             install(CallLogging)
             install(ConditionalHeaders)

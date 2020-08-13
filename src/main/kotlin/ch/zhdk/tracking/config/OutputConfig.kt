@@ -7,4 +7,8 @@ class OutputConfig {
     @Expose
     @GroupParameter("Open Sound Control")
     var osc = OscConfig()
+
+    @Expose
+    @GroupParameter("Web Socket")
+    var webSocket = WebSocketConfig()
 }

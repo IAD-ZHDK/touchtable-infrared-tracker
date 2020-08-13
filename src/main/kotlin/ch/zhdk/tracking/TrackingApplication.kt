@@ -74,7 +74,7 @@ object TrackingApplication {
         setupCanvas()
 
         // create web and udp channel
-        webServer.start()
+        webServer.start(config.output.webSocket)
         oscUDPChannel = OscUDPChannel(config.output.osc)
         oscWebSocketChannel = OscWebSocketChannel(webServer, config.output.osc)
 
