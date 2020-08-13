@@ -61,6 +61,13 @@ object TrackingApplication {
 
     private var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
 
+    private val calibrationMouseListener = object : MouseAdapter() {
+        override fun mousePressed(e: MouseEvent) {
+            mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
+            mousePressedLedge.release()
+        }
+    }
+
     // todo: refactor this heavy method into smaller parts!
     fun start(config: AppConfig) {
         this.config = config
@@ -216,12 +223,7 @@ object TrackingApplication {
 
         // setup mouse listener
         canvasFrame.canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
-        canvasFrame.canvas.addMouseListener(object : MouseAdapter() {
-            override fun mousePressed(e: MouseEvent) {
-                mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
-                mousePressedLedge.release()
-            }
-        })
+        canvasFrame.canvas.addMouseListener(calibrationMouseListener)
     }
 
     private fun setWindowAspectRatio(inputWidth: Int, inputHeight: Int) {
@@ -240,6 +242,16 @@ object TrackingApplication {
                 (pipeline.inputProvider as RealSense2InputProvider).displaySecondChannel = it
             }
         }
+
+        config.productionMode.onChanged += {
+            config.pipeline.displayOutput.value = !it
+            config.pipeline.annotateOutput.value = !it
+            if(it) {
+                config.pipeline.enabled.value = true
+                canvasFrame.removeMouseListener(canvasFrame.canvas.mouseListeners[0])
+            }
+        }
+        config.productionMode.fireLatest()
     }
 
     private fun initPipelineHandlers(pipeline: Pipeline) {

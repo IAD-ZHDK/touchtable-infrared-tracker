@@ -19,6 +19,10 @@ class AppConfig {
     private val outputLabel = ""
 
     @Expose
+    @BooleanParameter("Production Mode")
+    var productionMode = DataModel(false)
+
+    @Expose
     @BooleanParameter("Display Processed")
     var displayProcessed = DataModel(true)
 
