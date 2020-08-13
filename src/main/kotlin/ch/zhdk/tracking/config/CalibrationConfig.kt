@@ -16,7 +16,7 @@ class CalibrationConfig {
     @BooleanParameter("Display Annotation")
     var displayAnnotation = DataModel(true)
 
-    @Expose()
+    @Expose
     @BooleanParameter("Use Perspective Transform")
     var perspectiveTransform = DataModel(false)
 
