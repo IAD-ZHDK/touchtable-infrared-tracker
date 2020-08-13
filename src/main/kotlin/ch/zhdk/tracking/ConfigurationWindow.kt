@@ -1,8 +1,8 @@
 package ch.zhdk.tracking
 
 import ch.bildspur.configuration.ConfigurationController
+import ch.bildspur.ui.fx.PropertiesControl
 import ch.zhdk.tracking.config.AppConfig
-import ch.bildspur.ui.properties.PropertiesControl
 import javafx.application.Application
 import javafx.geometry.Insets
 import javafx.scene.Scene
@@ -10,7 +10,9 @@ import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
+import javafx.scene.layout.HBox.setHgrow
 import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
 
@@ -24,7 +26,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
         val root = createUI(primaryStage)
         primaryStage.scene = Scene(root, 420.0, 700.0)
         primaryStage.setOnShown {
-            propertiesControl.resize(primaryStage.scene.width, primaryStage.scene.height)
+            //propertiesControl.resize(primaryStage.scene.width, primaryStage.scene.height)
         }
 
         primaryStage.setOnCloseRequest {
@@ -53,6 +55,8 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
             primaryStage.title = "$windowName*"
             saveButton.style = "-fx-text-fill: #ff7675"
         }
+        propertiesControl.maxWidth = Double.MAX_VALUE
+        setHgrow(propertiesControl, Priority.ALWAYS)
 
         val spacerButton = Button("")
         spacerButton.isDisable = true
@@ -63,8 +67,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
             "General" to config,
             "Input" to config.input,
             "Pipeline" to config.pipeline,
-            "Calibration" to config.pipeline.calibration,
-            "OSC" to config.osc
+            "Output" to config.output
             )
 
         settings.forEach { (name, cfg) ->

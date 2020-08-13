@@ -68,11 +68,11 @@ object TrackingApplication {
 
         // create web and udp channel
         webServer.start()
-        oscUDPChannel = OscUDPChannel(config.osc)
-        oscWebSocketChannel = OscWebSocketChannel(webServer, config.osc)
+        oscUDPChannel = OscUDPChannel(config.output.osc)
+        oscWebSocketChannel = OscWebSocketChannel(webServer, config.output.osc)
 
         // create osc publisher
-        osc = OscPublisher(config.osc)
+        osc = OscPublisher(config.output.osc)
         osc.channels.add(oscUDPChannel)
         osc.channels.add(oscWebSocketChannel)
 
@@ -230,10 +230,10 @@ object TrackingApplication {
     }
 
     private fun setupConfigChangedHandlers() {
-        config.osc.updateFrequency.onChanged += {
-            oscTimer.duration = (1000.0 / config.osc.updateFrequency.value).roundToLong()
+        config.output.osc.updateFrequency.onChanged += {
+            oscTimer.duration = (1000.0 / config.output.osc.updateFrequency.value).roundToLong()
         }
-        config.osc.updateFrequency.fireLatest()
+        config.output.osc.updateFrequency.fireLatest()
 
         config.input.displaySecondIRStream.onChanged += {
             if (pipeline.inputProvider is RealSense2InputProvider) {
@@ -263,7 +263,7 @@ object TrackingApplication {
     // public methods
 
     fun initOSC() {
-        oscUDPChannel.init(InetAddress.getByName(config.osc.oscAddress.value), config.osc.oscPort.value)
+        oscUDPChannel.init(InetAddress.getByName(config.output.osc.oscAddress.value), config.output.osc.oscPort.value)
     }
 
     fun requestMousePressed(): Float2 {

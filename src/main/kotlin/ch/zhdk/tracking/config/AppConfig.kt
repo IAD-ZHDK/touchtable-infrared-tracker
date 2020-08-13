@@ -13,7 +13,7 @@ class AppConfig {
     var pipeline = PipelineConfig()
 
     @Expose
-    var osc = OscConfig()
+    var output = OutputConfig()
 
     @LabelParameter("Preview")
     private val outputLabel = ""
