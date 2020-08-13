@@ -4,6 +4,9 @@ import ch.bildspur.util.map
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.angleOfInDeg
+import ch.zhdk.tracking.math.linearNormalize
+import ch.zhdk.tracking.math.normalize
+import ch.zhdk.tracking.math.perspectiveTransform
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
@@ -43,7 +46,12 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
     }
 
     private fun updateDevices(devices: MutableList<TactileDevice>) {
+        val width = config.inputWidth.value.toFloat()
+        val height = config.inputHeight.value.toFloat()
+
         val tl = config.calibration.topLeft.value
+        val tr = config.calibration.topRight.value
+        val bl = config.calibration.bottomLeft.value
         val br = config.calibration.bottomRight.value
 
         devices.forEach {
@@ -56,16 +64,18 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
             }
 
             // add normalized values
-            it.normalizedPosition = Point2d(
-                it.position.x() / config.inputWidth.value,
-                it.position.y() / config.inputHeight.value
-            )
             it.normalizedIntensity = it.intensity / (config.inputWidth.value * config.inputHeight.value)
 
-            it.calibratedPosition = Point2d(
-                it.normalizedPosition.x().map(tl.x.toDouble(), br.x.toDouble(), 0.0, 1.0),
-                it.normalizedPosition.y().map(tl.y.toDouble(), br.y.toDouble(), 0.0, 1.0)
-            )
+            // calibrate position
+            val normalized = it.position.linearNormalize(width.toDouble(), height.toDouble())
+            if(config.calibration.perspectiveTransform.value) {
+                it.calibratedPosition = normalized.perspectiveTransform(tl, tr, br, bl)
+            } else {
+                it.calibratedPosition = Point2d(
+                    normalized.x().map(tl.x.toDouble(), br.x.toDouble(), 0.0, 1.0),
+                    normalized.y().map(tl.y.toDouble(), br.y.toDouble(), 0.0, 1.0)
+                )
+            }
         }
     }
 }

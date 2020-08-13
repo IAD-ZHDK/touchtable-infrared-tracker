@@ -11,7 +11,6 @@ import org.bytedeco.opencv.opencv_core.Point2d
 class TactileDevice(uniqueId: Int) : TrackingEntity(uniqueId) {
     var position = Point2d()
 
-    var normalizedPosition = Point2d()
     var normalizedIntensity: Double = 0.0
     var calibratedPosition = Point2d()
 

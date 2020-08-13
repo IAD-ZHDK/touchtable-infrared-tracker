@@ -309,20 +309,29 @@ abstract class Pipeline(
         val screen = Float2(mat.width().toFloat(), mat.height().toFloat())
 
         val tl = screen * config.calibration.topLeft.value
-        //val tr = screen * config.calibration.topRight.value
+        val tr = screen * config.calibration.topRight.value
         val br = screen * config.calibration.bottomRight.value
-        //val bl = screen * config.calibration.bottomLeft.value
+        val bl = screen * config.calibration.bottomLeft.value
 
         mat.drawMarker(tl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-        //mat.drawMarker(tr.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
         mat.drawMarker(br.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-        //mat.drawMarker(bl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
 
-        val size = br - tl
+        if(config.calibration.perspectiveTransform.value) {
+            mat.drawMarker(tr.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
+            mat.drawMarker(bl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
+        }
 
         // draw screen
-        val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
-        mat.drawRect(rect, AbstractScalar.GRAY)
+        if(config.calibration.perspectiveTransform.value) {
+            mat.drawLine(tl.toPoint(), tr.toPoint(), AbstractScalar.GRAY)
+            mat.drawLine(tr.toPoint(), br.toPoint(), AbstractScalar.GRAY)
+            mat.drawLine(br.toPoint(), bl.toPoint(), AbstractScalar.GRAY)
+            mat.drawLine(bl.toPoint(), tl.toPoint(), AbstractScalar.GRAY)
+        } else {
+            val size = br - tl
+            val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
+            mat.drawRect(rect, AbstractScalar.GRAY)
+        }
     }
 
     fun stop() {
