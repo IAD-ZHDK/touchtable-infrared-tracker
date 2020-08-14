@@ -69,7 +69,7 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
             // calibrate position
             val normalized = it.position.linearNormalize(width.toDouble(), height.toDouble())
             if(config.calibration.perspectiveTransform.value) {
-                it.calibratedPosition = normalized.perspectiveTransform(tl, tr, br, bl)
+                it.calibratedPosition = normalized.perspectiveTransform(config.calibration.calibrationMat.value)
             } else {
                 it.calibratedPosition = Point2d(
                     normalized.x().map(tl.x.toDouble(), br.x.toDouble(), 0.0, 1.0),

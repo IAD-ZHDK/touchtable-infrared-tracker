@@ -16,7 +16,12 @@ fun Point2d.perspectiveTransform(p1: Float2, p2: Float2, p3: Float2, p4: Float2)
     return Point2d(result.x.toDouble(), result.y.toDouble())
 }
 
-fun Float2.perspectiveTransform(p1: Float2, p2: Float2, p3: Float2, p4: Float2): Float2 {
+fun Point2d.perspectiveTransform(transformMat : Mat3) : Point2d {
+    val result = Float2(this.x().toFloat(), this.y().toFloat()).perspectiveTransform(transformMat)
+    return Point2d(result.x.toDouble(), result.y.toDouble())
+}
+
+fun generatePerspectiveTransformInverseMat(p1: Float2, p2: Float2, p3: Float2, p4: Float2) : Mat3 {
     // implementation details: https://math.stackexchange.com/a/3039140
     // First, find the transformation matrix for our deformed rectangle
     // [a b c]
@@ -50,9 +55,17 @@ fun Float2.perspectiveTransform(p1: Float2, p2: Float2, p3: Float2, p4: Float2):
         Float3(x0, y0, 1f)
     )
 
-    val inv = inverse(transformMatrix)
+    return inverse(transformMatrix)
+}
+
+fun Float2.perspectiveTransform(p1: Float2, p2: Float2, p3: Float2, p4: Float2): Float2 {
+    val inv = generatePerspectiveTransformInverseMat(p1, p2, p3, p4)
+    return this.perspectiveTransform(inv)
+}
+
+fun Float2.perspectiveTransform(transformMat : Mat3) : Float2 {
     val v = Float3(this.x, this.y, 1f)
-    val result = inv * v
+    val result = transformMat * v
 
     return Float2(result[0] / result[2], result[1] / result[2])
 }

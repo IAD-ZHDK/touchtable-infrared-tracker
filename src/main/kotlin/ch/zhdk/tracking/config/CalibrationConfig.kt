@@ -2,8 +2,10 @@ package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
 import ch.bildspur.math.Float2
+import ch.bildspur.math.Mat3
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.TrackingApplication
+import ch.zhdk.tracking.math.generatePerspectiveTransformInverseMat
 import com.google.gson.annotations.Expose
 
 class CalibrationConfig {
@@ -44,6 +46,17 @@ class CalibrationConfig {
             bottomLeft.value = TrackingApplication.requestMousePressed()
         }
 
+        // solve
+        if(perspectiveTransform.value) {
+            instruction.value = "solving..."
+            calibrationMat.value = generatePerspectiveTransformInverseMat(
+                topLeft.value,
+                topRight.value,
+                bottomRight.value,
+                bottomLeft.value
+            )
+        }
+
         instruction.value = "Calibration finished"
     }
 
@@ -65,4 +78,7 @@ class CalibrationConfig {
     @Expose
     @Float2Parameter("Bottom Left")
     var bottomLeft = DataModel(Float2(0f, 1f))
+
+    @Expose
+    var calibrationMat = DataModel(Mat3())
 }
