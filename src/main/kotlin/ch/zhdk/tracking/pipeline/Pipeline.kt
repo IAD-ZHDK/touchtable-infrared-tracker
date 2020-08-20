@@ -79,6 +79,8 @@ abstract class Pipeline(
     val onDeviceDetected = Event<TactileDevice>()
     val onDeviceRemoved = Event<TactileDevice>()
 
+    protected val steps = mutableListOf<PipelineStep>()
+
     fun waitForNewFrameAvailable() {
         newFrameAvailableSemaphore.acquire()
     }
@@ -97,6 +99,9 @@ abstract class Pipeline(
         inputFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
         processedFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
         annotationFrame = BufferedImage(inputProvider.width, inputProvider.height, TYPE_3BYTE_BGR)
+
+        // starting pipeline steps
+        steps.forEach { it.pipelineStartup() }
 
         // start processing thread
         pipelineThread = thread(start = true, name = "Pipeline Thread") {
@@ -342,6 +347,10 @@ abstract class Pipeline(
         newFrameAvailableSemaphore.release()
 
         shutdownRequested = true
+
+        // stopping pipeline threads
+        steps.forEach { it.pipelineStop() }
+
         pipelineThread.join(1000 * 10)
 
         isRunning = false

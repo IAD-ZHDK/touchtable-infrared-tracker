@@ -12,6 +12,7 @@ import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.pipeline.clustering.DistanceMarkerClusterer
 import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
+import ch.zhdk.tracking.pipeline.identification.BLEIdentifier
 import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
 import org.bytedeco.opencv.opencv_core.Mat
@@ -25,7 +26,11 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
     private val regionDetector = ConventionalRegionDetector(config)
     private val regionTracker = DistanceRegionTracker(this, config)
     private val markerClusterer = DistanceMarkerClusterer(this, config)
-    private val objectIdentifier = BinaryObjectIdentifier(config)
+    private val objectIdentifier = BLEIdentifier(config)
+
+    init {
+        steps.addAll(listOf(regionDetector, regionTracker, markerClusterer, objectIdentifier))
+    }
 
     override fun detectRegions(frame: Mat, timestamp: Long): List<ActiveRegion> {
         return regionDetector.detectRegions(frame, timestamp)
@@ -50,8 +55,6 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
         val height = config.inputHeight.value.toFloat()
 
         val tl = config.calibration.topLeft.value
-        val tr = config.calibration.topRight.value
-        val bl = config.calibration.bottomLeft.value
         val br = config.calibration.bottomRight.value
 
         devices.forEach {

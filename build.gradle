@@ -54,7 +54,8 @@ dependencies {
     // bildspur libs
     implementation "com.github.cansik:bildspur-base:0.2.4"
     //implementation "com.github.cansik:bildspur-ui:0.2.0"
-    implementation 'com.github.cansik:bildspur-ui:-SNAPSHOT'
+    implementation 'com.github.cansik:bildspur-ui:fdbba863da'
+    implementation 'com.github.cansik:ble-serial-bridge:b47fe56aaa'
 
     // ktor
     compile "io.ktor:ktor-server-netty:$ktor_version"

@@ -132,7 +132,11 @@ class PipelineConfig {
 
     @Expose
     @BooleanParameter("Identification Enabled")
-    var identificationEnabled = DataModel(false)
+    var identificationEnabled = DataModel(true)
+
+    @Expose
+    @GroupParameter("BluetoothLE", expanded = false)
+    var bleConfig = BLEConfig()
 
     @Expose
     @SliderParameter("Samples", 0.0, 300.0, 1.0, snap = true)

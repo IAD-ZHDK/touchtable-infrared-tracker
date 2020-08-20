@@ -22,7 +22,7 @@ object JavaCVVideoExample {
         grabber.start()
         println("grabber started")
 
-        var grabbedImage: Frame? = grabber.grab()
+        var grabbedImage: Frame?
 
         val canvasFrame = CanvasFrame("Video")
         canvasFrame.setCanvasSize(1280, 720)
