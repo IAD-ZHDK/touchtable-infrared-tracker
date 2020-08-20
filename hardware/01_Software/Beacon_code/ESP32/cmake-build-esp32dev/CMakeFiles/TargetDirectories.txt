@@ -1,0 +1,5 @@
+/Users/lfranzke/Documents/ZHdK/11_Physical Computing Lab/Technology/IR_Touch_table/IR_tracking/hardware/01_Software/Beacon_code/ESP32/cmake-build-esp32dev/CMakeFiles/rebuild_cache.dir
+/Users/lfranzke/Documents/ZHdK/11_Physical Computing Lab/Technology/IR_Touch_table/IR_tracking/hardware/01_Software/Beacon_code/ESP32/cmake-build-esp32dev/CMakeFiles/edit_cache.dir
+/Users/lfranzke/Documents/ZHdK/11_Physical Computing Lab/Technology/IR_Touch_table/IR_tracking/hardware/01_Software/Beacon_code/ESP32/cmake-build-esp32dev/CMakeFiles/Z_DUMMY_TARGET.dir
+/Users/lfranzke/Documents/ZHdK/11_Physical Computing Lab/Technology/IR_Touch_table/IR_tracking/hardware/01_Software/Beacon_code/ESP32/cmake-build-esp32dev/CMakeFiles/Debug.dir
+/Users/lfranzke/Documents/ZHdK/11_Physical Computing Lab/Technology/IR_Touch_table/IR_tracking/hardware/01_Software/Beacon_code/ESP32/cmake-build-esp32dev/CMakeFiles/Production.dir
