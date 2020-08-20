@@ -5,14 +5,11 @@ import ch.broox.ble.BLEDriver
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.list.update
 import ch.zhdk.tracking.model.TactileDevice
-import ch.zhdk.tracking.model.ble.BLEMatch
+import ch.zhdk.tracking.model.ble.BLETactileDevice
+import ch.zhdk.tracking.model.ble.BLE_SERVICE_ID
 import kotlin.concurrent.thread
 
 class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
-    private val SERVICE_ID = "846123f6-ccf1-11ea-87d0-0242ac130003"
-    private val NEOPIXEL_COLOR_ID = "fc3affa6-5020-47ce-93db-2e9dc45c9b55"
-    private val IMU_ID = "98f09e34-73ab-4f2a-a5eb-a95e7e7ab733"
-
     private val SCAN_INTERVAL = 100
     private val SCAN_WINDOW = 99
 
@@ -20,7 +17,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
     private lateinit var scanThread : Thread
     @Volatile private var running = false
 
-    private val matchings = mutableSetOf<BLEMatch>()
+    private val matchings = mutableSetOf<BLETactileDevice>()
 
     override fun pipelineStartup() {
         super.pipelineStartup()
@@ -57,27 +54,37 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         running = false
         scanThread.join(1000 * 3)
 
-        matchings.forEach { it.bleDevice.disconnect() }
+        matchings.forEach { it.disconnect() }
         driver.close()
     }
 
     fun scanBLEDevices() {
         println("start ble scan...")
-        val devices = driver.scan(SCAN_INTERVAL, SCAN_WINDOW, config.bleConfig.scanTime.value, SERVICE_ID)
+        val devices = driver.scan(SCAN_INTERVAL, SCAN_WINDOW, config.bleConfig.scanTime.value, BLE_SERVICE_ID)
 
-        val potentialMatches = devices.map { BLEMatch(it) }
+        val potentialMatches = devices.map { BLETactileDevice(it) }
         matchings.update(potentialMatches,
-            onAdd = { it.bleDevice.connect() },
+            onAdd = { it.connect() },
             onUpdate =  { it.lastUpdateTimestamp = System.currentTimeMillis() }
         )
 
         println("Current Devices (${matchings.size}):")
         matchings.forEach {
-            println(it.bleDevice.id)
+            println(it.id)
         }
     }
 
     fun mapBLEDevicesToTactiles() {
+        // todo: implement routine for matching
+        matchings.filter { !it.matched }.forEach {
+            // turn LED on
+            it.isIRLedOn = true
 
+            // wait until device is found or timeout
+            Thread.sleep(500)
+
+            // turn LED of
+            it.isIRLedOn = false
+        }
     }
 }
