@@ -16,3 +16,6 @@ data/markertracking450.mov
 data/markertracking240.mov
 data/markertracking120.mov
 node_modules/
+.pio
+cmake-build-*
+CMakeListsPrivate.txt
