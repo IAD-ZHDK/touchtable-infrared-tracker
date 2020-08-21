@@ -43,15 +43,25 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         running.set(true)
         scanThread = thread(isDaemon = true, start = true) {
             val lastScanTimer = ElapsedTimer(bleConfig.scanInterval.value * 1000L)
+            val lastMapTimer = ElapsedTimer(bleConfig.mapInterval.value * 1000L)
+
             while (running.get()) {
                 if(lastScanTimer.elapsed()) {
                     try {
                         scanBLEDevices()
-                        mapBLEDevicesToTactiles()
                     }   catch (ex : Exception) {
-                        println("BLE Error: ${ex.message}")
+                        println("BLE Scan Error: ${ex.message}")
                     }
                 }
+
+                if(lastMapTimer.elapsed()){
+                    try {
+                        mapBLEDevicesToTactiles()
+                    }   catch (ex : Exception) {
+                        println("BLE Map Error: ${ex.message}")
+                    }
+                }
+
                 Thread.sleep(500)
             }
         }
@@ -110,8 +120,11 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
                 if(!it.tactileDevice!!.isActive)
                     it.disableMatch()
             }
-            println(it.bleId)
         }
+
+        // display devices for debug
+        scannedDevices.forEach { println("New: ${it.id}") }
+        listDevices.forEach { println("Old: ${it.id}") }
     }
 
     private fun mapBLEDevicesToTactiles() {
@@ -136,7 +149,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
 
             // turn LED off
             it.isIRLedOn = false
-            Thread.sleep(50)
+            Thread.sleep(config.maxMissingTime.value + 100L)
         }
     }
 
