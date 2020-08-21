@@ -6,16 +6,31 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
- #include <NeoPixelBus.h>
+#include <NeoPixelBus.h>
 #include "blink.h"
+#include <EEPROM.h>
+//
+// Power saving considerations
+//
+// NEOPixel idle ≈ 7 mA 
+// NEOPixel full power ≈ 250 mA 
+// IMU idle ≈ 3 mA
+// Pisition In-LED ≈ 40 mA
+// Signal In-LED ≈ 20 mA
+// ESP idle @ full cpu clockrate ≈ 58 mA
+// ESP idle 80 MHz cpu clockrate ≈ 30 mA
+// ESP sleep ≈ 3 mA
+// some tips on ESP power saving https://www.savjee.be/2019/12/esp32-tips-to-increase-battery-life/#:~:text=Well%2C%20a%20regular%20ESP32%20will,coming%20in%20at%2027mA%2D34mA.
+
 
 #define pinIRLED1  12 // com IR LED
 #define pinIRLED2  27 // com IR LED
 #define pinIRLED3  33 // com IR LED
+#define IMUinterup 32 // com IR LED
 #define pinLED  13 // indicator LED
 
-
 // IMU
+#define IMU
 #define WIRE_PORT Wire
 #define I2C_ADDR ICM_20948_I2C_ADDR_AD1
 ICM_20948_I2C myICM;  // 
@@ -48,14 +63,19 @@ BLEServer* pServer = NULL;
 BLECharacteristic* pCharacteristic1 = NULL;
 BLECharacteristic* pCharacteristic2 = NULL;
 BLECharacteristic* pCharacteristic3 = NULL;
+BLECharacteristic* pCharacteristic4 = NULL;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
-uint32_t value = 0;
+uint8_t deviceID = 0;
 
+// https://www.uuidgenerator.net/version4
+// device 1: 846123f6-ccf1-11ea-87d0-0242ac130003
+// device 2:f492305c-ec32-4a71-94c4-303b97a99bb2 
 #define SERVICE_UUID        "846123f6-ccf1-11ea-87d0-0242ac130003"
 #define CHARACTERISTIC_UUID1 "98f09e34-73ab-4f2a-a5eb-a95e7e7ab733" // IMU
 #define CHARACTERISTIC_UUID2 "fc3affa6-5020-47ce-93db-2e9dc45c9b55" // NEOPIXEL
 #define CHARACTERISTIC_UUID3 "fc9a2e54-a7f2-4bad-aebc-9879e896f1b9" // IR LED
+#define CHARACTERISTIC_UUID4 "fc9a2e54-a7f2-4bad-aebc-9879e896f1v5" // Device ID
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -70,24 +90,38 @@ class MyServerCallbacks: public BLEServerCallbacks {
 class MyCallbackNeoPixel: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
         auto data = pCharacteristic->getData();
-
         //uint8_t a = data[3] & 0xFF;
         uint8_t r = data[2] & 0xFF;
         uint8_t g = data[1] & 0xFF;
         uint8_t b = data[0] & 0xFF;
-
         setNeoPixels(r, g, b);
     }
 };
 
 class MyCallbackIRLED: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
-      std::string value = pCharacteristic->getValue();
-      if (value.length() > 0) {
-          digitalWrite(pinIRLED2,value[0]);
-      }
+       auto data = pCharacteristic->getData();
+       int value = (data[0] & 0xFF);
+         Serial.println("value:"+String(value));
+       if (value > 0) {
+         digitalWrite(pinIRLED2, HIGH); 
+         Serial.println("IR 2 ON");
+       } else {
+        digitalWrite(pinIRLED2, LOW); 
+          Serial.println("IR 2 OFF");
+       }
     }
 };
+
+class MyCallbackID: public BLECharacteristicCallbacks {
+    void onWrite(BLECharacteristic *pCharacteristic) {
+       auto data = pCharacteristic->getData();
+       int value = (data[0] & 0xFF);
+       Serial.println("ID value:"+String(value));
+       EEPROM.put(0, value);
+    }
+};
+
 
 // States
 enum State{Stationary, Moving};
@@ -95,15 +129,17 @@ State DeviceStates = Stationary;
 State DeviceLastState = DeviceStates;
 
 void setup() {
+  // setCpuFrequencyMhz(80);
   Serial.begin(115200);
   while(!Serial) {}
 // IMU 
   WIRE_PORT.begin();
   WIRE_PORT.setClock(400000);
   bool initialized = false;
+#ifdef IMU 
   while( !initialized ){
     myICM.begin( WIRE_PORT, AD0_VAL );
-    Serial.print( F("Initialization of the sensor returned: ") );
+    Serial.print( F("Initialization of the IMU returned: ") );
     Serial.println( myICM.statusString() );
     if( myICM.status != ICM_20948_Stat_Ok ){
       Serial.println( "Trying again..." );
@@ -112,7 +148,7 @@ void setup() {
       initialized = true;
     }
   }
-
+#endif
 // LED
   pinMode(pinIRLED1, OUTPUT);
   pinMode(pinIRLED2, OUTPUT);
@@ -152,17 +188,27 @@ void setup() {
                       BLECharacteristic::PROPERTY_WRITE  
                     );
 
+  pCharacteristic4 = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID4,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_WRITE  
+                    );
+
   // Create a BLE Descriptor
   pCharacteristic1->addDescriptor(new BLE2902());
   pCharacteristic2->addDescriptor(new BLE2902());
   pCharacteristic3->addDescriptor(new BLE2902());
-
+  pCharacteristic4->addDescriptor(new BLE2902());
   // set Callbacks
   pCharacteristic2->setCallbacks(new MyCallbackNeoPixel());
   pCharacteristic2->setValue("NEOPIXEL COLOR");
 
   pCharacteristic3->setCallbacks(new MyCallbackIRLED());
   pCharacteristic3->setValue("IR LED");
+
+  pCharacteristic3->setCallbacks(new MyCallbackID());
+  pCharacteristic3->setValue("ID");
+
 
   // Start the service
   pService->start();
@@ -175,11 +221,16 @@ void setup() {
   BLEDevice::startAdvertising();
   Serial.println("Waiting a client connection to notify...");
   NeoPixelSweep(0,0,254);
+  // get device ID from EEPROM 
+  EEPROM.get(0, deviceID);
+  pCharacteristic4->setValue((uint8_t*)&deviceID, 1);
 }
 void loop() {
   ledBlink(pinLED);
   BLEroutine();
-  readIMU();
+  #ifdef IMU 
+    readIMU();
+  #endif
   delay(20);
 }
 uint32_t value2 = 0;
