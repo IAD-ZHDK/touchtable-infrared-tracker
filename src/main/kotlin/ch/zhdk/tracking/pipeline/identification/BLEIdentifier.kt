@@ -120,8 +120,11 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
                 if(!it.tactileDevice!!.isActive)
                     it.disableMatch()
             }
-            println(it.bleId)
         }
+
+        // display devices for debug
+        scannedDevices.forEach { println("New: ${it.id}") }
+        listDevices.forEach { println("Old: ${it.id}") }
     }
 
     private fun mapBLEDevicesToTactiles() {
