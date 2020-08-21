@@ -256,16 +256,6 @@ abstract class Pipeline(
 
             // show max distance
             mat.drawCircle(it.center.toPoint(), config.markerMaxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
-
-            // draw timestamp
-            /*
-            mat.drawText(
-                "A: ${it.area}",
-                it.center.toPoint().transform(20, 20),
-                AbstractScalar.RED,
-                scale = 0.4
-            )
-            */
         }
     }
 
@@ -281,29 +271,21 @@ abstract class Pipeline(
 
             // todo: check for NAN
             mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
-
-            /*
-            mat.drawText(
-                "N:${it.uniqueId} [${it.timeSinceLastStateChange.formatSeconds()}]",
-                it.position.toPoint().transform(20, -20),
-                color,
-                scale = 0.4
-            )
-            */
         }
     }
 
     private fun annotateTactileDevices(mat: Mat) {
         devices.forEach {
-            val color = AbstractScalar.YELLOW
+            val defaultColor = AbstractScalar.YELLOW
+            val identifiedColor = AbstractScalar.GREEN
 
-            mat.drawCross(it.position.toPoint(), 20, color, thickness = 2)
+            mat.drawCross(it.position.toPoint(), 20, defaultColor, thickness = 2)
             //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
 
             mat.drawText(
                 "${it.uniqueId} (r: ${it.rotation.format(1)})",
                 it.position.toPoint().transform(20, 20),
-                color,
+                if(it.identifier > -1) identifiedColor else defaultColor,
                 scale = 0.6
             )
         }
