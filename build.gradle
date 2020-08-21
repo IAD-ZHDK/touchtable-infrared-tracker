@@ -57,8 +57,7 @@ dependencies {
     compile 'org.nield:kotlin-statistics:1.2.1'
 
     // bildspur libs
-    implementation "com.github.cansik:bildspur-base:0.2.4"
-    //implementation "com.github.cansik:bildspur-ui:0.2.0"
+    implementation "com.github.cansik:bildspur-base:7436a637a5"
     implementation 'com.github.cansik:bildspur-ui:fdbba863da'
     implementation 'com.github.cansik:ble-serial-bridge:4df2afd994'
 

@@ -42,8 +42,8 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
 
         running.set(true)
         scanThread = thread(isDaemon = true, start = true) {
-            val lastScanTimer = ElapsedTimer(bleConfig.scanInterval.value * 1000L)
-            val lastMapTimer = ElapsedTimer(bleConfig.mapInterval.value * 1000L)
+            val lastScanTimer = ElapsedTimer(bleConfig.scanInterval.value * 1000L, true)
+            val lastMapTimer = ElapsedTimer(bleConfig.mapInterval.value)
 
             while (running.get()) {
                 if(lastScanTimer.elapsed()) {
@@ -62,7 +62,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
                     }
                 }
 
-                Thread.sleep(500)
+                Thread.sleep(100)
             }
         }
     }

@@ -32,6 +32,6 @@ class BLEConfig {
     var scanTime = DataModel(2)
 
     @Expose
-    @NumberParameter("Map Interval", "s")
-    var mapInterval = DataModel(1)
+    @NumberParameter("Map Interval", "ms")
+    var mapInterval = DataModel(500L)
 }
