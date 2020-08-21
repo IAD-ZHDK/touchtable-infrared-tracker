@@ -146,7 +146,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
 
             // turn LED off
             it.isIRLedOn = false
-            Thread.sleep(50)
+            Thread.sleep(config.maxMissingTime.value + 50L)
         }
     }
 
