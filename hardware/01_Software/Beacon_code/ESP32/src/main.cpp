@@ -75,7 +75,7 @@ uint8_t deviceID = 0;
 #define CHARACTERISTIC_UUID1 "98f09e34-73ab-4f2a-a5eb-a95e7e7ab733" // IMU
 #define CHARACTERISTIC_UUID2 "fc3affa6-5020-47ce-93db-2e9dc45c9b55" // NEOPIXEL
 #define CHARACTERISTIC_UUID3 "fc9a2e54-a7f2-4bad-aebc-9879e896f1b9" // IR LED
-#define CHARACTERISTIC_UUID4 "fc9a2e54-a7f2-4bad-aebc-9879e896f1v5" // Device ID
+#define CHARACTERISTIC_UUID4 "58b8dbc8-045e-4a20-a52d-f181f01e12fe" // Device ID
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -206,8 +206,8 @@ void setup() {
   pCharacteristic3->setCallbacks(new MyCallbackIRLED());
   pCharacteristic3->setValue("IR LED");
 
-  pCharacteristic3->setCallbacks(new MyCallbackID());
-  pCharacteristic3->setValue("ID");
+  pCharacteristic4->setCallbacks(new MyCallbackID());
+  pCharacteristic4->setValue("ID");
 
 
   // Start the service
