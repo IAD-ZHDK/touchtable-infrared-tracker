@@ -26,6 +26,15 @@ class BLETactileDevice(private val bleDevice : BLEDevice) {
         bleDevice.disconnect()
     }
 
+    fun enableMatch(device : TactileDevice) {
+        device.identifier = 1
+        this.tactileDevice = device
+    }
+
+    fun disableMatch() {
+        this.tactileDevice = null
+    }
+
     private val service : BLEService
         get() = bleDevice.getService(BLE_SERVICE_ID)
 
@@ -39,8 +48,8 @@ class BLETactileDevice(private val bleDevice : BLEDevice) {
         get() = service.getCharacteristic(BLE_NEOPIXEL_COLOR_ID)
 
     var isIRLedOn : Boolean
-        set(value) = irLedCharactersitic.writeUInt8(value.toInt())
-        get() = irLedCharactersitic.readUInt8() == 1
+        set(value) = irLedCharactersitic.writeUInt32(if(value) 0x01 else 0x00)
+        get() = irLedCharactersitic.readUInt32() == 1
 
     val id : String
         get() = bleDevice.id
