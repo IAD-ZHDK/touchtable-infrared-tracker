@@ -283,7 +283,7 @@ abstract class Pipeline(
             //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
 
             mat.drawText(
-                "${it.uniqueId} (r: ${it.rotation.format(1)})",
+                "${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
                 it.position.toPoint().transform(20, 20),
                 if(it.identifier > -1) identifiedColor else defaultColor,
                 scale = 0.6

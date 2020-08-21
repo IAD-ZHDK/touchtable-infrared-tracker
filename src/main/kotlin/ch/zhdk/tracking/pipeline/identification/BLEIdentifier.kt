@@ -45,8 +45,12 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
             val lastScanTimer = ElapsedTimer(bleConfig.scanInterval.value * 1000L)
             while (running.get()) {
                 if(lastScanTimer.elapsed()) {
-                    scanBLEDevices()
-                    mapBLEDevicesToTactiles()
+                    try {
+                        scanBLEDevices()
+                        mapBLEDevicesToTactiles()
+                    }   catch (ex : Exception) {
+                        println("BLE Error: ${ex.message}")
+                    }
                 }
                 Thread.sleep(500)
             }
@@ -90,7 +94,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         val scannedDevices = driver.scan(SCAN_INTERVAL, SCAN_WINDOW, config.bleConfig.scanTime.value, BLE_SERVICE_ID)
         val listDevices = driver.list()
 
-        val devices = mutableListOf<BLEDevice>()
+        val devices = mutableSetOf<BLEDevice>()
         devices.addAll(scannedDevices)
         devices.addAll(listDevices)
 
@@ -100,24 +104,27 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
             onUpdate =  { it.lastUpdateTimestamp = System.currentTimeMillis() }
         )
 
-        // disable matches if td not recognized
+        // disable matches if td is not recognized anymore
         matchings.forEach {
             if(it.matched) {
                 if(!it.tactileDevice!!.isActive)
                     it.disableMatch()
             }
+            println(it.bleId)
         }
     }
 
     private fun mapBLEDevicesToTactiles() {
-        // todo: implement routine for matching
         matchings.filter { !it.matched }.forEach {
+            // todo: check if device is still available!
+
             // turn LED on
             it.isIRLedOn = true
-            Thread.sleep(50)
+            Thread.sleep(200)
 
             // wait until device is found or timeout (letch)
             isTactileDeviceRequested.set(true)
+            println("try match...")
             mutex.tryAcquire(1000, TimeUnit.MILLISECONDS)
             isTactileDeviceRequested.set(false)
 
@@ -138,7 +145,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
             try {
                 it.disconnect()
             } catch (ex : Exception) {
-                println("error while disconnecting ${it.id}")
+                println("error while disconnecting ${it.bleId}")
             }
         }
     }
