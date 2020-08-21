@@ -74,7 +74,7 @@ class PipelineConfig {
     var binarizationMethod = DataModel(BinarizationMethod.Adaptive)
 
     @Expose
-    @SliderParameter("Threshold", 1.0, 100.0, 0.05, snap = true)
+    @SliderParameter("Threshold", 1.0, 255.0, 0.05, snap = true)
     var threshold = DataModel(50.0)
 
     @Expose
