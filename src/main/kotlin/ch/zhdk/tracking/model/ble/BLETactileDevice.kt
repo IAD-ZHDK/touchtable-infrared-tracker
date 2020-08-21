@@ -26,12 +26,12 @@ class BLETactileDevice(private val bleDevice : BLEDevice) {
         bleDevice.disconnect()
     }
 
-    fun enableMatch(device : TactileDevice) {
+    fun match(device : TactileDevice) {
         device.identifier = identifier
         this.tactileDevice = device
     }
 
-    fun disableMatch() {
+    fun unmatch() {
         this.tactileDevice = null
     }
 

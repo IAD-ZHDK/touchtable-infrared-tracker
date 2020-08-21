@@ -124,9 +124,15 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         matchings.forEach {
             if(it.matched) {
                 if(!it.tactileDevice!!.isActive)
-                    it.disableMatch()
+                    it.unmatch()
             }
         }
+
+        // remove not active devices
+        val activeBleTacs = driver.list().map { BLETactileDevice(it) }
+        val inactiveBleTacs = matchings - activeBleTacs
+        matchings.removeAll(inactiveBleTacs)
+        inactiveBleTacs.forEach { it.unmatch() }
 
         // map devices
         matchings.filter { !it.matched }.forEach {
@@ -145,7 +151,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
             val device = foundDevice.get()
 
             if(device != null) {
-                it.enableMatch(device)
+                it.match(device)
             }
 
             // turn LED off
