@@ -114,6 +114,12 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
             onUpdate =  { it.lastUpdateTimestamp = System.currentTimeMillis() }
         )
 
+        // display devices for debug
+        scannedDevices.forEach { println("New: ${it.id}") }
+        listDevices.forEach { println("Old: ${it.id}") }
+    }
+
+    private fun mapBLEDevicesToTactiles() {
         // disable matches if td is not recognized anymore
         matchings.forEach {
             if(it.matched) {
@@ -122,12 +128,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
             }
         }
 
-        // display devices for debug
-        scannedDevices.forEach { println("New: ${it.id}") }
-        listDevices.forEach { println("Old: ${it.id}") }
-    }
-
-    private fun mapBLEDevicesToTactiles() {
+        // map devices
         matchings.filter { !it.matched }.forEach {
             // todo: check if device is still available!
 
