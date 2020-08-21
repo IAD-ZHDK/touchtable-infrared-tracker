@@ -35,7 +35,7 @@ void drawTactileObject(TactileObject to) {
   float x = (tox * width);
   float y = (toy * height);
 
-  float r = radians(useSmoothRotation ? to.smoothRotation : to.rotation);
+  float r = radians(360.0 - (useSmoothRotation ? to.smoothRotation : to.rotation));
 
   // check out of bounds
   if (x < 0 || x >= width || y < 0 || y >= height) {
