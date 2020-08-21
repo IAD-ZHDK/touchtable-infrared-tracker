@@ -43,15 +43,25 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         running.set(true)
         scanThread = thread(isDaemon = true, start = true) {
             val lastScanTimer = ElapsedTimer(bleConfig.scanInterval.value * 1000L)
+            val lastMapTimer = ElapsedTimer(bleConfig.mapInterval.value * 1000L)
+
             while (running.get()) {
                 if(lastScanTimer.elapsed()) {
                     try {
                         scanBLEDevices()
-                        mapBLEDevicesToTactiles()
                     }   catch (ex : Exception) {
-                        println("BLE Error: ${ex.message}")
+                        println("BLE Scan Error: ${ex.message}")
                     }
                 }
+
+                if(lastMapTimer.elapsed()){
+                    try {
+                        mapBLEDevicesToTactiles()
+                    }   catch (ex : Exception) {
+                        println("BLE Map Error: ${ex.message}")
+                    }
+                }
+
                 Thread.sleep(500)
             }
         }

@@ -30,4 +30,8 @@ class BLEConfig {
     @Expose
     @NumberParameter("Scan Time", "s")
     var scanTime = DataModel(2)
+
+    @Expose
+    @NumberParameter("Map Interval", "s")
+    var mapInterval = DataModel(1)
 }
