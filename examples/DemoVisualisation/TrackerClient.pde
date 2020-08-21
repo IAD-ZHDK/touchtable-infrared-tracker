@@ -149,8 +149,8 @@ class TactileObject {
     smoothRotation = ease(rotation, smoothRotation, 0.1);
 
     // todo: use vector methods
-    position.x = ease(x, position.x, 0.1);
-    position.y = ease(y, position.y, 0.1);
+    position.x = ease(x, position.x, 0.3);
+    position.y = ease(y, position.y, 0.3);
   }
 
   // basic easing method
