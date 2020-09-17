@@ -15,6 +15,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import javafx.stage.Stage
+import kotlin.math.min
 
 class ConfigurationWindow(val configController : ConfigurationController, val config : AppConfig) : Application() {
     private val windowName = "ZHdK - IR Tracker"
@@ -34,7 +35,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
         }
 
         val primScreenBounds = Screen.getPrimary().visualBounds
-        primaryStage.x = primScreenBounds.width / 8.0 * 7.0
+        primaryStage.x = min(primScreenBounds.width / 8.0 * 6.0, primScreenBounds.width - primaryStage.scene.width)
 
         primaryStage.show()
     }
