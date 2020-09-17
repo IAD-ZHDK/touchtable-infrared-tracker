@@ -6,41 +6,31 @@ import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Application
 import javafx.geometry.Insets
 import javafx.scene.Scene
+import javafx.scene.canvas.Canvas
 import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.HBox.setHgrow
-import javafx.scene.layout.Pane
-import javafx.scene.layout.Priority
-import javafx.stage.Screen
+import javafx.scene.layout.*
 import javafx.stage.Stage
-import kotlin.math.min
 
-class ConfigurationWindow(val configController : ConfigurationController, val config : AppConfig) : Application() {
+class MainWindow(val configController: ConfigurationController, val config: AppConfig) : Application() {
     private val windowName = "ZHdK - IR Tracker"
     private val propertiesControl = PropertiesControl()
+    val canvas = Canvas(1280.0, 720.0)
 
     override fun start(primaryStage: Stage) {
         primaryStage.title = windowName
 
         val root = createUI(primaryStage)
-        primaryStage.scene = Scene(root, 420.0, 700.0)
-        primaryStage.setOnShown {
-            //propertiesControl.resize(primaryStage.scene.width, primaryStage.scene.height)
-        }
+        primaryStage.scene = Scene(root, canvas.width + 400, 720.0)
 
         primaryStage.setOnCloseRequest {
             TrackingApplication.running = false
         }
 
-        val primScreenBounds = Screen.getPrimary().visualBounds
-        primaryStage.x = min(primScreenBounds.width / 8.0 * 6.0, primScreenBounds.width - primaryStage.scene.width)
-
         primaryStage.show()
     }
 
-    private fun createUI(primaryStage: Stage) : Pane {
+    private fun createUI(primaryStage: Stage): Pane {
         // components
         val saveButton = Button("Save")
         saveButton.setOnAction {
@@ -57,7 +47,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
             saveButton.style = "-fx-text-fill: #ff7675"
         }
         propertiesControl.maxWidth = Double.MAX_VALUE
-        setHgrow(propertiesControl, Priority.ALWAYS)
+        HBox.setHgrow(propertiesControl, Priority.ALWAYS)
 
         val spacerButton = Button("")
         spacerButton.isDisable = true
@@ -69,7 +59,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
             "Input" to config.input,
             "Pipeline" to config.pipeline,
             "Output" to config.output
-            )
+        )
 
         settings.forEach { (name, cfg) ->
             val button = Button(name)
@@ -84,6 +74,7 @@ class ConfigurationWindow(val configController : ConfigurationController, val co
         }
         top.padding = Insets(10.0)
         top.spacing = 5.0
-        return BorderPane(ScrollPane(propertiesControl), top, null, null, null)
+
+        return BorderPane(canvas, null, VBox(top, ScrollPane(propertiesControl)), null, null)
     }
 }

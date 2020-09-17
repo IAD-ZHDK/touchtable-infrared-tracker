@@ -28,13 +28,13 @@ class Main {
             appConfig = AppConfig()
 
         // start configuration app
+        val window = MainWindow(configuration, appConfig)
         Platform.startup {
-            val window = ConfigurationWindow(configuration, appConfig)
             val stage = Stage()
             window.start(stage)
         }
 
         // start main app
-        TrackingApplication.start(appConfig)
+        TrackingApplication.start(appConfig, window.canvas)
     }
 }

@@ -13,12 +13,12 @@ import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import ch.zhdk.tracking.web.WebServer
-import org.bytedeco.javacv.CanvasFrame
-import org.guy.composite.BlendComposite
-import java.awt.Color
-import java.awt.Cursor
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import javafx.application.Platform
+import javafx.embed.swing.SwingFXUtils
+import javafx.scene.Cursor
+import javafx.scene.canvas.Canvas
+import javafx.scene.canvas.GraphicsContext
+import javafx.scene.image.Image
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.InetAddress
@@ -28,9 +28,9 @@ import javax.imageio.ImageIO
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
-
 object TrackingApplication {
     lateinit var config: AppConfig
+    lateinit var canvas: Canvas
 
     @Volatile
     var running = true
@@ -49,11 +49,9 @@ object TrackingApplication {
     private val webServer = WebServer()
     private lateinit var oscUDPChannel: OscUDPChannel
     private lateinit var oscWebSocketChannel: OscWebSocketChannel
-    private lateinit var osc : OscPublisher
+    private lateinit var osc: OscPublisher
 
     private val oscTimer = ElapsedTimer()
-
-    private val canvasFrame = CanvasFrame("Preview", 0.0)
 
     @Volatile
     private var mousePressedLedge = Semaphore(0)
@@ -61,17 +59,17 @@ object TrackingApplication {
 
     private var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
 
-    private val calibrationMouseListener = object : MouseAdapter() {
-        override fun mousePressed(e: MouseEvent) {
-            mousePressedPosition = Float2(e.x.toFloat(), e.y.toFloat())
+    // todo: refactor this heavy method into smaller parts!
+    fun start(config: AppConfig, canvas: Canvas) {
+        this.config = config
+        this.canvas = canvas
+
+        // setup canvas
+        canvas.setOnMouseClicked {
+            mousePressedPosition = Float2(it.x.toFloat(), it.y.toFloat())
             mousePressedLedge.release()
         }
-    }
-
-    // todo: refactor this heavy method into smaller parts!
-    fun start(config: AppConfig) {
-        this.config = config
-        setupCanvas()
+        canvas.cursor = Cursor.CROSSHAIR
 
         // create web and udp channel
         webServer.start(config.output.webSocket)
@@ -116,7 +114,7 @@ object TrackingApplication {
             pipelineStartedLatch.release()
 
             // run
-            while (!restartRequested && running && canvasFrame.isVisible) {
+            while (!restartRequested && running) {
 
                 // if frame save requested
                 if (saveFrameRequested) {
@@ -128,25 +126,37 @@ object TrackingApplication {
 
                 // display frames
                 if (pipeline.isRunning) {
-                    if (config.pipeline.displayOutput.value) {
-                        pipeline.waitForNewFrameAvailable()
+                    pipeline.waitForNewFrameAvailable()
 
+                    var backgroundImage: Image? = null
+                    if (config.pipeline.displayOutput.value) {
                         synchronized(pipelineLock) {
-                            if (config.displayProcessed.value) {
-                                drawImage(pipeline.processedFrame, pipeline.annotationFrame)
+                            backgroundImage = if (config.displayProcessed.value) {
+                                SwingFXUtils.toFXImage(pipeline.processedFrame, null)
                             } else {
-                                drawImage(pipeline.inputFrame, pipeline.annotationFrame)
+                                SwingFXUtils.toFXImage(pipeline.inputFrame, null)
                             }
                         }
-                    } else {
-                        Thread.sleep(100)
                     }
-                }
-            }
 
-            if (!canvasFrame.isVisible) {
-                config.message.value = "shutting down..."
-                running = false
+                    // start drawing output
+                    Platform.runLater {
+                        val g = canvas.graphicsContext2D
+
+                        // clear canvas
+                        g.fill = javafx.scene.paint.Color.BLACK
+                        g.clearRect(0.0, 0.0, canvas.width, canvas.height)
+
+                        if (backgroundImage != null)
+                            drawImage(g, backgroundImage!!)
+
+                        if (config.pipeline.annotateOutput.value) {
+                            annotate(g)
+                        }
+                    }
+                } else {
+                    Thread.sleep(100)
+                }
             }
 
             if (restartRequested) {
@@ -159,55 +169,26 @@ object TrackingApplication {
         }
 
         config.message.value = "ended!"
-        canvasFrame.dispose()
         running = false
 
         exitProcess(0)
     }
 
-    private fun drawImage(image: BufferedImage, overlay: BufferedImage) {
-        val g = canvasFrame.createGraphics()
+    private fun setWindowAspectRatio(width: Int, height: Int) {
+        // todo: set aspect ratio
+    }
 
-        // clear canvas
-        g.color = Color.black
-        g.fillRect(0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height)
-
+    private fun drawImage(g: GraphicsContext, image: Image) {
         // draw images
-        g.drawImage(image, 0, 0, canvasFrame.canvas.width - 1, canvasFrame.canvas.height - 1, null)
-
-        if (config.pipeline.annotateOutput.value) {
-            g.composite = BlendComposite.Screen
-
-            try {
-                g.drawImage(overlay, 0, 0, canvasFrame.canvas.width - 1, canvasFrame.canvas.height - 1, null)
-            } catch (ex: Exception) {
-                println(ex.message)
-            }
-        }
-
-        // paint
-        canvasFrame.releaseGraphics(g)
+        g.drawImage(image, 0.0, 0.0, canvas.width, canvas.height)
     }
 
     private fun drawText(message: String) {
-        val g = canvasFrame.createGraphics()
+        // todo: implement setting text
+    }
 
-        // clear canvas
-        g.color = Color.DARK_GRAY
-        g.fillRect(0, 0, canvasFrame.canvas.width, canvasFrame.canvas.height)
-
-        g.font = g.font.deriveFont(30f)
-        g.color = Color.WHITE
-
-        val metrics = g.getFontMetrics(g.font)
-        g.drawString(
-            message,
-            (canvasFrame.canvas.width / 2f) - (metrics.stringWidth(message) / 2f),
-            (canvasFrame.canvas.height / 2f) - (metrics.height / 2f)
-        )
-
-        // paint
-        canvasFrame.releaseGraphics(g)
+    private fun annotate(g: GraphicsContext) {
+        // todo: annotate
     }
 
     fun requestPipelineRestart(blocking: Boolean = false) {
@@ -217,20 +198,6 @@ object TrackingApplication {
     }
 
     // internal setup
-
-    private fun setupCanvas() {
-        canvasFrame.setCanvasSize(config.previewWidth.value, config.previewHeight.value)
-
-        // setup mouse listener
-        canvasFrame.canvas.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
-        canvasFrame.canvas.addMouseListener(calibrationMouseListener)
-    }
-
-    private fun setWindowAspectRatio(inputWidth: Int, inputHeight: Int) {
-        // use width as constant
-        // todo: calculate aspect ratio
-    }
-
     private fun setupConfigChangedHandlers() {
         config.output.osc.updateFrequency.onChanged += {
             oscTimer.duration = (1000.0 / config.output.osc.updateFrequency.value).roundToLong()
@@ -246,9 +213,8 @@ object TrackingApplication {
         config.productionMode.onChanged += {
             config.pipeline.displayOutput.value = !it
             config.pipeline.annotateOutput.value = !it
-            if(it) {
+            if (it) {
                 config.pipeline.enabled.value = true
-                canvasFrame.removeMouseListener(canvasFrame.canvas.mouseListeners[0])
             }
         }
         config.productionMode.fireLatest()
@@ -282,8 +248,8 @@ object TrackingApplication {
         mousePressedLedge = Semaphore(0)
         mousePressedLedge.acquire()
         return Float2(
-            mousePressedPosition.x / canvasFrame.canvasSize.width,
-            mousePressedPosition.y / canvasFrame.canvasSize.height
+            mousePressedPosition.x / canvas.width.toFloat(),
+            mousePressedPosition.y / canvas.height.toFloat()
         )
     }
 
