@@ -73,6 +73,7 @@ abstract class Pipeline(
         private set
 
     val markers = mutableListOf<Marker>()
+    var regions = emptyList<ActiveRegion>()
     val devices = mutableListOf<TactileDevice>()
 
     val onFrameProcessed = Event<Pipeline>()
@@ -186,10 +187,9 @@ abstract class Pipeline(
 
         // get input mat
         val processedMat = inputMat.clone()
-        val annotationMat = inputMat.zeros(CV_8UC3)
 
         // process
-        val regions = detectRegions(processedMat, input.timestamp)
+        regions = detectRegions(processedMat, input.timestamp)
         mapRegionsToMarkers(markers, regions)
         clusterMarkersToDevices(markers, devices)
         recognizeObjectId(devices)
@@ -199,19 +199,13 @@ abstract class Pipeline(
             return true
         }
 
-        // annotate
-        if (config.annotateOutput.value) {
-            annotateFrame(annotationMat, regions)
-        }
-
         synchronized(pipelineLock) {
             // lock frame reading
+            // todo: only do this one time (for the one needed)
             processedFrame = createBufferedImage(processedMat, processedFrame)
             inputFrame = createBufferedImage(inputMat, inputFrame)
-            annotationFrame = createBufferedImage(annotationMat, annotationFrame)
 
             // release
-            annotationMat.release()
             processedMat.release()
             inputMat.release()
         }
@@ -229,96 +223,6 @@ abstract class Pipeline(
             mat.convertColor(COLOR_GRAY2BGR)
 
         return mat.toFrame().createBufferedImageFast(image)
-    }
-
-    private fun annotateFrame(mat: Mat, regions: List<ActiveRegion>) {
-        // convert to color if needed
-        if (mat.type() == CV_8UC1) {
-            mat.convertColor(COLOR_GRAY2BGR)
-        }
-
-        // annotate pipeline output
-        annotateActiveRegions(mat, regions)
-        annotateMarkers(mat)
-        annotateTactileDevices(mat)
-
-        // annotate screen calibration
-        if (config.calibration.displayAnnotation.value) {
-            annotateCalibration(mat)
-        }
-    }
-
-    private fun annotateActiveRegions(mat: Mat, regions: List<ActiveRegion>) {
-        // annotate active regions
-        regions.forEach {
-            // mark region
-            mat.drawCross(it.center.toPoint(), 20, AbstractScalar.RED, thickness = 1)
-
-            // show max distance
-            mat.drawCircle(it.center.toPoint(), config.markerMaxDelta.value.roundToInt(), AbstractScalar.RED, thickness = 1)
-        }
-    }
-
-    private fun annotateMarkers(mat: Mat) {
-        // annotate tactile objects
-        markers.forEach {
-            val color = when (it.state) {
-                TrackingEntityState.Detected -> AbstractScalar.CYAN
-                TrackingEntityState.Alive -> AbstractScalar.GREEN
-                TrackingEntityState.Missing -> AbstractScalar.BLUE
-                TrackingEntityState.Dead -> AbstractScalar.YELLOW
-            }
-
-            // todo: check for NAN
-            mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
-        }
-    }
-
-    private fun annotateTactileDevices(mat: Mat) {
-        devices.forEach {
-            val defaultColor = AbstractScalar.YELLOW
-            val identifiedColor = AbstractScalar.GREEN
-
-            mat.drawCross(it.position.toPoint(), 20, defaultColor, thickness = 2)
-            //mat.drawCircle(it.position.toPoint(), 10, color, thickness = 1)
-
-            mat.drawText(
-                "${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
-                it.position.toPoint().transform(20, 20),
-                if(it.identifier > -1) identifiedColor else defaultColor,
-                scale = 0.6
-            )
-        }
-    }
-
-    private fun annotateCalibration(mat: Mat) {
-        // display edges and screen
-        val screen = Float2(mat.width().toFloat(), mat.height().toFloat())
-
-        val tl = screen * config.calibration.topLeft.value
-        val tr = screen * config.calibration.topRight.value
-        val br = screen * config.calibration.bottomRight.value
-        val bl = screen * config.calibration.bottomLeft.value
-
-        mat.drawMarker(tl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-        mat.drawMarker(br.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-
-        if(config.calibration.perspectiveTransform.value) {
-            mat.drawMarker(tr.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-            mat.drawMarker(bl.toPoint(), AbstractScalar.YELLOW, MARKER_CROSS)
-        }
-
-        // draw screen
-        if(config.calibration.perspectiveTransform.value) {
-            mat.drawLine(tl.toPoint(), tr.toPoint(), AbstractScalar.GRAY)
-            mat.drawLine(tr.toPoint(), br.toPoint(), AbstractScalar.GRAY)
-            mat.drawLine(br.toPoint(), bl.toPoint(), AbstractScalar.GRAY)
-            mat.drawLine(bl.toPoint(), tl.toPoint(), AbstractScalar.GRAY)
-        } else {
-            val size = br - tl
-            val rect = Rect(tl.x.roundToInt(), tl.y.roundToInt(), size.x.roundToInt(), size.y.roundToInt())
-            mat.drawRect(rect, AbstractScalar.GRAY)
-        }
     }
 
     fun stop() {

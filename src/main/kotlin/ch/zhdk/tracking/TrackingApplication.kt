@@ -2,9 +2,16 @@ package ch.zhdk.tracking
 
 import ch.bildspur.math.Float2
 import ch.bildspur.timer.ElapsedTimer
+import ch.bildspur.util.format
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
+import ch.zhdk.tracking.javacv.toPoint
+import ch.zhdk.tracking.javacv.transform
+import ch.zhdk.tracking.model.ActiveRegion
+import ch.zhdk.tracking.model.Marker
+import ch.zhdk.tracking.model.TactileDevice
+import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.osc.OscUDPChannel
 import ch.zhdk.tracking.osc.OscWebSocketChannel
@@ -12,6 +19,8 @@ import ch.zhdk.tracking.pipeline.PassthroughPipeline
 import ch.zhdk.tracking.pipeline.Pipeline
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
+import ch.zhdk.tracking.ui.strokeCircle
+import ch.zhdk.tracking.ui.strokeCross
 import ch.zhdk.tracking.web.WebServer
 import javafx.application.Platform
 import javafx.embed.swing.SwingFXUtils
@@ -19,12 +28,17 @@ import javafx.scene.Cursor
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
+import javafx.scene.paint.Color
+import org.bytedeco.opencv.global.opencv_imgproc
+import org.bytedeco.opencv.opencv_core.AbstractScalar
+import org.bytedeco.opencv.opencv_core.Rect
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.concurrent.Semaphore
 import javax.imageio.ImageIO
+import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
@@ -151,7 +165,7 @@ object TrackingApplication {
                             drawImage(g, backgroundImage!!)
 
                         if (config.pipeline.annotateOutput.value) {
-                            annotate(g)
+                            annotate(g, pipeline)
                         }
                     }
                 } else {
@@ -187,8 +201,93 @@ object TrackingApplication {
         // todo: implement setting text
     }
 
-    private fun annotate(g: GraphicsContext) {
-        // todo: annotate
+    private fun annotate(g : GraphicsContext, pipeline : Pipeline) {
+        // annotate pipeline output
+        annotateActiveRegions(g, pipeline.regions)
+        annotateMarkers(g, pipeline.markers)
+        annotateTactileDevices(g, pipeline.devices)
+
+        // annotate screen calibration
+        if (config.pipeline.calibration.displayAnnotation.value) {
+            annotateCalibration(g)
+        }
+    }
+
+    private fun annotateMarkers(g : GraphicsContext, markers : List<Marker>) {
+        // annotate tactile objects
+        markers.forEach {
+            val color = when (it.state) {
+                TrackingEntityState.Detected -> Color.CYAN
+                TrackingEntityState.Alive -> Color.GREEN
+                TrackingEntityState.Missing -> Color.BLUE
+                TrackingEntityState.Dead -> Color.YELLOW
+            }
+
+            // todo: check for NAN
+            g.stroke = color
+            g.strokeCircle(it.position.x(), it.position.y(),  10.0)
+        }
+    }
+
+    private fun annotateActiveRegions(g : GraphicsContext, regions: List<ActiveRegion>) {
+        // annotate active regions
+        regions.forEach {
+            g.stroke = Color.RED
+
+            // mark region
+            g.strokeCircle(it.center.x(), it.center.y(), 20.0)
+
+            // show max distance
+            val diameter = config.pipeline.markerMaxDelta.value
+            g.strokeCircle(it.center.x(), it.center.y(), diameter)
+        }
+    }
+
+    private fun annotateTactileDevices(g : GraphicsContext, devices : List<TactileDevice>) {
+        devices.forEach {
+            val defaultColor = Color.YELLOW
+            val identifiedColor = Color.GREEN
+
+            g.stroke = defaultColor
+            g.strokeCross(it.position.x(), it.position.y(), 20.0)
+
+            g.stroke = if(it.identifier > -1) identifiedColor else defaultColor
+            g.strokeText("${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
+                it.position.x() + 20.0, it.position.y() + 20.0)
+        }
+    }
+
+    private fun annotateCalibration(g : GraphicsContext) {
+        // display edges and screen
+        val screen = Float2(pipeline.inputFrame.width.toFloat(), pipeline.inputFrame.height.toFloat())
+
+        val tl = screen * config.pipeline.calibration.topLeft.value
+        val tr = screen * config.pipeline.calibration.topRight.value
+        val br = screen * config.pipeline.calibration.bottomRight.value
+        val bl = screen * config.pipeline.calibration.bottomLeft.value
+
+        g.stroke = Color.YELLOW
+        g.strokeCross(tl.x.toDouble(), tl.y.toDouble(), 5.0)
+        g.strokeCross(br.x.toDouble(), br.y.toDouble(), 5.0)
+
+        if(config.pipeline.calibration.perspectiveTransform.value) {
+            g.strokeCross(tr.x.toDouble(), tl.y.toDouble(), 5.0)
+            g.strokeCross(bl.x.toDouble(), br.y.toDouble(), 5.0)
+        }
+
+        // draw screen
+        if(config.pipeline.calibration.perspectiveTransform.value) {
+            g.stroke = Color.GRAY
+            g.strokePolygon(
+                arrayOf(tl.x.toDouble(), tr.x.toDouble(), br.x.toDouble(), bl.x.toDouble()).toDoubleArray(),
+                arrayOf(tl.y.toDouble(), tr.y.toDouble(), br.y.toDouble(), bl.y.toDouble()).toDoubleArray(),
+                4
+            )
+        } else {
+            val size = br - tl
+            g.stroke = Color.GRAY
+            g.strokeRect(tl.x.toDouble(), tl.y.toDouble(), size.x.toDouble(), size.y.toDouble())
+        }
     }
 
     fun requestPipelineRestart(blocking: Boolean = false) {
