@@ -271,8 +271,8 @@ object TrackingApplication {
         g.strokeCross(br.x.toDouble(), br.y.toDouble(), 5.0)
 
         if(config.pipeline.calibration.perspectiveTransform.value) {
-            g.strokeCross(tr.x.toDouble(), tl.y.toDouble(), 5.0)
-            g.strokeCross(bl.x.toDouble(), br.y.toDouble(), 5.0)
+            g.strokeCross(tr.x.toDouble(), tr.y.toDouble(), 5.0)
+            g.strokeCross(bl.x.toDouble(), bl.y.toDouble(), 5.0)
         }
 
         // draw screen
