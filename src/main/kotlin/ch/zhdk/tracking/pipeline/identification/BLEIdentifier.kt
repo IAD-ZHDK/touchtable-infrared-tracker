@@ -36,10 +36,14 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         if(!driver.open(bleConfig.port.value, bleConfig.baudRate.value.rate)) {
             println("could not start BLE service")
             return
+        } else {
+            println("BLE service started")
         }
 
+        bleLog("disconnecting all devices...")
         disconnectAllDevices()
 
+        bleLog("starting thread...")
         running.set(true)
         scanThread = thread(isDaemon = true, start = true) {
             val lastScanTimer = ElapsedTimer(bleConfig.scanInterval.value * 1000L, true)
@@ -100,13 +104,17 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
     }
 
     private fun scanBLEDevices() {
-        println("start ble scan...")
+        bleLog("start ble scan...")
         val scannedDevices = driver.scan(SCAN_INTERVAL, SCAN_WINDOW, config.bleConfig.scanTime.value, BLE_SERVICE_ID)
         val listDevices = driver.list()
+
+        bleLog("found ${listDevices.size} devices!")
 
         val devices = mutableSetOf<BLEDevice>()
         devices.addAll(scannedDevices)
         devices.addAll(listDevices)
+
+        bleLog("${devices.size} total devices connected")
 
         val potentialMatches = devices.map { BLETactileDevice(it) }
         matchings.update(potentialMatches,
@@ -115,11 +123,17 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         )
 
         // display devices for debug
-        scannedDevices.forEach { println("New: ${it.id}") }
-        listDevices.forEach { println("Old: ${it.id}") }
+        if(config.bleConfig.verboseLogging.value) {
+            scannedDevices.forEach { bleLog("New: ${it.id}") }
+            listDevices.forEach { bleLog("Old: ${it.id}") }
+        }
+
+        bleLog("scan ended")
     }
 
     private fun mapBLEDevicesToTactiles() {
+        bleLog("starting BLE to device matching...")
+
         // disable matches if td is not recognized anymore
         matchings.forEach {
             if(it.matched) {
@@ -129,6 +143,7 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         }
 
         // remove not active devices
+        bleLog("un-matching inactive devices...")
         val activeBleTacs = driver.list().map { BLETactileDevice(it) }
         val inactiveBleTacs = matchings - activeBleTacs
         matchings.removeAll(inactiveBleTacs)
@@ -144,29 +159,40 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
 
             // wait until device is found or timeout (letch)
             isTactileDeviceRequested.set(true)
-            println("try match...")
+            bleLog("try match ${it.bleId}...")
             mutex.tryAcquire(1000, TimeUnit.MILLISECONDS)
             isTactileDeviceRequested.set(false)
 
             val device = foundDevice.get()
 
             if(device != null) {
+                bleLog("device ${it.bleId} matched with ${device.uniqueId}!")
                 it.match(device)
+            } else {
+                bleLog("could not match ${it.bleId}!")
             }
 
             // turn LED off
             it.isIRLedOn = false
             Thread.sleep(config.maxMissingTime.value + 100L)
         }
+
+        bleLog("ended BLE to device matching!")
     }
 
     private fun disconnectAllDevices() {
         matchings.forEach {
             try {
+                bleLog("disconnecting ${it.bleId}...")
                 it.disconnect()
             } catch (ex : Exception) {
                 println("error while disconnecting ${it.bleId}")
             }
         }
+    }
+
+    private fun bleLog(message : Any) {
+        if(config.bleConfig.verboseLogging.value)
+            println("BLE: $message")
     }
 }

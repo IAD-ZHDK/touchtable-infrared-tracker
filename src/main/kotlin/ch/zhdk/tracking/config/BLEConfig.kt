@@ -1,10 +1,7 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
-import ch.bildspur.ui.properties.EnumParameter
-import ch.bildspur.ui.properties.LabelParameter
-import ch.bildspur.ui.properties.NumberParameter
-import ch.bildspur.ui.properties.StringParameter
+import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.io.BaudRate
 import com.google.gson.annotations.Expose
 
@@ -34,4 +31,8 @@ class BLEConfig {
     @Expose
     @NumberParameter("Map Interval", "ms")
     var mapInterval = DataModel(500L)
+
+    @Expose
+    @BooleanParameter("Verbose Logging")
+    var verboseLogging = DataModel(false)
 }
