@@ -225,6 +225,7 @@ object TrackingApplication {
 
             // todo: check for NAN
             g.stroke = color
+            g.lineWidth = 1.0
             g.strokeCircle(it.position.x(), it.position.y(),  10.0)
         }
     }
@@ -235,10 +236,12 @@ object TrackingApplication {
             g.stroke = Color.RED
 
             // mark region
-            g.strokeCircle(it.center.x(), it.center.y(), 20.0)
+            g.lineWidth = 1.0
+            g.strokeCircle(it.center.x(), it.center.y(), 30.0)
 
             // show max distance
             val diameter = config.pipeline.markerMaxDelta.value
+            g.lineWidth = 0.75
             g.strokeCircle(it.center.x(), it.center.y(), diameter)
         }
     }
@@ -249,9 +252,11 @@ object TrackingApplication {
             val identifiedColor = Color.GREEN
 
             g.stroke = defaultColor
-            g.strokeCross(it.position.x(), it.position.y(), 20.0)
+            g.lineWidth = 1.0
+            g.strokeCross(it.position.x(), it.position.y(), 30.0)
 
             g.stroke = if(it.identifier > -1) identifiedColor else defaultColor
+            g.lineWidth = 0.75
             g.strokeText("${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
                 it.position.x() + 20.0, it.position.y() + 20.0)
         }
@@ -267,12 +272,13 @@ object TrackingApplication {
         val bl = screen * config.pipeline.calibration.bottomLeft.value
 
         g.stroke = Color.YELLOW
-        g.strokeCross(tl.x.toDouble(), tl.y.toDouble(), 5.0)
-        g.strokeCross(br.x.toDouble(), br.y.toDouble(), 5.0)
+        g.lineWidth = 1.0
+        g.strokeCross(tl.x.toDouble(), tl.y.toDouble(), 10.0)
+        g.strokeCross(br.x.toDouble(), br.y.toDouble(), 10.0)
 
         if(config.pipeline.calibration.perspectiveTransform.value) {
-            g.strokeCross(tr.x.toDouble(), tr.y.toDouble(), 5.0)
-            g.strokeCross(bl.x.toDouble(), bl.y.toDouble(), 5.0)
+            g.strokeCross(tr.x.toDouble(), tr.y.toDouble(), 10.0)
+            g.strokeCross(bl.x.toDouble(), bl.y.toDouble(), 10.0)
         }
 
         // draw screen
