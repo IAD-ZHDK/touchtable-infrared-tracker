@@ -145,7 +145,7 @@ object TrackingApplication {
 
                         // clear canvas
                         g.fill = javafx.scene.paint.Color.BLACK
-                        g.clearRect(0.0, 0.0, canvas.width, canvas.height)
+                        g.fillRect(0.0, 0.0, canvas.width, canvas.height)
 
                         if (backgroundImage != null)
                             drawImage(g, backgroundImage!!)

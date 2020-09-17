@@ -21,7 +21,7 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         primaryStage.title = windowName
 
         val root = createUI(primaryStage)
-        primaryStage.scene = Scene(root, canvas.width + 400, 720.0)
+        primaryStage.scene = Scene(root, canvas.width + 380, 720.0)
 
         primaryStage.setOnCloseRequest {
             TrackingApplication.running = false
@@ -75,6 +75,6 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         top.padding = Insets(10.0)
         top.spacing = 5.0
 
-        return BorderPane(canvas, null, VBox(top, ScrollPane(propertiesControl)), null, null)
+        return HBox(canvas, VBox(top, ScrollPane(propertiesControl)))
     }
 }
