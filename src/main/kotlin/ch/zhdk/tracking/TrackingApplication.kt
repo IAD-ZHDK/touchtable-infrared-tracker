@@ -255,9 +255,9 @@ object TrackingApplication {
             g.lineWidth = 1.0
             g.strokeCross(it.position.x(), it.position.y(), 30.0)
 
-            g.stroke = if(it.identifier > -1) identifiedColor else defaultColor
+            g.fill = if(it.identifier > -1) identifiedColor else defaultColor
             g.lineWidth = 0.75
-            g.strokeText("${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
+            g.fillText("${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
                 it.position.x() + 20.0, it.position.y() + 20.0)
         }
     }

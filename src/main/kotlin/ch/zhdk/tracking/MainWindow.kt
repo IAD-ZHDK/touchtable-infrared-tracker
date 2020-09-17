@@ -1,31 +1,20 @@
 package ch.zhdk.tracking
 
 import ch.bildspur.configuration.ConfigurationController
-import ch.bildspur.math.Float2
 import ch.bildspur.ui.fx.PropertiesControl
-import ch.bildspur.util.format
 import ch.zhdk.tracking.config.AppConfig
-import ch.zhdk.tracking.javacv.*
-import ch.zhdk.tracking.model.ActiveRegion
-import ch.zhdk.tracking.model.TactileDevice
-import ch.zhdk.tracking.model.state.TrackingEntityState
-import ch.zhdk.tracking.pipeline.Pipeline
-import ch.zhdk.tracking.pipeline.toPoint
 import javafx.application.Application
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
-import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
-import javafx.scene.layout.*
+import javafx.scene.layout.GridPane.setHgrow
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
 import javafx.stage.Stage
-import org.bytedeco.opencv.global.opencv_core
-import org.bytedeco.opencv.global.opencv_imgproc
-import org.bytedeco.opencv.opencv_core.AbstractScalar
-import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.opencv.opencv_core.Rect
-import kotlin.math.roundToInt
 
 class MainWindow(val configController: ConfigurationController, val config: AppConfig) : Application() {
     private val windowName = "ZHdK - IR Tracker"
@@ -90,6 +79,11 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         top.padding = Insets(10.0)
         top.spacing = 5.0
 
-        return HBox(canvas, VBox(top, ScrollPane(propertiesControl)))
+        val vb = VBox(top, ScrollPane(propertiesControl))
+
+        setHgrow(canvas, Priority.ALWAYS)
+        setHgrow(vb, Priority.ALWAYS)
+
+        return HBox(canvas, vb)
     }
 }
