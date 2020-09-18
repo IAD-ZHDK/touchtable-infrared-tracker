@@ -6,8 +6,7 @@ import ch.bildspur.util.format
 import ch.zhdk.tracking.config.AppConfig
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.*
-import ch.zhdk.tracking.javacv.toPoint
-import ch.zhdk.tracking.javacv.transform
+import ch.zhdk.tracking.io.ux.InteractiveInputProvider
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
@@ -29,16 +28,11 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
-import org.bytedeco.opencv.global.opencv_imgproc
-import org.bytedeco.opencv.opencv_core.AbstractScalar
-import org.bytedeco.opencv.opencv_core.Rect
-import java.awt.image.BufferedImage
 import java.io.File
 import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.concurrent.Semaphore
 import javax.imageio.ImageIO
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
@@ -99,7 +93,6 @@ object TrackingApplication {
         initOSC()
 
         while (running) {
-            drawText("starting pipeline...")
             config.message.value = "starting pipeline..."
 
             // pipeline init
@@ -158,14 +151,16 @@ object TrackingApplication {
                         val g = canvas.graphicsContext2D
 
                         // clear canvas
-                        g.fill = javafx.scene.paint.Color.BLACK
+                        g.fill = Color.BLACK
                         g.fillRect(0.0, 0.0, canvas.width, canvas.height)
 
                         if (backgroundImage != null)
                             drawImage(g, backgroundImage!!)
 
                         if (config.pipeline.annotateOutput.value) {
-                            annotate(g, pipeline)
+                            synchronized(pipelineLock) {
+                                annotate(g, pipeline)
+                            }
                         }
                     }
                 } else {
@@ -175,7 +170,6 @@ object TrackingApplication {
 
             if (restartRequested) {
                 config.message.value = "restart requested..."
-                drawText("restarting...")
             }
 
             pipeline.stop()
@@ -195,10 +189,6 @@ object TrackingApplication {
     private fun drawImage(g: GraphicsContext, image: Image) {
         // draw images
         g.drawImage(image, 0.0, 0.0, canvas.width, canvas.height)
-    }
-
-    private fun drawText(message: String) {
-        // todo: implement setting text
     }
 
     private fun annotate(g : GraphicsContext, pipeline : Pipeline) {
@@ -379,6 +369,7 @@ object TrackingApplication {
                 config = config.input
             )
             InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_pipeline_thrs.png"))
+            InputProviderType.Interactive -> InteractiveInputProvider(canvas, Paths.get("data/marker.png"))
         }
     }
 

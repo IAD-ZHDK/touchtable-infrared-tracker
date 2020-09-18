@@ -4,5 +4,6 @@ enum class InputProviderType {
     CameraInput,
     VideoInput,
     RealSense2,
-    Image
+    Image,
+    Interactive
 }

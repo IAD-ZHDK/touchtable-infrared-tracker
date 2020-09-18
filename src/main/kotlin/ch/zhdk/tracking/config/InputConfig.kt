@@ -17,7 +17,7 @@ class InputConfig {
 
     @Expose
     @EnumParameter("Input Provider")
-    var inputProvider = DataModel(InputProviderType.Image)
+    var inputProvider = DataModel(InputProviderType.Interactive)
 
     @LabelParameter("CameraInput")
     private val webCamLabel = ""

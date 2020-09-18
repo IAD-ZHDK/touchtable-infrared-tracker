@@ -36,6 +36,16 @@ fun Mat.zeros(type: Int): Mat {
     return Mat.zeros(this.rows(), this.cols(), type).asMat()
 }
 
+fun Mat.warpAffineCenter(rotation : Double, scale : Double) : Mat {
+    val result = Mat(this.size(), this.type())
+    val rawCenter = Point2f(this.cols() / 2.0f, this.rows() / 2.0f)
+
+    val rotationMatrix = getRotationMatrix2D(rawCenter, rotation, scale)
+    warpAffine(this, result, rotationMatrix, this.size())
+
+    return result
+}
+
 fun Mat.convertColor(color: Int) {
     this.convertColor(this, color)
 }

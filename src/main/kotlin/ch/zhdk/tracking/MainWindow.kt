@@ -27,6 +27,10 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         val root = createUI(primaryStage)
         primaryStage.scene = Scene(root, canvas.width + 380, 720.0)
 
+        primaryStage.setOnShown {
+            this.canvas.requestFocus()
+        }
+
         primaryStage.setOnCloseRequest {
             TrackingApplication.running = false
         }
