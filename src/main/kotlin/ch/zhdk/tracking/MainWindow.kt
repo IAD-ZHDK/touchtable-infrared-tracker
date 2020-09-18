@@ -19,6 +19,8 @@ import javafx.stage.Stage
 class MainWindow(val configController: ConfigurationController, val config: AppConfig) : Application() {
     private val windowName = "ZHdK - IR Tracker"
     private val propertiesControl = PropertiesControl()
+
+    // todo: replace with a non-fix ratio
     val canvas = Canvas(1280.0, 720.0)
 
     override fun start(primaryStage: Stage) {
