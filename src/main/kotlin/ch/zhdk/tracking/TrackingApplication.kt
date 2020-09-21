@@ -65,7 +65,7 @@ object TrackingApplication {
     private var mousePressedLedge = Semaphore(0)
     private var mousePressedPosition = Float2()
 
-    private var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
+    var pipeline: Pipeline = PassthroughPipeline(PipelineConfig(), EmptyInputProvider())
 
     // todo: refactor this heavy method into smaller parts!
     fun start(config: AppConfig, canvas: Canvas) {

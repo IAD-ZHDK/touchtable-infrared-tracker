@@ -5,8 +5,11 @@ import ch.bildspur.math.Float2
 import ch.bildspur.math.Mat3
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.TrackingApplication
+import ch.zhdk.tracking.TrackingApplication.config
 import ch.zhdk.tracking.math.generatePerspectiveTransformInverseMat
+import ch.zhdk.tracking.ui.CalibrationWindow
 import com.google.gson.annotations.Expose
+import javafx.application.Platform
 
 class CalibrationConfig {
 
@@ -58,6 +61,13 @@ class CalibrationConfig {
         }
 
         instruction.value = "Calibration finished"
+    }
+
+    @ActionParameter("Calibration", "Start")
+    private val calibrationWizard = {
+        Platform.runLater {
+            CalibrationWindow(config.pipeline.calibration).show()
+        }
     }
 
     @LabelParameter("Screen Edges")

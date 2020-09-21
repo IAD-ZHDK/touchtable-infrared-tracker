@@ -3,6 +3,7 @@ package ch.zhdk.tracking
 import ch.bildspur.configuration.ConfigurationController
 import ch.bildspur.ui.fx.PropertiesControl
 import ch.zhdk.tracking.config.AppConfig
+import ch.zhdk.tracking.ui.CalibrationWindow
 import javafx.application.Application
 import javafx.geometry.Insets
 import javafx.scene.Scene
