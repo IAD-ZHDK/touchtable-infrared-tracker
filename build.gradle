@@ -3,12 +3,11 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.0'
     id 'org.openjfx.javafxplugin' version '0.0.9'
     id "com.github.ManifestClasspath" version "0.1.0-RELEASE"
+    id 'org.bytedeco.gradle-javacpp-platform' version "$javacppVersion"
 }
 
 group 'ch.zhdk.tracking'
 version '0.1'
-
-def javaCvVersion = '1.5.3'
 
 ext.ktor_version = '1.2.2'
 
@@ -34,11 +33,11 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     // javacv
-    compile group: 'org.bytedeco', name: 'javacv', version: "$javaCvVersion"
-    compile group: 'org.bytedeco', name: 'opencv-platform', version: "4.3.0-$javaCvVersion"
-    compile group: 'org.bytedeco', name: 'openblas-platform', version: "0.3.9-$javaCvVersion"
-    compile group: 'org.bytedeco', name: 'librealsense2-platform', version: "2.29.0-$javaCvVersion"
-    compile group: 'org.bytedeco', name: 'ffmpeg-platform', version: "4.2.2-$javaCvVersion"
+    compile group: 'org.bytedeco', name: 'javacv', version: "$javacppVersion"
+    compile group: 'org.bytedeco', name: 'opencv-platform', version: "4.4.0-$javacppVersion"
+    compile group: 'org.bytedeco', name: 'openblas-platform', version: "0.3.10-$javacppVersion"
+    compile group: 'org.bytedeco', name: 'librealsense2-platform', version: "2.29.0-$javacppVersion"
+    compile group: 'org.bytedeco', name: 'ffmpeg-platform', version: "4.3.1-$javacppVersion"
 
     // json
     compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
