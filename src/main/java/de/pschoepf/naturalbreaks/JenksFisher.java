@@ -28,7 +28,7 @@ import java.util.List;
  * Basic port of original C code from Maarten Hilferink.
  * All credits this fantastic work go to him for.
  *
- * @author Philipp Schöpf
+ * @author Philipp Schoepf
  */
 public class JenksFisher {
 

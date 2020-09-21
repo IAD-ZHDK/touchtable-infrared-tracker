@@ -20,7 +20,7 @@ package de.pschoepf.naturalbreaks;
 /**
  * Simple model object to count occurrences per value.
  *
- * @author Philipp Schöpf
+ * @author Philipp Schoepf
  */
 public class ValueCountPair {
 
