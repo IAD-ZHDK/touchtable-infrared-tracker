@@ -30,7 +30,8 @@ class CalibrationWindow(val config: CalibrationConfig) {
     var finished = AtomicBoolean(false)
 
     val window = Stage()
-    val button = Button("Confirm Position")
+    val nextButton = Button("Confirm Position")
+    val cancelButton = Button("Cancel")
 
     // use screen dpi for circle size
     val circle = Circle(120.0, Color.AQUAMARINE)
@@ -50,7 +51,7 @@ class CalibrationWindow(val config: CalibrationConfig) {
         val scene = Scene(pane)
 
         // create window
-        window.title = "Calibration"
+        window.title = "Calibration Wizard"
         window.scene = scene
 
         window.initStyle(StageStyle.UNDECORATED)
@@ -63,15 +64,25 @@ class CalibrationWindow(val config: CalibrationConfig) {
         window.width = screenBounds.width
         window.height = screenBounds.height
 
+        // setup cancel button
+        cancelButton.prefWidth = 60.0
+        cancelButton.prefHeight = 28.0
+        cancelButton.layoutX = (window.width * 0.5) - (cancelButton.prefWidth * 0.5)
+        cancelButton.layoutY = window.height * 0.90 - (cancelButton.prefHeight * 0.5)
+
+        cancelButton.setOnAction {
+            window.close()
+        }
+
         // setup next button
-        button.prefWidth = 200.0
-        button.prefHeight = 80.0
+        nextButton.prefWidth = 200.0
+        nextButton.prefHeight = 80.0
 
-        button.layoutX = (window.width * 0.5) - (button.prefWidth * 0.5)
-        button.layoutY = window.height * 0.75 - (button.prefHeight * 0.5)
-        button.style = "-fx-font-weight: bold;"
+        nextButton.layoutX = (window.width * 0.5) - (nextButton.prefWidth * 0.5)
+        nextButton.layoutY = window.height * 0.75 - (nextButton.prefHeight * 0.5)
+        nextButton.style = "-fx-font-weight: bold;"
 
-        button.setOnAction {
+        nextButton.setOnAction {
             if (finished.get())
                 window.close()
             mutex.release()
@@ -84,7 +95,8 @@ class CalibrationWindow(val config: CalibrationConfig) {
         circle.strokeDashArray.addAll(2.0, 21.0)
         circle.strokeWidth = 3.0
 
-        pane.children.add(button)
+        pane.children.add(nextButton)
+        pane.children.add(cancelButton)
         pane.children.add(circle)
         window.show()
 
