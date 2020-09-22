@@ -1,4 +1,4 @@
-# IR Tracking System
+# IR Tracking System [![Build Status](https://travis-ci.org/IAD-ZHDK/IR_tracking.svg?branch=master)](https://travis-ci.org/IAD-ZHDK/IR_tracking)
 This project aims to create an infrared tracking system for tactile tables.
 
 ![Tracking Example](images/tracking-example.jpg)
