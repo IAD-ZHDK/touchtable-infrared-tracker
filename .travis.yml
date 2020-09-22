@@ -1,6 +1,6 @@
 jobs:
   include:
-    - os: windows
+    # - os: windows
     - os: osx
     - os: linux
       dist: bionic
