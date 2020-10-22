@@ -28,7 +28,7 @@ class AppConfig {
     var displayProcessed = DataModel(true)
 
     @Expose
-    @EnumParameter("Preview Width")
+    @EnumParameter("Preview Size")
     var previewSize = DataModel(PreviewSize.HDReady)
 
     @ActionParameter("Input Frame", "Save", false)
