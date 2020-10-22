@@ -5,6 +5,7 @@ import ch.bildspur.ui.fx.PropertiesControl
 import ch.zhdk.tracking.config.AppConfig
 import javafx.application.Application
 import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.Button
@@ -15,13 +16,16 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import java.lang.Double.max
 
 class MainWindow(val configController: ConfigurationController, val config: AppConfig) : Application() {
-    private val windowName = "ZHdK - IR Tracker"
+    private val windowName = "ZHdK IAD - IR Tracker"
     private val propertiesControl = PropertiesControl()
 
     val canvas = Canvas(1280.0, 720.0)
     private lateinit var stage : Stage
+
+    private val sideBarWidth = 380.0
 
     override fun start(primaryStage: Stage) {
         primaryStage.title = windowName
@@ -33,6 +37,7 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         val root = createUI(primaryStage)
         primaryStage.scene = Scene(root)
         stage = primaryStage
+        stage.isResizable = false
 
         primaryStage.setOnShown {
             this.canvas.requestFocus()
@@ -52,10 +57,8 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         canvas.width = config.previewSize.value.width
         canvas.height = config.previewSize.value.height
 
-        println("Canvas size: ${canvas.width} x ${canvas.height}")
-
-        stage.width = canvas.width + propertiesControl.width
-        stage.height = config.previewSize.value.height
+        stage.width = canvas.width + sideBarWidth
+        stage.height = max(config.previewSize.value.height, 360.0)
     }
 
     private fun createUI(primaryStage: Stage): Pane {
@@ -103,11 +106,15 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         top.padding = Insets(10.0)
         top.spacing = 5.0
 
-        val vb = VBox(top, ScrollPane(propertiesControl))
+        val scrollPane = ScrollPane(propertiesControl)
+        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        scrollPane.prefWidth = sideBarWidth
+        val vb = VBox(top, scrollPane)
 
         //setHgrow(canvas, Priority.ALWAYS)
         setHgrow(vb, Priority.ALWAYS)
-
-        return HBox(canvas, vb)
+        val hb = HBox(canvas, vb)
+        hb.alignment = Pos.CENTER
+        return hb
     }
 }
