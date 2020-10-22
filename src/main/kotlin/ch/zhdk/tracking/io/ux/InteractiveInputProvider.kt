@@ -26,8 +26,8 @@ class InteractiveInputProvider(val canvas: Canvas, val markerPath: Path) : Input
         }
 
         canvas.setOnMousePressed {
-            target.x = it.x.toFloat()
-            target.y = it.y.toFloat()
+            target.x = (it.x / canvas.width * this.width).toFloat()
+            target.y = (it.y / canvas.width * this.width).toFloat()
         }
     }
 
