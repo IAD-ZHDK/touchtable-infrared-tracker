@@ -34,7 +34,7 @@ class CalibrationWindow(val config: CalibrationConfig) {
     val cancelButton = Button("Cancel")
 
     // use screen dpi for circle size
-    val circle = Circle(120.0, Color.AQUAMARINE)
+    val circle = Circle(75.0, Color.AQUAMARINE)
 
     val measurements = listOf(
         Measurement("Center", Float2(0.5f, 0.5f), DataModel(Float2())),

@@ -191,7 +191,7 @@ object TrackingApplication {
         g.drawImage(image, 0.0, 0.0, canvas.width, canvas.height)
     }
 
-    private fun annotate(g : GraphicsContext, pipeline : Pipeline) {
+    private fun annotate(g: GraphicsContext, pipeline: Pipeline) {
         // annotate pipeline output
         annotateActiveRegions(g, pipeline.regions)
         annotateMarkers(g, pipeline.markers)
@@ -203,7 +203,7 @@ object TrackingApplication {
         }
     }
 
-    private fun annotateMarkers(g : GraphicsContext, markers : List<Marker>) {
+    private fun annotateMarkers(g: GraphicsContext, markers: List<Marker>) {
         // annotate tactile objects
         markers.forEach {
             val color = when (it.state) {
@@ -216,43 +216,45 @@ object TrackingApplication {
             // todo: check for NAN
             g.stroke = color
             g.lineWidth = 1.0
-            g.strokeCircle(it.position.x(), it.position.y(),  10.0)
+            g.strokeCircle(it.position.x().normWidth(), it.position.y().normHeight(), 10.0)
         }
     }
 
-    private fun annotateActiveRegions(g : GraphicsContext, regions: List<ActiveRegion>) {
+    private fun annotateActiveRegions(g: GraphicsContext, regions: List<ActiveRegion>) {
         // annotate active regions
         regions.forEach {
             g.stroke = Color.RED
 
             // mark region
             g.lineWidth = 1.0
-            g.strokeCircle(it.center.x(), it.center.y(), 30.0)
+            g.strokeCircle(it.center.x().normWidth(), it.center.y().normHeight(), 30.0)
 
             // show max distance
             val diameter = config.pipeline.markerMaxDelta.value
             g.lineWidth = 0.75
-            g.strokeCircle(it.center.x(), it.center.y(), diameter)
+            g.strokeCircle(it.center.x().normWidth(), it.center.y().normHeight(), diameter)
         }
     }
 
-    private fun annotateTactileDevices(g : GraphicsContext, devices : List<TactileDevice>) {
+    private fun annotateTactileDevices(g: GraphicsContext, devices: List<TactileDevice>) {
         devices.forEach {
             val defaultColor = Color.YELLOW
             val identifiedColor = Color.GREEN
 
             g.stroke = defaultColor
             g.lineWidth = 1.0
-            g.strokeCross(it.position.x(), it.position.y(), 30.0)
+            g.strokeCross(it.position.x().normWidth(), it.position.y().normHeight(), 30.0)
 
-            g.fill = if(it.identifier > -1) identifiedColor else defaultColor
+            g.fill = if (it.identifier > -1) identifiedColor else defaultColor
             g.lineWidth = 0.75
-            g.fillText("${it.uniqueId} ${if(it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
-                it.position.x() + 20.0, it.position.y() + 20.0)
+            g.fillText(
+                "${it.uniqueId} ${if (it.identifier > -1) it.identifier else ""} (r: ${it.rotation.format(1)})",
+                it.position.x().normWidth() + 20.0, it.position.y().normHeight() + 20.0
+            )
         }
     }
 
-    private fun annotateCalibration(g : GraphicsContext) {
+    private fun annotateCalibration(g: GraphicsContext) {
         // display edges and screen
         val screen = Float2(pipeline.inputFrame.width.toFloat(), pipeline.inputFrame.height.toFloat())
 
@@ -263,26 +265,41 @@ object TrackingApplication {
 
         g.stroke = Color.YELLOW
         g.lineWidth = 1.0
-        g.strokeCross(tl.x.toDouble(), tl.y.toDouble(), 10.0)
-        g.strokeCross(br.x.toDouble(), br.y.toDouble(), 10.0)
+        g.strokeCross(tl.x.toDouble().normWidth(), tl.y.toDouble().normHeight(), 10.0)
+        g.strokeCross(br.x.toDouble().normWidth(), br.y.toDouble().normHeight(), 10.0)
 
-        if(config.pipeline.calibration.perspectiveTransform.value) {
-            g.strokeCross(tr.x.toDouble(), tr.y.toDouble(), 10.0)
-            g.strokeCross(bl.x.toDouble(), bl.y.toDouble(), 10.0)
+        if (config.pipeline.calibration.perspectiveTransform.value) {
+            g.strokeCross(tr.x.toDouble().normWidth(), tr.y.toDouble().normHeight(), 10.0)
+            g.strokeCross(bl.x.toDouble().normWidth(), bl.y.toDouble().normHeight(), 10.0)
         }
 
         // draw screen
-        if(config.pipeline.calibration.perspectiveTransform.value) {
+        if (config.pipeline.calibration.perspectiveTransform.value) {
             g.stroke = Color.GRAY
             g.strokePolygon(
-                arrayOf(tl.x.toDouble(), tr.x.toDouble(), br.x.toDouble(), bl.x.toDouble()).toDoubleArray(),
-                arrayOf(tl.y.toDouble(), tr.y.toDouble(), br.y.toDouble(), bl.y.toDouble()).toDoubleArray(),
+                arrayOf(
+                    tl.x.toDouble().normWidth(),
+                    tr.x.toDouble().normWidth(),
+                    br.x.toDouble().normWidth(),
+                    bl.x.toDouble().normWidth()
+                ).toDoubleArray(),
+                arrayOf(
+                    tl.y.toDouble().normHeight(),
+                    tr.y.toDouble().normHeight(),
+                    br.y.toDouble().normHeight(),
+                    bl.y.toDouble().normHeight()
+                ).toDoubleArray(),
                 4
             )
         } else {
             val size = br - tl
             g.stroke = Color.GRAY
-            g.strokeRect(tl.x.toDouble(), tl.y.toDouble(), size.x.toDouble(), size.y.toDouble())
+            g.strokeRect(
+                tl.x.toDouble().normWidth(),
+                tl.y.toDouble().normHeight(),
+                size.x.toDouble().normWidth(),
+                size.y.toDouble().normHeight()
+            )
         }
     }
 
@@ -378,5 +395,13 @@ object TrackingApplication {
             PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
         }
+    }
+
+    private fun Double.normWidth(): Double {
+        return this / pipeline.inputFrame.width * canvas.width
+    }
+
+    private fun Double.normHeight(): Double {
+        return this / pipeline.inputFrame.height * canvas.height
     }
 }

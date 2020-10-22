@@ -3,6 +3,7 @@ package ch.zhdk.tracking.config
 import ch.bildspur.model.DataModel
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.TrackingApplication
+import ch.zhdk.tracking.ui.PreviewSize
 import com.google.gson.annotations.Expose
 
 class AppConfig {
@@ -27,12 +28,8 @@ class AppConfig {
     var displayProcessed = DataModel(true)
 
     @Expose
-    @NumberParameter("Preview Width", " px")
-    var previewWidth = DataModel(1280)
-
-    @Expose
-    @NumberParameter("Preview Height", " px")
-    var previewHeight = DataModel(720)
+    @EnumParameter("Preview Width")
+    var previewSize = DataModel(PreviewSize.HDReady)
 
     @ActionParameter("Input Frame", "Save", false)
     private val requestScreenshot = {

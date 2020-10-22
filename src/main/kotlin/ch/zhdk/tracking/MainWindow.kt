@@ -3,7 +3,6 @@ package ch.zhdk.tracking
 import ch.bildspur.configuration.ConfigurationController
 import ch.bildspur.ui.fx.PropertiesControl
 import ch.zhdk.tracking.config.AppConfig
-import ch.zhdk.tracking.ui.CalibrationWindow
 import javafx.application.Application
 import javafx.geometry.Insets
 import javafx.scene.Scene
@@ -21,14 +20,19 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
     private val windowName = "ZHdK - IR Tracker"
     private val propertiesControl = PropertiesControl()
 
-    // todo: replace with a non-fix ratio
     val canvas = Canvas(1280.0, 720.0)
+    private lateinit var stage : Stage
 
     override fun start(primaryStage: Stage) {
         primaryStage.title = windowName
 
+        config.previewSize.onChanged += {
+            adjustWindowSize()
+        }
+
         val root = createUI(primaryStage)
-        primaryStage.scene = Scene(root, canvas.width + 380, 720.0)
+        primaryStage.scene = Scene(root)
+        stage = primaryStage
 
         primaryStage.setOnShown {
             this.canvas.requestFocus()
@@ -38,7 +42,20 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
             TrackingApplication.running = false
         }
 
+        config.previewSize.fireLatest()
+
         primaryStage.show()
+    }
+
+    private fun adjustWindowSize() {
+        canvas.resize(config.previewSize.value.width,  config.previewSize.value.height)
+        canvas.width = config.previewSize.value.width
+        canvas.height = config.previewSize.value.height
+
+        println("Canvas size: ${canvas.width} x ${canvas.height}")
+
+        stage.width = canvas.width + propertiesControl.width
+        stage.height = config.previewSize.value.height
     }
 
     private fun createUI(primaryStage: Stage): Pane {
@@ -88,7 +105,7 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
 
         val vb = VBox(top, ScrollPane(propertiesControl))
 
-        setHgrow(canvas, Priority.ALWAYS)
+        //setHgrow(canvas, Priority.ALWAYS)
         setHgrow(vb, Priority.ALWAYS)
 
         return HBox(canvas, vb)
