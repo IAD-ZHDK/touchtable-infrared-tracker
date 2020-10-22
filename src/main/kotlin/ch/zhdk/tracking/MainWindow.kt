@@ -37,6 +37,7 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         val root = createUI(primaryStage)
         primaryStage.scene = Scene(root)
         stage = primaryStage
+
         stage.isResizable = false
 
         primaryStage.setOnShown {
@@ -47,7 +48,7 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
             TrackingApplication.running = false
         }
 
-        config.previewSize.fireLatest()
+        config.previewSize.fire()
 
         primaryStage.show()
     }
