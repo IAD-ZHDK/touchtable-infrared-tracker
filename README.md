@@ -4,6 +4,38 @@ This project aims to create an infrared tracking system for tactile tables.
 ![Tracking Example](images/tracking-example.jpg)
 *Tracking application detecting a single tactile object.*
 
+### Quick Install
+
+Just copy and past this snippet in the terminal to quickly install and start the system (only MacOS).
+
+```bash
+echo IR Tracking Quickstart
+
+if [[ $? != 0 ]] ; then
+	echo isntalling Homebrew
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+else
+	echo Homebrew already installed!
+	brew update
+fi
+
+brew install git java
+
+git clone https://github.com/IAD-ZHDK/IR_tracking
+cd IR_tracking
+
+echo starting...
+./gradlew run
+
+echo done
+```
+
+After the first time installation, please change into the installation folder and only run the following in the terminal:
+
+```bash
+./gradlew run
+```
+
 ### Develop
 
 #### Install and Run
