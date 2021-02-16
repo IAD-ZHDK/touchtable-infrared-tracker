@@ -1,28 +1,26 @@
 package ch.zhdk.tracking.pipeline
 
 import ch.bildspur.event.Event
-import ch.bildspur.math.Float2
 import ch.bildspur.timer.ElapsedTimer
 import ch.bildspur.util.Stopwatch
-import ch.bildspur.util.format
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
-import ch.zhdk.tracking.javacv.*
+import ch.zhdk.tracking.javacv.convertColor
+import ch.zhdk.tracking.javacv.createBufferedImageFast
 import ch.zhdk.tracking.javacv.image.GammaCorrection
+import ch.zhdk.tracking.javacv.toFrame
+import ch.zhdk.tracking.javacv.toMat
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
-import ch.zhdk.tracking.model.state.TrackingEntityState
 import org.bytedeco.opencv.global.opencv_core.CV_8UC1
-import org.bytedeco.opencv.global.opencv_core.CV_8UC3
-import org.bytedeco.opencv.global.opencv_imgproc.*
-import org.bytedeco.opencv.opencv_core.*
+import org.bytedeco.opencv.global.opencv_imgproc.COLOR_GRAY2BGR
+import org.bytedeco.opencv.opencv_core.Mat
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_3BYTE_BGR
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
-import kotlin.math.roundToInt
 
 abstract class Pipeline(
     val config: PipelineConfig,
