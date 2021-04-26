@@ -1,6 +1,5 @@
 package ch.zhdk.tracking.pipeline.clustering
 
-import ch.bildspur.math.Float2
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.javacv.center
 import ch.zhdk.tracking.javacv.distance
@@ -10,7 +9,6 @@ import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.pipeline.Pipeline
-import org.bytedeco.opencv.opencv_core.Point2d
 import org.nield.kotlinstatistics.Centroid
 import org.nield.kotlinstatistics.dbScanCluster
 
@@ -57,9 +55,12 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
                         it.updateState(TrackingEntityState.Alive)
 
                         // init filter
-                        if(config.smoothPosition.value) {
-                            it.positionFilter.tPrev = 0f
+                        if (config.smoothPosition.value) {
                             it.positionFilter.xPrev = it.calibratedPosition.toFloat2()
+                        }
+
+                        if (config.smoothAngle.value) {
+                            it.rotationFilter.xPrev = it.rotation.toFloat()
                         }
 
                         pipeline.onDeviceDetected(it)

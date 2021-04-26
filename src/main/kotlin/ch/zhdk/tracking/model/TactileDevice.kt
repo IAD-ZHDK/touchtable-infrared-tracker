@@ -3,6 +3,7 @@ package ch.zhdk.tracking.model
 import ch.zhdk.tracking.javacv.angleOfInDeg
 import ch.zhdk.tracking.javacv.center
 import ch.zhdk.tracking.javacv.distance
+import ch.zhdk.tracking.math.OneEuroFilter
 import ch.zhdk.tracking.math.OneEuroFilter2
 import ch.zhdk.tracking.model.identification.Identification
 import org.bytedeco.opencv.opencv_core.Point2d
@@ -15,6 +16,7 @@ class TactileDevice(uniqueId: Int) : TrackingEntity(uniqueId) {
     var calibratedPosition = Point2d()
 
     val positionFilter = OneEuroFilter2()
+    val rotationFilter = OneEuroFilter()
 
     val identification = Identification()
     var identifier = -1
@@ -65,7 +67,7 @@ class TactileDevice(uniqueId: Int) : TrackingEntity(uniqueId) {
         }.flatten()
 
         // get largest tuple for origin points
-        val largest = distances.maxBy { it.distance }!!
+        val largest = distances.maxByOrNull { it.distance }!!
         leftOriginMarker = largest.m1
         rightOriginMarker = largest.m2
 

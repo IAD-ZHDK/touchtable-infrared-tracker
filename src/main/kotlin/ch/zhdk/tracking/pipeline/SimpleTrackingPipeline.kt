@@ -90,6 +90,14 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
                 it.calibratedPosition.x(newPos.x.toDouble())
                 it.calibratedPosition.y(newPos.y.toDouble())
             }
+
+            // smooth rotation
+            if (config.smoothAngle.value) {
+                it.rotationFilter.beta = config.speedCoefficientAngle.value
+                it.rotationFilter.minCutoff = config.minimumCutoffFrequencyAngle.value
+
+                it.rotation = it.rotationFilter.filter(timeStamp, (it.rotation / 360f).toFloat()) * 360.0
+            }
         }
     }
 }

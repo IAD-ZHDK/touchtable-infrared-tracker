@@ -134,6 +134,21 @@ class PipelineConfig {
     var speedCoefficientPosition = DataModel(5.0f)
 
 
+    @Expose
+    @BooleanParameter("Smooth Angle")
+    var smoothAngle = DataModel(false)
+
+    @Expose
+    @ParameterInformation("Decreasing the minimum cutoff frequency decreases slow speed jitter.")
+    @SliderParameter("Angle Min Cutoff Freq", 0.0, 5.0, 0.1)
+    var minimumCutoffFrequencyAngle = DataModel(2.0f)
+
+    @Expose
+    @ParameterInformation("Increasing the speed coefficient decreases speed lag.")
+    @SliderParameter("Angle Speed Coefficient", 0.0, 10.0, 0.1)
+    var speedCoefficientAngle = DataModel(5.0f)
+
+
     @LabelParameter("Clustering")
     val clusteringLabel = ""
 
