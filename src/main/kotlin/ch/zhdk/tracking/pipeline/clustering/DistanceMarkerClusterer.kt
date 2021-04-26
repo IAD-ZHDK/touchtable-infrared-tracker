@@ -58,7 +58,7 @@ class DistanceMarkerClusterer(pipeline: Pipeline, config: PipelineConfig = Pipel
 
                         // init filter
                         if(config.smoothPosition.value) {
-                            it.positionFilter.tPrev = it.detectionUpdatedTimeStamp / 1000.0f
+                            it.positionFilter.tPrev = 0f
                             it.positionFilter.xPrev = it.calibratedPosition.toFloat2()
                         }
 

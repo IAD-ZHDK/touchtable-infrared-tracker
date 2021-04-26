@@ -20,6 +20,7 @@ import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
 import ch.zhdk.tracking.ui.strokeCircle
 import ch.zhdk.tracking.ui.strokeCross
+import ch.zhdk.tracking.ui.strokeX
 import ch.zhdk.tracking.web.WebServer
 import javafx.application.Platform
 import javafx.embed.swing.SwingFXUtils
@@ -246,10 +247,9 @@ object TrackingApplication {
             g.strokeCross(it.position.x().normWidth(), it.position.y().normHeight(), 30.0)
 
             if(config.pipeline.smoothPosition.value) {
-                g.stroke = Color.LIMEGREEN
+                g.stroke = Color.MAGENTA
                 g.lineWidth = 1.0
-                g.strokeCross(it.calibratedPosition.x() * canvas.width, it.calibratedPosition.y() * canvas.height, 50.0)
-                println("Calib: ${it.calibratedPosition.x()}")
+                g.strokeX(it.calibratedPosition.x() * canvas.width, it.calibratedPosition.y() * canvas.height, 25.0)
             }
 
             g.fill = if (it.identifier > -1) identifiedColor else defaultColor

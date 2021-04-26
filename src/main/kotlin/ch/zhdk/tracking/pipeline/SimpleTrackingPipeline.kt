@@ -11,11 +11,9 @@ import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.pipeline.clustering.DistanceMarkerClusterer
 import ch.zhdk.tracking.pipeline.detection.ConventionalRegionDetector
 import ch.zhdk.tracking.pipeline.identification.BLEIdentifier
-import ch.zhdk.tracking.pipeline.identification.BinaryObjectIdentifier
 import ch.zhdk.tracking.pipeline.tracking.DistanceRegionTracker
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.Point2d
-import java.lang.Exception
 
 
 class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
@@ -78,12 +76,19 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
                 )
             }
 
+            val timeStamp = timeSincePipelineStart().toFloat() / 1000.0f
+
             // smooth position
             if (config.smoothPosition.value) {
-                it.calibratedPosition = it.positionFilter.filter(
-                    it.detectionUpdatedTimeStamp / 1000f,
+                it.positionFilter.beta = config.speedCoefficientPosition.value
+                it.positionFilter.minCutoff = config.minimumCutoffFrequencyPosition.value
+
+                val newPos = it.positionFilter.filter(
+                    timeStamp,
                     it.calibratedPosition.toFloat2()
-                ).toPoint2d()
+                )
+                it.calibratedPosition.x(newPos.x.toDouble())
+                it.calibratedPosition.y(newPos.y.toDouble())
             }
         }
     }

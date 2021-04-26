@@ -80,6 +80,12 @@ abstract class Pipeline(
 
     protected val steps = mutableListOf<PipelineStep>()
 
+    var pipelineStartTimeStamp = 0L
+
+    fun timeSincePipelineStart() : Long {
+        return System.currentTimeMillis() - pipelineStartTimeStamp
+    }
+
     fun waitForNewFrameAvailable() {
         newFrameAvailableSemaphore.acquire()
     }
@@ -101,6 +107,8 @@ abstract class Pipeline(
 
         // starting pipeline steps
         steps.forEach { it.pipelineStartup() }
+
+        pipelineStartTimeStamp = System.currentTimeMillis()
 
         // start processing thread
         pipelineThread = thread(start = true, name = "Pipeline Thread") {
