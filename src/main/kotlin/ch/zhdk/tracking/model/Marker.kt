@@ -1,6 +1,5 @@
 package ch.zhdk.tracking.model
 
-import ch.zhdk.tracking.model.identification.Identification
 import org.bytedeco.opencv.opencv_core.Point2d
 
 class Marker(uniqueId: Int) : TrackingEntity(uniqueId) {

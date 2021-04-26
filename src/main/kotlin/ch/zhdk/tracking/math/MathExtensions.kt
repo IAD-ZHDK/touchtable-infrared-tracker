@@ -3,6 +3,14 @@ package ch.zhdk.tracking.math
 import ch.bildspur.math.*
 import org.bytedeco.opencv.opencv_core.Point2d
 
+fun Float2.toPoint2d() : Point2d {
+    return Point2d(this.x.toDouble(), this.y.toDouble())
+}
+
+fun Point2d.toFloat2() : Float2 {
+    return Float2(this.x().toFloat(), this.y().toFloat())
+}
+
 fun Point2d.linearNormalize(width: Double, height: Double): Point2d {
     return Point2d(this.x() / width, this.y() / height)
 }

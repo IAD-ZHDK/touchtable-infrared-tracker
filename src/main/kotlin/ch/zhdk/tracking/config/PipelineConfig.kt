@@ -116,6 +116,23 @@ class PipelineConfig {
     @NumberParameter("Max Missing Time", "ms")
     var maxMissingTime = DataModel(250)
 
+    @LabelParameter("Smoothing")
+    val smoothingLabel = ""
+
+    @Expose
+    @BooleanParameter("Smooth Position")
+    var smoothPosition= DataModel(true)
+
+    @Expose
+    @ParameterInformation("Decreasing the minimum cutoff frequency decreases slow speed jitter.")
+    @SliderParameter("Minimum Cutoff Frequency", 0.0, 2.0, 0.1)
+    var minimumCutoffFrequency = DataModel(1.0)
+
+    @Expose
+    @ParameterInformation("Increasing the speed coefficient decreases speed lag.")
+    @SliderParameter("Speed Coefficient", 0.0, 1.0, 0.1)
+    var speedCoefficient = DataModel(0.0)
+
     @LabelParameter("Clustering")
     val clusteringLabel = ""
 

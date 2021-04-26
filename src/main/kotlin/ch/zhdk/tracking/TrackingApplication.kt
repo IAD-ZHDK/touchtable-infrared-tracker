@@ -245,6 +245,13 @@ object TrackingApplication {
             g.lineWidth = 1.0
             g.strokeCross(it.position.x().normWidth(), it.position.y().normHeight(), 30.0)
 
+            if(config.pipeline.smoothPosition.value) {
+                g.stroke = Color.LIMEGREEN
+                g.lineWidth = 1.0
+                g.strokeCross(it.calibratedPosition.x() * canvas.width, it.calibratedPosition.y() * canvas.height, 50.0)
+                println("Calib: ${it.calibratedPosition.x()}")
+            }
+
             g.fill = if (it.identifier > -1) identifiedColor else defaultColor
             g.lineWidth = 0.75
             g.fillText(

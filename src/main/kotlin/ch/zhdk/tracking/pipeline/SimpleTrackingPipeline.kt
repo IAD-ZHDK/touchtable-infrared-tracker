@@ -4,9 +4,7 @@ import ch.bildspur.util.map
 import ch.zhdk.tracking.config.PipelineConfig
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.angleOfInDeg
-import ch.zhdk.tracking.math.linearNormalize
-import ch.zhdk.tracking.math.normalize
-import ch.zhdk.tracking.math.perspectiveTransform
+import ch.zhdk.tracking.math.*
 import ch.zhdk.tracking.model.ActiveRegion
 import ch.zhdk.tracking.model.Marker
 import ch.zhdk.tracking.model.TactileDevice
@@ -78,6 +76,14 @@ class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvide
                     normalized.x().map(tl.x.toDouble(), br.x.toDouble(), 0.0, 1.0),
                     normalized.y().map(tl.y.toDouble(), br.y.toDouble(), 0.0, 1.0)
                 )
+            }
+
+            // smooth position
+            if (config.smoothPosition.value) {
+                it.calibratedPosition = it.positionFilter.filter(
+                    it.detectionUpdatedTimeStamp / 1000f,
+                    it.calibratedPosition.toFloat2()
+                ).toPoint2d()
             }
         }
     }
