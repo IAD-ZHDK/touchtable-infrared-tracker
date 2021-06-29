@@ -14,10 +14,7 @@ import ch.zhdk.tracking.model.state.TrackingEntityState
 import ch.zhdk.tracking.osc.OscPublisher
 import ch.zhdk.tracking.osc.OscUDPChannel
 import ch.zhdk.tracking.osc.OscWebSocketChannel
-import ch.zhdk.tracking.pipeline.PassthroughPipeline
-import ch.zhdk.tracking.pipeline.Pipeline
-import ch.zhdk.tracking.pipeline.PipelineType
-import ch.zhdk.tracking.pipeline.SimpleTrackingPipeline
+import ch.zhdk.tracking.pipeline.*
 import ch.zhdk.tracking.ui.strokeCircle
 import ch.zhdk.tracking.ui.strokeCross
 import ch.zhdk.tracking.ui.strokeX
@@ -401,6 +398,7 @@ object TrackingApplication {
         return when (config.pipeline.pipelineType.value) {
             PipelineType.Passthrough -> PassthroughPipeline(config.pipeline, EmptyInputProvider(), pipelineLock)
             PipelineType.Simple -> SimpleTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
+            PipelineType.Color -> ColorTrackingPipeline(config.pipeline, createInputProvider(), pipelineLock)
         }
     }
 

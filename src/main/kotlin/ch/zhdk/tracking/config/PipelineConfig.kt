@@ -1,6 +1,7 @@
 package ch.zhdk.tracking.config
 
 import ch.bildspur.model.DataModel
+import ch.bildspur.model.NumberRange
 import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.pipeline.PipelineType
 import ch.zhdk.tracking.pipeline.detection.BinarizationMethod
@@ -65,6 +66,21 @@ class PipelineConfig {
     @Expose
     @SliderParameter("Gamma Correction", 0.04, 4.0, 0.01)
     var gammaCorrection = DataModel(1.0)
+
+    @LabelParameter("Color Pipeline")
+    val colorPipelineLabel = ""
+
+    @Expose
+    @RangeSliderParameter("Hue", 0.0, 360.0, 1.0, true)
+    var hueRange = DataModel(NumberRange(90.0, 150.0))
+
+    @Expose
+    @RangeSliderParameter("Saturation", 0.0, 100.0, 1.0, true)
+    var saturationRange = DataModel(NumberRange(55.0, 100.0))
+
+    @Expose
+    @RangeSliderParameter("Value", 0.0, 100.0, 1.0, true)
+    var valueRange = DataModel(NumberRange(0.0, 255.0))
 
     @LabelParameter("Detection")
     val detectionLabel = ""

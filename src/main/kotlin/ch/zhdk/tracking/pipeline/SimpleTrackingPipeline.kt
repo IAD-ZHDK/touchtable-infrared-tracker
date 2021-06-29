@@ -16,13 +16,13 @@ import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.Point2d
 
 
-class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
+open class SimpleTrackingPipeline(config: PipelineConfig, inputProvider: InputProvider, pipelineLock: Any = Any()) :
     Pipeline(config, inputProvider, pipelineLock) {
 
-    private val regionDetector = ConventionalRegionDetector(config)
-    private val regionTracker = DistanceRegionTracker(this, config)
-    private val markerClusterer = DistanceMarkerClusterer(this, config)
-    private val objectIdentifier = BLEIdentifier(config)
+    protected val regionDetector = ConventionalRegionDetector(config)
+    protected val regionTracker = DistanceRegionTracker(this, config)
+    protected val markerClusterer = DistanceMarkerClusterer(this, config)
+    protected val objectIdentifier = BLEIdentifier(config)
 
     init {
         steps.addAll(listOf(regionDetector, regionTracker, markerClusterer, objectIdentifier))
