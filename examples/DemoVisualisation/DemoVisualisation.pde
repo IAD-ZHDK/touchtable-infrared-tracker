@@ -1,6 +1,6 @@
 TrackerClient tracker;
 
-float toSize = 150;
+float toSize = 220;
 float oSize = 20;
 
 boolean hideCursor = false;
