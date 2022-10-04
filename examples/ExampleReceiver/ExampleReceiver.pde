@@ -16,6 +16,6 @@ void draw() {
 
     fill(255);
     textAlign(CENTER, CENTER);
-    text(to.uniqueId, to.x * width, to.y * height);
+    text(to.identifier, to.x * width, to.y * height);
   }
 }

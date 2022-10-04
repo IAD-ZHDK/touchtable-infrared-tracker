@@ -39,7 +39,7 @@ void drawTactileObject(TactileObject to) {
 
   // check out of bounds
   if (x < 0 || x >= width || y < 0 || y >= height) {
-    drawOutOfBounds(x, y, to.uniqueId);
+    drawOutOfBounds(x, y, to.identifier);
   }
 
   // render object
@@ -65,12 +65,12 @@ void drawTactileObject(TactileObject to) {
   // text
   fill(255);
   textAlign(CENTER, CENTER);
-  text(to.uniqueId + " - R: " + round(to.rotation), 0, 0);
+  text(to.identifier + " - R: " + round(to.rotation), 0, 0);
 
   pop();
 }
 
-void drawOutOfBounds(float x, float y, int uniqueId) {
+void drawOutOfBounds(float x, float y, int identifier) {
   push();
   float rx = constrain(x, 0, width - 1);
   float ry = constrain(y, 0, height - 1);
@@ -97,7 +97,7 @@ void drawOutOfBounds(float x, float y, int uniqueId) {
   // text
   fill(255);
   textAlign(CENTER, CENTER);
-  text(uniqueId, 0, -oSize * 1.2);
+  text(identifier, 0, -oSize * 1.2);
   pop();
 }
 

@@ -41,7 +41,8 @@
         "utility": "cpp",
         "typeinfo": "cpp",
         "string": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "iostream": "cpp"
     },
     "cmake.configureOnOpen": true
 }
