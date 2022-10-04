@@ -9,6 +9,7 @@
 #include <NeoPixelBus.h>
 #include "blink.h"
 #include <EEPROM.h>
+
 //
 // Power saving considerations
 //
@@ -27,7 +28,7 @@
 #define pinIRLED2  27 // com IR LED
 #define pinIRLED3  33 // com IR LED
 #define IMUinterup 32 // com IR LED
-#define pinLED  13 // indicator LED
+#define pinLED  13 // power indicator LED
 
 // IMU
 #define IMU
@@ -66,7 +67,7 @@ BLECharacteristic* pCharacteristic3 = NULL;
 BLECharacteristic* pCharacteristic4 = NULL;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
-uint8_t deviceID = 0;
+uint8_t deviceID = 1;
 
 // https://www.uuidgenerator.net/version4
 // device 1: 846123f6-ccf1-11ea-87d0-0242ac130003
@@ -102,13 +103,13 @@ class MyCallbackIRLED: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
        auto data = pCharacteristic->getData();
        int value = (data[0] & 0xFF);
-         Serial.println("value:"+String(value));
+         //Serial.println("value:"+String(value));
        if (value > 0) {
          digitalWrite(pinIRLED2, HIGH); 
-         Serial.println("IR 2 ON");
+         //Serial.println("IR 2 ON");
        } else {
         digitalWrite(pinIRLED2, LOW); 
-          Serial.println("IR 2 OFF");
+          //Serial.println("IR 2 OFF");
        }
     }
 };
@@ -117,7 +118,7 @@ class MyCallbackID: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
        auto data = pCharacteristic->getData();
        int value = (data[0] & 0xFF);
-       Serial.println("ID value:"+String(value));
+       //Serial.println("ID value:"+String(value));
        EEPROM.put(0, value);
     }
 };
@@ -130,8 +131,8 @@ State DeviceLastState = DeviceStates;
 
 void setup() {
   // setCpuFrequencyMhz(80);
-  Serial.begin(115200);
-  while(!Serial) {}
+ // Serial.begin(115200);
+  //(while(!Serial) {}
 // IMU 
   WIRE_PORT.begin();
   WIRE_PORT.setClock(400000);
@@ -139,10 +140,10 @@ void setup() {
 #ifdef IMU 
   while( !initialized ){
     myICM.begin( WIRE_PORT, AD0_VAL );
-    Serial.print( F("Initialization of the IMU returned: ") );
-    Serial.println( myICM.statusString() );
+   // Serial.print( F("Initialization of the IMU returned: ") );
+   // Serial.println( myICM.statusString() );
     if( myICM.status != ICM_20948_Stat_Ok ){
-      Serial.println( "Trying again..." );
+   // Serial.println( "Trying again..." );
       delay(1500);
     } else{
       initialized = true;
@@ -159,7 +160,7 @@ void setup() {
   strip.Begin();
   setNeoPixels(0, 0, 0);
   // Create the BLE Device
-  BLEDevice::init("TREE_TABLE_01");
+  BLEDevice::init("Tactile_Object");
   // Create the BLE Server
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
@@ -219,7 +220,7 @@ void setup() {
   pAdvertising->setScanResponse(true);
   pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
   BLEDevice::startAdvertising();
-  Serial.println("Waiting a client connection to notify...");
+  //Serial.println("Waiting a client connection to notify...");
   NeoPixelSweep(0,0,254);
   // get device ID from EEPROM 
   EEPROM.get(0, deviceID);
@@ -247,7 +248,7 @@ void BLEroutine() {
     if (!deviceConnected && oldDeviceConnected) {
         delay(500); // give the bluetooth stack the chance to get things ready
         pServer->startAdvertising(); // restart advertising
-        Serial.println("start advertising");
+        //Serial.println("start advertising");
         oldDeviceConnected = deviceConnected;
         delay(500); 
         NeoPixelSweep(50, 0, 0);
