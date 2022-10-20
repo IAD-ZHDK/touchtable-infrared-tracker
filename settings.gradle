@@ -9,4 +9,4 @@ pluginManagement {
 
 rootProject.name = 'ZHdK-IR-Tracking'
 
-gradle.rootProject { ext.javacppVersion = '1.5.4' }
+gradle.rootProject { ext.javacppVersion = '1.5.7' }

@@ -42,10 +42,10 @@ dependencies {
 
     // javacv
     implementation  group: 'org.bytedeco', name: 'javacv', version: "$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'opencv-platform', version: "4.4.0-$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'openblas-platform', version: "0.3.10-$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'librealsense2-platform', version: "2.29.0-$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'ffmpeg-platform', version: "4.3.1-$javacppVersion"
+    implementation  group: 'org.bytedeco', name: 'opencv-platform', version: "4.5.5-$javacppVersion"
+    implementation  group: 'org.bytedeco', name: 'openblas-platform', version: "0.3.19-$javacppVersion"
+    implementation  group: 'org.bytedeco', name: 'librealsense2-platform', version: "2.50.0-$javacppVersion"
+    implementation  group: 'org.bytedeco', name: 'ffmpeg-platform', version: "5.0-$javacppVersion"
 
     // json
     implementation  group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
