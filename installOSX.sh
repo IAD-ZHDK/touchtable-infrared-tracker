@@ -1,4 +1,3 @@
 
-# install java 11
-brew tap AdoptOpenJDK/openjdk
-brew cask install adoptopenjdk11
+# install java 17
+brew install --cask temurin
