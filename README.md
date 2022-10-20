@@ -126,4 +126,4 @@ The OSC protocol sends out events which are need for the visualisation. It alrea
 ```
 
 ### About
-Developed at [Zurich University of the Arts ZHdK](https://www.zhdk.ch/) 2019
+Developed at [Zurich University of the Arts ZHdK](https://www.zhdk.ch/) 2022
