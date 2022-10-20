@@ -60,11 +60,15 @@ class RealSense2InputProvider(
         }
         */
 
-        rs2.setSensorOption(
-            RealSense2FrameGrabber.Rs2SensorType.StereoModule,
-            RS2_OPTION_ENABLE_AUTO_WHITE_BALANCE,
-            config.enableAutoWhiteBalance.value
-        )
+        try {
+            rs2.setSensorOption(
+                RealSense2FrameGrabber.Rs2SensorType.StereoModule,
+                RS2_OPTION_ENABLE_AUTO_WHITE_BALANCE,
+                config.enableAutoWhiteBalance.value
+            )
+        } catch (exception: Exception) {
+            System.err.println("Could not set Auto White Balance: ${exception.message}")
+        }
 
         rs2.setSensorOption(RealSense2FrameGrabber.Rs2SensorType.StereoModule, RS2_OPTION_EMITTER_ENABLED, config.enableIREmitter.value)
 

@@ -6,6 +6,8 @@ This project aims to create an infrared tracking system for tactile tables.
 
 ### Quick Install
 
+#### MacOS
+
 Just copy and past this snippet in the terminal to quickly install and start the system (only MacOS).
 
 ```bash
@@ -19,7 +21,8 @@ else
 	brew update
 fi
 
-brew install git java
+brew install git
+brew install --cask temurin
 
 git clone https://github.com/IAD-ZHDK/IR_tracking
 cd IR_tracking
@@ -36,13 +39,27 @@ After the first time installation, please change into the installation folder an
 ./gradlew run
 ```
 
+#### Windows
+
+On Windows follow these steps to install the software:
+
+```bash
+# install Eclipse Temurin 17 (JDK)
+winget install -e --id EclipseAdoptium.Temurin.17.JDK
+
+# run software
+gradlew.bat run
+```
+
 ### Develop
 
 #### Install and Run
 Everything is installed through the [gradle](https://gradle.org/) dependency manager. To run the application, OpenJDK 11 is needed and can be installed through your favourite package manager. On MacOS we recommend to use [brew](https://brew.sh/):
 
 ```bash
-brew cask install java
+brew install --cask temurin
+
+winget install -e --id EclipseAdoptium.Temurin.17.JDK
 ```
 
 Now just run the following command and gradlew will download, build and run the project.

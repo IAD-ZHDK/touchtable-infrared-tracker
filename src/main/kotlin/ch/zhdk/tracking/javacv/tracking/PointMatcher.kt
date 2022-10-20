@@ -22,7 +22,7 @@ inline fun <S, D> List<S>.matchNearest(destinations :  List<D>,
         val minDelta = distances[i]
             .mapIndexed { index, distance -> MinDistance(index, distance) }
             .filter { !matched(destinations[it.index]) }
-            .minBy { it.distance } ?: MinDistance(-1, Double.MAX_VALUE)
+            .minByOrNull { it.distance } ?: MinDistance(-1, Double.MAX_VALUE)
 
         if (minDelta.distance <= maximumDistance) {
             onMatch(source, destinations[minDelta.index])

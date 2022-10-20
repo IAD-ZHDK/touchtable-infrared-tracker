@@ -114,7 +114,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         println("Natural Breaks: ${breaks.joinToString { it.toString() }}")
 
         // create thresholds and margin
-        val minDistance = breaks.zipWithNext { a, b -> b - a }.min()!!
+        val minDistance = breaks.zipWithNext { a, b -> b - a }.minOrNull()!!
         val thresholdMargin = minDistance / 2.0 * config.thresholdMarginFactor.value
 
         identification.thresholdMargin = thresholdMargin
@@ -160,7 +160,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
             .filter { it.second.type == FlankType.Stop }.map { it.first }
         val flankIndex = stopFlanksIndices.zipWithNext { a, b -> b - a }
             .mapIndexed { index, value -> Pair(index, value) }
-            .maxBy { it.second }!!.first
+            .maxByOrNull { it.second }!!.first
         val flankPattern = flanks.subList(stopFlanksIndices[flankIndex], stopFlanksIndices[flankIndex + 1] + 1)
 
         println("Longest: ${flankPattern.joinToString { it.type.toString().first().toString() }}")
@@ -168,7 +168,7 @@ class BinaryObjectIdentifier(config: PipelineConfig = PipelineConfig()) : Object
         // todo: better gap detection (min gap is not valid => remove magic numbers
         // detect gaps length from s to s
         val gaps = flankPattern.zipWithNext { a, b -> b.timestamp - a.timestamp }
-        val minGap = max(gaps.min()!!, 2L) // (gaps.sum() / 8.0).roundToLong()
+        val minGap = max(gaps.minOrNull()!!, 2L) // (gaps.sum() / 8.0).roundToLong()
 
         println("Gaps: ${gaps.joinToString { it.toString() }}")
         println("Min Gap: $minGap")
