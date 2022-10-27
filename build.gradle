@@ -95,7 +95,7 @@ application {
 
 jar {
     manifest {
-        attributes "Main-Class":  application.mainClass.get()
+        attributes "Main-Class": application.mainClass.get()
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
