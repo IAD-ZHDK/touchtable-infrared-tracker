@@ -1,15 +1,27 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
-    id 'org.openjfx.javafxplugin' version '0.0.12'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
     id "com.github.ManifestClasspath" version "0.1.0-RELEASE"
     id 'org.bytedeco.gradle-javacpp-platform' version "$javacppVersion"
+    id 'application'
 }
 
 group 'ch.zhdk.tracking'
-version '0.2'
+version '0.3'
 
 ext.ktor_version = '1.2.2'
+
+def defaultJvmArgs = ''
+def applicationJvmArgs = ["-Djava.library.path=$defaultJvmArgs",
+                          "--add-opens", "javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED",
+                          "--add-opens", "javafx.graphics/javafx.stage=ALL-UNNAMED",
+                          "--add-opens", "javafx.graphics/com.sun.javafx.tk.quantum=ALL-UNNAMED",
+                          "--add-opens", "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
+                          "--add-opens", "javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED",
+                          "--add-opens", "javafx.controls/com.sun.javafx.scene.control.inputmap=ALL-UNNAMED",
+                          "--add-opens", "javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+                          "--add-opens", "javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"]
 
 wrapper {
     gradleVersion = '7.4.1'
@@ -27,7 +39,7 @@ compileKotlin {
 }
 
 javafx {
-    version = "17"
+    version = "18"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
 }
 
@@ -52,9 +64,8 @@ dependencies {
     implementation  'com.github.salomonbrys.kotson:kotson:2.5.0'
 
     // javafx
-    implementation  group: 'org.openjfx', name: 'javafx-base', version: '11.0.2'
-    implementation  group: 'org.openjfx', name: 'javafx-controls', version: '11.0.2'
-    implementation  group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
+    implementation group: 'org.controlsfx', name: 'controlsfx', version: '11.1.1'
+    implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
 
     // osc
     implementation  group: 'com.illposed.osc', name: 'javaosc-core', version: '0.7'
@@ -66,7 +77,7 @@ dependencies {
     // bildspur libs
     implementation  "com.github.cansik:bildspur-base:0.3.5"
     implementation  'com.github.cansik:bildspur-ui:0.4.2'
-    implementation  'com.github.cansik:ble-serial-bridge:4df2afd994'
+    implementation  'com.github.cansik:ble-serial-bridge:5bf9f24e88'
 
     // ktor
     implementation  "io.ktor:ktor-server-netty:$ktor_version"
@@ -75,9 +86,9 @@ dependencies {
     implementation "io.ktor:ktor-websockets:$ktor_version"
 }
 
-task run(type: JavaExec, dependsOn: classes) {
-    main = 'ch.zhdk.tracking.Main'
-    classpath = sourceSets.main.runtimeClasspath
+application {
+    mainClass = 'ch.zhdk.tracking.Main'
+    applicationDefaultJvmArgs = applicationJvmArgs
 }
 
 task fatJar(type: Jar) {
