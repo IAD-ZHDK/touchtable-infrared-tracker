@@ -19,6 +19,7 @@ import ch.zhdk.tracking.ui.strokeCircle
 import ch.zhdk.tracking.ui.strokeCross
 import ch.zhdk.tracking.ui.strokeX
 import ch.zhdk.tracking.web.WebServer
+import io.ktor.application.*
 import javafx.application.Platform
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.Cursor
@@ -27,6 +28,8 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import java.io.File
+import java.lang.System.exit
+import java.net.BindException
 import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.concurrent.Semaphore
@@ -78,7 +81,15 @@ object TrackingApplication {
         canvas.cursor = Cursor.CROSSHAIR
 
         // create web and udp channel
-        webServer.start(config.output.webSocket)
+        try {
+            webServer.start(config.output.webSocket)
+        } catch (ex: BindException) {
+            System.err.println("Error: Could not start web-server on port " +
+                    "${config.output.webSocket.port.value} (${ex.message})." +
+                    " Please change the port in the configuration or close the conflicting application.")
+            Platform.exit()
+            exitProcess(1)
+        }
         oscUDPChannel = OscUDPChannel(config.output.osc)
         oscWebSocketChannel = OscWebSocketChannel(webServer, config.output.osc)
 
