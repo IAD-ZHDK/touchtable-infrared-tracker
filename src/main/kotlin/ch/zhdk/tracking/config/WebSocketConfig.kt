@@ -7,5 +7,5 @@ import com.google.gson.annotations.Expose
 class WebSocketConfig {
     @Expose
     @NumberParameter("Port")
-    var port = DataModel(7000)
+    var port = DataModel(8001)
 }
