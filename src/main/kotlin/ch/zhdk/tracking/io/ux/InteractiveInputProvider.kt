@@ -4,17 +4,15 @@ import ch.bildspur.math.Float2
 import ch.zhdk.tracking.io.InputProvider
 import ch.zhdk.tracking.javacv.*
 import javafx.scene.canvas.Canvas
-import javafx.scene.input.KeyCode
 import org.bytedeco.javacv.Frame
 import org.bytedeco.opencv.global.opencv_core
 import org.bytedeco.opencv.global.opencv_imgcodecs
-import org.bytedeco.opencv.global.opencv_imgcodecs.IMREAD_UNCHANGED
 import org.bytedeco.opencv.opencv_core.Mat
 import org.bytedeco.opencv.opencv_core.Rect
-import java.nio.file.Path
 import kotlin.math.roundToInt
 
-class InteractiveInputProvider(val canvas: Canvas, val markerPath: Path) : InputProvider(1280, 720) {
+
+class InteractiveInputProvider(val canvas: Canvas) : InputProvider(1280, 720) {
     lateinit var markerImage: Mat
     var position = Float2(width / 2f, height / 2f)
     var target = Float2(position)
@@ -32,7 +30,12 @@ class InteractiveInputProvider(val canvas: Canvas, val markerPath: Path) : Input
     }
 
     override fun open() {
-        markerImage = opencv_imgcodecs.imread(markerPath.toAbsolutePath().toString())
+        // read marker
+        val stream = object {}.javaClass.getResourceAsStream("/marker.png")
+        val data = stream!!.readAllBytes()
+        val mat: Mat = opencv_imgcodecs.imdecode(Mat(*data), opencv_imgcodecs.IMREAD_UNCHANGED)
+
+        markerImage = mat
         super.open()
     }
 

@@ -401,7 +401,7 @@ object TrackingApplication {
                 config = config.input
             )
             InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_pipeline_thrs.png"))
-            InputProviderType.Interactive -> InteractiveInputProvider(canvas, Paths.get("data/marker.png"))
+            InputProviderType.Interactive -> InteractiveInputProvider(canvas)
         }
     }
 

@@ -5,10 +5,11 @@ plugins {
     id "com.github.ManifestClasspath" version "0.1.0-RELEASE"
     id 'org.bytedeco.gradle-javacpp-platform' version "$javacppVersion"
     id 'application'
+    id "org.panteleyev.jpackageplugin" version "1.4.1"
 }
 
 group 'ch.zhdk.tracking'
-version '0.3'
+version '1.3.0'
 
 ext.ktor_version = '1.2.2'
 
@@ -40,7 +41,7 @@ compileKotlin {
 
 javafx {
     version = "18"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
 }
 
 repositories {
@@ -50,52 +51,93 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testImplementation  group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 
     // javacv
-    implementation  group: 'org.bytedeco', name: 'javacv', version: "$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'opencv-platform', version: "4.5.5-$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'openblas-platform', version: "0.3.19-$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'librealsense2-platform', version: "2.50.0-$javacppVersion"
-    implementation  group: 'org.bytedeco', name: 'ffmpeg-platform', version: "5.0-$javacppVersion"
+    implementation group: 'org.bytedeco', name: 'javacv', version: "$javacppVersion"
+    implementation group: 'org.bytedeco', name: 'opencv-platform', version: "4.5.5-$javacppVersion"
+    implementation group: 'org.bytedeco', name: 'openblas-platform', version: "0.3.19-$javacppVersion"
+    implementation group: 'org.bytedeco', name: 'librealsense2-platform', version: "2.50.0-$javacppVersion"
+    implementation group: 'org.bytedeco', name: 'ffmpeg-platform', version: "5.0-$javacppVersion"
 
     // json
-    implementation  group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
-    implementation  'com.github.salomonbrys.kotson:kotson:2.5.0'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+    implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
 
     // javafx
     implementation group: 'org.controlsfx', name: 'controlsfx', version: '11.1.1'
     implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
 
     // osc
-    implementation  group: 'com.illposed.osc', name: 'javaosc-core', version: '0.7'
-    implementation  group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+    implementation group: 'com.illposed.osc', name: 'javaosc-core', version: '0.7'
+    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
 
     // statistics
-    implementation  'org.nield:kotlin-statistics:1.2.1'
+    implementation 'org.nield:kotlin-statistics:1.2.1'
 
     // bildspur libs
-    implementation  "com.github.cansik:bildspur-base:0.3.5"
-    implementation  'com.github.cansik:bildspur-ui:0.4.2'
-    implementation  'com.github.cansik:ble-serial-bridge:5bf9f24e88'
+    implementation "com.github.cansik:bildspur-base:0.3.5"
+    implementation 'com.github.cansik:bildspur-ui:0.4.2'
+    implementation 'com.github.cansik:ble-serial-bridge:5bf9f24e88'
 
     // ktor
-    implementation  "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-gson:$ktor_version"
     implementation "io.ktor:ktor-locations:$ktor_version"
     implementation "io.ktor:ktor-websockets:$ktor_version"
 }
 
 application {
+    applicationName = 'TouchTableIRTrackingSystem'
     mainClass = 'ch.zhdk.tracking.Main'
     applicationDefaultJvmArgs = applicationJvmArgs
 }
 
-task fatJar(type: Jar) {
-    baseName = project.name + '-all'
+jar {
     manifest {
-        attributes 'Main-Class': 'ch.zhdk.tracking.Main'
+        attributes "Main-Class":  application.mainClass.get()
     }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into "$buildDir/jars"
+}
+
+task copyJar(type: Copy) {
+    from tasks.jar into "$buildDir/jars"
+}
+
+tasks.jpackage {
+    dependsOn {
+        build
+        copyDependencies
+        copyJar
+    }
+
+    input = "$buildDir/jars"
+    destination = "$buildDir/dist"
+
+    appName = "$application.applicationName"
+    vendor = "Zurich University of the Arts"
+    copyright = "Copyright (c) 2022 Zurich University of the Arts"
+
+    mainJar = jar.archiveFileName.get()
+    mainClass = application.mainClass.get()
+
+    javaOptions = ["-Dfile.encoding=UTF-8"]
+
+    mac {
+        icon = "data/icons.icns"
+    }
+
+    windows {
+        icon = "data/favicon-96x96.ico"
+        winConsole = true
+    }
 }
