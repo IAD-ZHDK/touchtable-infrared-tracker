@@ -8,11 +8,11 @@ import ch.zhdk.tracking.list.update
 import ch.zhdk.tracking.model.TactileDevice
 import ch.zhdk.tracking.model.ble.BLETactileDevice
 import ch.zhdk.tracking.model.ble.BLE_SERVICE_ID
-import java.lang.Exception
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.Exception
 import kotlin.concurrent.thread
 
 class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifier(config) {
@@ -33,11 +33,16 @@ class BLEIdentifier(config: PipelineConfig = PipelineConfig()) : ObjectIdentifie
         super.pipelineStartup()
         val bleConfig = config.bleConfig
 
-        if(!driver.open(bleConfig.port.value, bleConfig.baudRate.value.rate)) {
-            println("could not start BLE service")
-            return
-        } else {
-            println("BLE service started")
+        try {
+            if (!driver.open(bleConfig.port.value, bleConfig.baudRate.value.rate)) {
+                println("could not start BLE service")
+                return
+            } else {
+                println("BLE service started")
+            }
+        } catch (ex: Exception) {
+            println("Error: could not start BLE service (${ex.message})")
+            return;
         }
 
         bleLog("disconnecting all devices...")
