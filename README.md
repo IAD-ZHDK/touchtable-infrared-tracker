@@ -77,13 +77,13 @@ To bundle all dependencies and build the project run the following commands. Thi
 
 ```bash
 # windows
-gradlew.bat fatJar
+gradlew.bat clean build jpackage --info
 
 # macOS / unix
-./gradlew fatJar
+./gradlew clean build jpackage --info
 ```
 
-The built jar is runnable on all platforms (includes all dependencies).
+The built distributable can be found under `build/dist` and includes the JVM as well as all dependencies.
 
 ### How to use
 
