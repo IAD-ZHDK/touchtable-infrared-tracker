@@ -38,7 +38,9 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         primaryStage.scene = Scene(root)
         stage = primaryStage
 
-        stage.isResizable = false
+        stage.isResizable = true
+        stage.scene.widthProperty().addListener { _, _, _ -> adjustSize(stage.scene) }
+        stage.scene.heightProperty().addListener { _, _, _ -> adjustSize(stage.scene) }
 
         primaryStage.setOnShown {
             this.canvas.requestFocus()
@@ -51,6 +53,29 @@ class MainWindow(val configController: ConfigurationController, val config: AppC
         config.previewSize.fire()
 
         primaryStage.show()
+    }
+
+    private fun adjustSize(scene: Scene) {
+        val width = scene.width
+        val height = scene.height
+
+        val inputWidth = config.pipeline.inputWidth.value
+        val inputHeight = config.pipeline.inputHeight.value
+
+        var canvasWidth = width - sideBarWidth
+        var canvasHeight = height
+
+        if(inputWidth >= inputHeight) {
+            val sizeFactor = canvasWidth / inputWidth.toFloat()
+            canvasHeight = inputHeight * sizeFactor
+        } else {
+            val sizeFactor = canvasHeight / inputHeight.toFloat()
+            canvasWidth = inputWidth * sizeFactor
+        }
+
+        canvas.resize(canvasWidth,  canvasHeight)
+        canvas.width = canvasWidth
+        canvas.height = canvasHeight
     }
 
     private fun adjustWindowSize() {

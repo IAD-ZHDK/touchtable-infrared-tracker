@@ -29,7 +29,7 @@ class AppConfig {
 
     @Expose
     @EnumParameter("Preview Size")
-    var previewSize = DataModel(PreviewSize.HDReady)
+    var previewSize = DataModel(PreviewSize.WideVGA)
 
     @ActionParameter("Input Frame", "Save", false)
     private val requestScreenshot = {
