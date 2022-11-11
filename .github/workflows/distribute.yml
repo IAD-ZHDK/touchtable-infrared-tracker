@@ -1,0 +1,64 @@
+name: Distribute Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      publishReleases:
+        description: 'Publish to Releases'
+        required: false
+        default: 'true'
+
+#--macos-universal2
+jobs:
+  distribute:
+    runs-on: ${{ matrix.os.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: windows
+            host: windows-latest
+            args:
+
+          - name: macos
+            host: macos-12
+            args:
+
+          - name: ubuntu
+            host: ubuntu-latest
+            args:
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+            java-version: '17'
+            distribution: 'temurin'
+
+      - name: Get Library Version
+        id: get_version
+        run: |
+          lib_version="$(./gradlew properties | grep ^version: | cut -d' ' -f2)"
+          echo "Library Version: $lib_version"
+          echo "version=$lib_version" >> $GITHUB_OUTPUT
+          echo "v_version=v$lib_version" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Build on ${{ matrix.os.name }}
+        run: |
+          echo "V-Version: ${{ steps.get_version.outputs.v_version }}"
+          ./gradlew clean build jpackage --info
+        shell: bash
+
+      # upload dist
+      - name: Upload binaries to release
+        if: ${{ github.event.inputs.publishReleases == 'true' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/dist/*
+          tag: ${{ steps.get_version.outputs.v_version }}
+          release_name: "Version ${{ steps.get_version.outputs.version }}"
+          body: "Prebuilt packages for version ${{ steps.get_version.outputs.version }}."
+          overwrite: true
+          file_glob: true
