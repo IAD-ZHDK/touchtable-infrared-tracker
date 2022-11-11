@@ -6,14 +6,22 @@ import org.bytedeco.ffmpeg.global.avutil.av_log_set_level
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.FrameGrabber
+import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.notExists
 import kotlin.math.roundToLong
 
-class VideoInputProvider(videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider() {
+class VideoInputProvider(val videoFilePath: Path, val frameRate: Double = Double.NaN) : InputProvider() {
     private var videoGrabber: FrameGrabber = FFmpegFrameGrabber(videoFilePath.toAbsolutePath().toString())
 
     override fun open() {
         av_log_set_level(AV_LOG_PANIC)
+
+        if (videoFilePath.toString().isBlank() || !File(videoFilePath.toString()).exists()) {
+            throw Exception("Video file path does not exist: '${videoFilePath}'")
+        }
+
         videoGrabber.start()
 
         this.width = videoGrabber.imageWidth

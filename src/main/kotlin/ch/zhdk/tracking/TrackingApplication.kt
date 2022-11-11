@@ -389,7 +389,7 @@ object TrackingApplication {
                 config.input.webCamWidth.value,
                 config.input.webCamHeight.value
             )
-            InputProviderType.VideoInput -> VideoInputProvider(Paths.get("data/markertracking.mp4"))
+            InputProviderType.VideoInput -> VideoInputProvider(config.input.videoFile.value)
             InputProviderType.RealSense2 -> RealSense2InputProvider(
                 config.input.realSenseDeviceIndex.value,
                 config.input.realSenseWidth.value,
@@ -400,7 +400,7 @@ object TrackingApplication {
                 config.input.displaySecondIRStream.value,
                 config = config.input
             )
-            InputProviderType.Image -> ImageInputProvider(Paths.get("data/image_pipeline_thrs.png"))
+            InputProviderType.Image -> ImageInputProvider(config.input.imageFile.value)
             InputProviderType.Interactive -> InteractiveInputProvider(canvas)
         }
     }

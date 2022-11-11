@@ -5,6 +5,7 @@ import ch.bildspur.ui.properties.*
 import ch.zhdk.tracking.TrackingApplication
 import ch.zhdk.tracking.io.InputProviderType
 import com.google.gson.annotations.Expose
+import java.nio.file.Paths
 
 class InputConfig {
     @ActionParameter("Pipeline", "Restart")
@@ -80,4 +81,18 @@ class InputConfig {
     @Expose
     @BooleanParameter("Enable IR Emitter")
     var enableIREmitter = DataModel(false)
+
+    @LabelParameter("Video Input")
+    private val videoLabel = ""
+
+    @Expose
+    @PathParameter("Video File", extensions = ["*.mp4", "*.mov"])
+    var videoFile = DataModel(Paths.get(""))
+
+    @LabelParameter("Image Input")
+    private val imageLabel = ""
+
+    @Expose
+    @PathParameter("Image File", extensions = ["*.png", "*.jpeg", "*.jpg", "*.bmp", "*.gif"])
+    var imageFile = DataModel(Paths.get(""))
 }

@@ -4,7 +4,7 @@ This project aims to create an infrared tracking system for tactile tables.
 ![Tracking Example](images/tracking-example.jpg)
 *Tracking application detecting a single tactile object.*
 
-### Quick Install
+### Installation
 
 #### MacOS
 
